@@ -1,0 +1,23 @@
+{
+  "name": "dis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "cheerio-httpcli": "^0.7.4",
+    "discord.js": "^11.5.1",
+    "ffmpeg-binaries": "^4.0.0",
+    "moment": "^2.24.0",
+    "opusscript": "0.0.6",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^3.10.0",
+    "xml-js": "^1.6.11",
+    "ytdl-core": "^0.29.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
