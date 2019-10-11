@@ -153,13 +153,13 @@ function playYoutube(connection, message) {
             } else {
                 message.channel.send(server.queue[0].videoTitle + "를(을) 재생하였습니다.");
             }
+            server.dispatcher.destory();
             server.queue.shift();
             playYoutube(connection, message);
         } else {
             disconnectWithMessage(connection, message);
         }
     });
-
     message.channel.send(server.queue[0].videoTitle + "를(을) 재생중입니다.\n재생시간 : " + server.queue[0].videoTime);
     server.queue[0].videoState = true;
 }
@@ -171,6 +171,13 @@ function disconnectWithMessage(connection, message) {
 
 client.on("ready", () => {
     console.log("Server Ready");
+
+    //servers 초기화
+    client.guilds.forEach((value, index) => {
+        servers[index] = {
+            queue: []
+        }
+    });
 });
 
 client.on('voiceStateUpdate', (oldMember, newMember) => {
@@ -218,13 +225,17 @@ client.on("message", message => {
 
             var server = servers[message.guild.id];
 
-            if (server.queue.length > 10) {
-                message.channel.send("대기열은 최대 10개까지만 등록이 가능합니다.");
+            if (server.queue.length > 5) {
+                message.channel.send("대기열은 최대 5개까지만 등록이 가능합니다.");
                 return;
             }
 
             message.channel.send("로딩중......").then((editMsg)=> {
                 YTDL.getInfo(args[1], function(err, info) {
+                    if(err) {
+                        editMsg.edit("잘못된 주소거나 영상이 존재하지 않습니다.");
+                        return;
+                    }
 
                     var videoLength = info.player_response.videoDetails.lengthSeconds;
                     var videoHour = (videoLength / 3600).toFixed(0);
@@ -255,7 +266,66 @@ client.on("message", message => {
             });
 
             break;
+        case "!소리":
+            if (permission(message)) return;
 
+            let volumeControlData = 0.2;
+            let volumeControlMin = 0;
+            let volumeControlMax = 2;
+
+            if (!args[1]) {
+                message.channel.send("!소리 <증가, 감소, 초기화> ㄱㄱ");
+                return;
+            }
+
+            var server = servers[message.guild.id];
+            
+            if (!(server && server.dispatcher)) {
+                message.channel.send("플레이어를 아직 사용하지 않았습니다.");
+                return;
+            }
+
+            if (args[1] == "증가") {
+                if (server.dispatcher.volume < volumeControlMax) {
+                    server.dispatcher.setVolume(server.dispatcher.volume + volumeControlData);
+                    message.channel.send("소리가 증가되었습니다.");
+                } else {
+                    server.dispatcher.setVolume(volumeControlMax);
+                    message.channel.send("더이상 조절할 수 있는 볼륨 단계가 없습니다.");
+                }
+            } else if (args[1] == "감소") {
+                if (server.dispatcher.volume > volumeControlMin) {
+                    server.dispatcher.setVolume(server.dispatcher.volume - volumeControlData);
+                    message.channel.send("소리가 감소되었습니다.");
+                } else {
+                    server.dispatcher.setVolume(volumeControlMin);
+                    message.channel.send("더이상 조절할 수 있는 볼륨 단계가 없습니다.");
+                }
+            } else if (args[1] == "초기화") {
+                server.dispatcher.setVolume(1);
+                message.channel.send("소리가 초기화되었습니다.");
+            }
+            message.channel.send("현재 소리 크기 : " + (server.dispatcher.volume / volumeControlMax * 100).toFixed(0) + "%");
+            break;
+        case "!일시정지":
+            if (permission(message)) return;
+
+            var server = servers[message.guild.id];
+            
+            if (!(server && server.dispatcher)) {
+                message.channel.send("플레이어를 아직 사용하지 않았습니다.");
+                return;
+            }
+
+            if (server.dispatcher.paused) {
+                server.dispatcher.resume();
+                message.channel.send("노래가 다시 재생됩니다.");
+            } else {
+                server.dispatcher.pause();
+                message.channel.send("노래가 일시정지합니다.");
+            }
+ 
+            break;
         case "!스킵":
             if (permission(message)) return;
 
