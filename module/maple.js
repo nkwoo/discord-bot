@@ -41,7 +41,7 @@ function maplePlayerData (message, nickname, type, httppas, Discord) {
         });
         if(worldRank == null || chartacterName == null || chartacterJob == null) {
             if(type == 0) {
-                maplePlayerData(message, nickname, 254);
+                maplePlayerData (message, nickname, 254, httppas, Discord);
             } else {
                 message.channel.send("검색 안되는거 보니 메이플 안하시나봄;");
             }

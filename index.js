@@ -23,6 +23,10 @@ var accuser = [356423613605478401, 330926937117556749];
 let wearther3DayInUrl = 'http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1100000000';
 let wearther3DayOutUrl = 'http://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
 
+//날짜 정규식
+const datePattern = /^(19|20)\d{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[0-1])$/;
+
+
 /*
 * 유저 권한 체크
 */
@@ -39,33 +43,47 @@ function permission (message) {
 * 날씨 데이터 불러오기
 * */
 function weatherData (message) {
-    var printDataArr = [];
-    httppas.fetch(wearther3DayOutUrl, "UTF-8", function (err, $, req, res) {
+	message.channel.send("데이터 조회중......").then((editMsg)=> {
+        var printDataArr = [];
+        httppas.fetch(wearther3DayInUrl, "UTF-8", function (err, $, req, res) {
 
-        var result2 = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
-        var dataArr = result2.rss.channel.item.description.body.location;
+            var resultJson = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
+            var dataArr = resultJson.rss.channel.item.description.body.data;
+            var checkNextDay = "";
+            var nowDate = new Date();
 
-        for(var i = 0; i < 1; i++) {
-            for(var j = 1; j < 11; j = j + 2) {
-                var printStr = dataArr[i].data[j].tmEf._text.substring(0,10);
-                var printData = "날씨 : " + dataArr[i].data[j].wf._text + "\n최저온도 : " + dataArr[i].data[j].tmn._text + "도\n 최고온도 : " + dataArr[i].data[j].tmx._text;
-                printDataArr.push({ name: printStr, value: printData});
+            for (var j = 0; j < dataArr.length; j++) {
+                if (dataArr[j].day._text != checkNextDay) {
+                    var printStr = nowDate.getFullYear() + "-" + ((nowDate.getMonth() + 1) > 9 ? (nowDate.getMonth() + 1) : "0" + (nowDate.getMonth() + 1)) + "-" + (nowDate.getDate() > 9 ? nowDate.getDate() : "0" + nowDate.getDate());
+                    var printData = "날씨 : " + dataArr[j].wfKor._text + "\n최저온도 : " + Number(dataArr[j].tmn._text) + "도\n최고온도 : " + Number(dataArr[j].tmx._text);
+                    nowDate.setDate(nowDate.getDate() + 1);
+                    printDataArr.push({ name: printStr, value: printData});
+                    checkNextDay = dataArr[j].day._text;
+                }
             }
 
-            /*
-            console.log(dataArr[i].tmEf._text);
-            console.log(dataArr[i].wf._text);
-            console.log(dataArr[i].tmn._text);
-            console.log(dataArr[i].tmx._text);
-             */
-        }
-        message.channel.send({
-            embed: {
-                color: 3447003,
-                title: "날씨",
-                description: "서울시 날씨 데이터입니다!",
-                fields: printDataArr
-            }
+            httppas.fetch(wearther3DayOutUrl, "UTF-8", function (err, $, req, res) {
+
+                var result2 = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
+                var dataArr = result2.rss.channel.item.description.body.location;
+
+                for(var j = 1; j < 11; j = j + 2) {
+                    var printStr = dataArr[0].data[j].tmEf._text.substring(0,10);
+                    var printData = "날씨 : " + dataArr[0].data[j].wf._text + "\n최저온도 : " + dataArr[0].data[j].tmn._text + "도\n최고온도 : " + dataArr[0].data[j].tmx._text;
+                    printDataArr.push({ name: printStr, value: printData});
+                }
+
+                editMsg.edit("데이터 조회 성공 ✅");
+                message.channel.send({
+                    embed: {
+                        color: 3447003,
+                        title: "날씨",
+                        description: "서울시 날씨 데이터입니다!",
+                        fields: printDataArr
+                    }
+                });
+
+            });
         });
     });
 }
@@ -393,6 +411,7 @@ client.on("message", message => {
             var nowDate = new Date();
             var countParameter = args[1];
             var printDataArr = [];
+            var checkParameterType = false;
 
             if (countParameter === undefined) {
                 countParameter = 1;
@@ -400,6 +419,10 @@ client.on("message", message => {
                 countParameter = -1;
             } else {
                 countParameter = Number(countParameter);
+            }
+
+            if(datePattern.test(countParameter)) {
+                checkParameterType = true;
             }
 
             if (hgunDay == null) {
@@ -412,49 +435,83 @@ client.on("message", message => {
                 });
                 return;
             }
+            
+            //checkParameterType == true == 날짜 검색
+            //checkParameterType == false == 당일로부터 몇일 뒤 검색
+            if (checkParameterType) {
+                var parameterToDate = new Date(args[1].substring(0,4), Number(args[1].substring(4,6)) -1, args[1].substring(6,8), 0, 0, 0);
 
-            if (countParameter < 1) {
-                message.channel.send({
-                    embed: {
-                        color: 3447003,
-                        title: "희Gun이 상태",
-                        description: "!희건 <오늘 부터 조회할 날짜 수>\n명령어를 올바르게 기입해주세요."
-                    }
-                });
-                return;
-            }
-
-            if (7 < countParameter) {
-                message.channel.send({
-                    embed: {
-                        color: 3447003,
-                        title: "희Gun이 상태",
-                        description: "조회할 날짜 수 범위를 지켜주세요. (1 ~ 7)"
-                    }
-                });
-                return;
-            }
-
-
-            for (var i = 0; i < countParameter; i++) {
                 var printData = "";
-                switch (heGunHoliData(nowDate)) {
+                switch (heGunHoliData(parameterToDate)) {
                     case 1:
-                        printData = "쉬는날! 그냥 써먹으셈";
+                        printData = "쉬는날";
                         break;
                     case 2:
-                        printData = "주간! 출근해 십새야";
+                        printData = "주간";
                         break;
                     case 3:
-                        printData = "야간! 올빼미 부엉부엉";
+                        printData = "야간";
                         break;
                     case -1:
-                        printData = "해당 날짜에 데이터가 없";
+                        printData = "정보가 없습니다.";
                         break;
                 }
-                var printStr = nowDate.getFullYear() + "-" + ((nowDate.getMonth() + 1) > 9 ? (nowDate.getMonth() + 1) : "0" + (nowDate.getMonth() + 1)) + "-" + (nowDate.getDate() > 9 ? nowDate.getDate() : "0" + nowDate.getDate()) + " " + getWeekOfDay(nowDate.getDay());
+                var printStr = parameterToDate.getFullYear() + "-" + ((parameterToDate.getMonth() + 1) > 9 ? (parameterToDate.getMonth() + 1) : "0" + (parameterToDate.getMonth() + 1)) + "-" + (parameterToDate.getDate() > 9 ? parameterToDate.getDate() : "0" + parameterToDate.getDate()) + " " + getWeekOfDay(parameterToDate.getDay());
                 printDataArr.push({name: printStr, value: printData});
-                nowDate.setDate(nowDate.getDate() + 1);
+            } else {
+                if (countParameter > 7) {
+                    message.channel.send({
+                        embed: {
+                            color: 3447003,
+                            title: "희Gun이 상태",
+                            description: "!희건 <조회할 날짜(YYYYMMDD)>\n명령어를 올바르게 기입해주세요."
+                        }
+                    });
+                    return;
+                }
+
+                if (countParameter < 1) {
+                    message.channel.send({
+                        embed: {
+                            color: 3447003,
+                            title: "희Gun이 상태",
+                            description: "!희건 <오늘 부터 조회할 날짜 수> 또는 <조회할 날짜(YYYYMMDD)>\n명령어를 올바르게 기입해주세요."
+                        }
+                    });
+                    return;
+                }
+
+                if (7 < countParameter) {
+                    message.channel.send({
+                        embed: {
+                            color: 3447003,
+                            title: "희Gun이 상태",
+                            description: "조회할 날짜 수 범위를 지켜주세요. (1 ~ 7)"
+                        }
+                    });
+                    return;
+                }
+
+                for (var i = 0; i < countParameter; i++) {
+                    var printData = "";
+                    switch (heGunHoliData(nowDate)) {
+                        case 1:
+                            printData = "쉬는날";
+                            break;
+                        case 2:
+                            printData = "주간";
+                            break;
+                        case 3:
+                            printData = "야간";
+                            break;
+                        case -1:
+                            printData = "정보가 없습니다.";
+                            break;
+                    }
+                    var printStr = nowDate.getFullYear() + "-" + ((nowDate.getMonth() + 1) > 9 ? (nowDate.getMonth() + 1) : "0" + (nowDate.getMonth() + 1)) + "-" + (nowDate.getDate() > 9 ? nowDate.getDate() : "0" + nowDate.getDate()) + " " + getWeekOfDay(nowDate.getDay());
+                    printDataArr.push({name: printStr, value: printData});
+                    nowDate.setDate(nowDate.getDate() + 1);
+                }
             }
 
             message.channel.send({
@@ -595,7 +652,7 @@ client.on("message", message => {
             var printDataArr = [];
 
             printDataArr.push({name: "!롤 <닉네임>", value: "롤전적 검색"});
-            printDataArr.push({name: "!희건 <오늘 부터 조회할 날짜 수>", value: "오늘이 야간,주간,휴일 인지 조회"});
+            printDataArr.push({name: "!희건 <오늘 부터 조회할 날짜 수> 또는 <조회하고 싶은 당일 (YYYYMMDD)>", value: "오늘이 야간,주간,휴일 인지 조회"});
             printDataArr.push({name: "!메이플 <닉네임>", value: "메이플 정보 검색"});
             printDataArr.push({name: "!날씨", value: "서울시 날씨 데이터를 조회"});
             printDataArr.push({name: "!타이머 <분> <호출대상> \"<문구>\"", value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"});
