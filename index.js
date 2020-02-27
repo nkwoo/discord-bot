@@ -7,6 +7,7 @@ const { exec } = require('child_process');
 
 const lol = require('./module/lol');
 const maple = require('./module/maple');
+const exchange = require('./module/exchange');
 const voiceLog = require('./module/voicelog');
 
 const apiKey = "NTg0MDMwODMyNTMzMTc2MzMw.XPE_TQ.m7oHu8UYwLT4ZWaFJY7IMer8_cc";           //봇 API 키
@@ -16,9 +17,8 @@ const client = new Discord.Client();
 var servers = {};
 let timerQueue = [];
 
-var accuser = [356423613605478401, 330926937117556749];
+var accuser = [356423613605478401];
 //356423613605478401 경우
-//330926937117556749 흑건
 
 let wearther3DayInUrl = 'http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1100000000';
 let wearther3DayOutUrl = 'http://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
@@ -648,6 +648,9 @@ client.on("message", message => {
                 });
             });
             break;
+        case "!엔화":
+            exchange.exchangeJpy(message, httppas);
+            break;
         case "!명령어":
             var printDataArr = [];
 
@@ -657,6 +660,7 @@ client.on("message", message => {
             printDataArr.push({name: "!날씨", value: "서울시 날씨 데이터를 조회"});
             printDataArr.push({name: "!타이머 <분> <호출대상> \"<문구>\"", value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"});
             printDataArr.push({name: "!타이머취소 <타이머코드>", value: "타이머취소 방법"});
+            printDataArr.push({name: "!엔화", value: "엔화 가격 조회"});
 
             message.channel.send({
                 embed: {
