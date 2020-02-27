@@ -8,7 +8,7 @@ function timeStampFormat() {
     return moment().format("YYYY-MM-DD HH:mm:ss");
 }
 
-function log(info){
+export function voiceLogRecorder (info) {
     if (!fs.existsSync(logDir)) {
         fs.mkdirSync(logDir);
     }
@@ -24,10 +24,10 @@ function log(info){
             })
         ]
     });
-    try{
+
+    try {
         logger.info(info);
-    }catch(exception){
-        logger.error("ERROR=>" +exception);
+    } catch(exception) {
+        logger.error("ERROR => " +exception);
     }
 }
-module.exports.log = log;

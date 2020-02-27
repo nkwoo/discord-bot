@@ -3,89 +3,52 @@ const YTDL = require("ytdl-core");                                              
 const httppas = require('cheerio-httpcli');                                             //웹 크롤러
 const hgunDay = require('./data/hoil.json');                                            //희건이 쉬는날
 const xmlConvert = require('xml-js');
+const dotenv = require("dotenv");
+const fs = require("fs");
+
 const { exec } = require('child_process');
 
-const lol = require('./module/lol');
-const maple = require('./module/maple');
-const exchange = require('./module/exchange');
-const voiceLog = require('./module/voicelog');
-
-const apiKey = "NTg0MDMwODMyNTMzMTc2MzMw.XPE_TQ.m7oHu8UYwLT4ZWaFJY7IMer8_cc";           //봇 API 키
+import * as customGame from "./module/game";
+import * as customTool from "./module/tool";
 
 const client = new Discord.Client();
 
-var servers = {};
+let servers = {};
 let timerQueue = [];
 
-var accuser = [356423613605478401];
-//356423613605478401 경우
+let administratorUserId = [356423613605478401];
 
-let wearther3DayInUrl = 'http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1100000000';
-let wearther3DayOutUrl = 'http://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
+let envPath;
+switch (process.env.NODE_ENV) {
+    case "prod":
+        envPath = `${__dirname}/.env.prod`;
+        break;
+    case "dev":
+        envPath = `${__dirname}/.env.dev`;
+        break;
+    default:
+        envPath = `${__dirname}/.env.dev`;
+        break;
+}
+
+const envConfig = dotenv.parse(fs.readFileSync(envPath));
+for (const k in envConfig) {
+    process.env[k] = envConfig[k];
+}
 
 //날짜 정규식
 const datePattern = /^(19|20)\d{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[0-1])$/;
-
 
 /*
 * 유저 권한 체크
 */
 function permission (message) {
     let id = message.member.user.id;
-    for (var i = 0; i < accuser.length; i++) {
-        if (accuser[i] == id) return false;
+    for (let i = 0; i < administratorUserId.length; i++) {
+        if (administratorUserId[i] == id) return false;
     }
     message.channel.send("permission denied");
     return true;
-}
-
-/*
-* 날씨 데이터 불러오기
-* */
-function weatherData (message) {
-	message.channel.send("데이터 조회중......").then((editMsg)=> {
-        var printDataArr = [];
-        httppas.fetch(wearther3DayInUrl, "UTF-8", function (err, $, req, res) {
-
-            var resultJson = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
-            var dataArr = resultJson.rss.channel.item.description.body.data;
-            var checkNextDay = "";
-            var nowDate = new Date();
-
-            for (var j = 0; j < dataArr.length; j++) {
-                if (dataArr[j].day._text != checkNextDay) {
-                    var printStr = nowDate.getFullYear() + "-" + ((nowDate.getMonth() + 1) > 9 ? (nowDate.getMonth() + 1) : "0" + (nowDate.getMonth() + 1)) + "-" + (nowDate.getDate() > 9 ? nowDate.getDate() : "0" + nowDate.getDate());
-                    var printData = "날씨 : " + dataArr[j].wfKor._text + "\n최저온도 : " + Number(dataArr[j].tmn._text) + "도\n최고온도 : " + Number(dataArr[j].tmx._text);
-                    nowDate.setDate(nowDate.getDate() + 1);
-                    printDataArr.push({ name: printStr, value: printData});
-                    checkNextDay = dataArr[j].day._text;
-                }
-            }
-
-            httppas.fetch(wearther3DayOutUrl, "UTF-8", function (err, $, req, res) {
-
-                var result2 = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
-                var dataArr = result2.rss.channel.item.description.body.location;
-
-                for(var j = 1; j < 11; j = j + 2) {
-                    var printStr = dataArr[0].data[j].tmEf._text.substring(0,10);
-                    var printData = "날씨 : " + dataArr[0].data[j].wf._text + "\n최저온도 : " + dataArr[0].data[j].tmn._text + "도\n최고온도 : " + dataArr[0].data[j].tmx._text;
-                    printDataArr.push({ name: printStr, value: printData});
-                }
-
-                editMsg.edit("데이터 조회 성공 ✅");
-                message.channel.send({
-                    embed: {
-                        color: 3447003,
-                        title: "날씨",
-                        description: "서울시 날씨 데이터입니다!",
-                        fields: printDataArr
-                    }
-                });
-
-            });
-        });
-    });
 }
 
 /*
@@ -98,17 +61,17 @@ function weatherData (message) {
 *  3 = 야간
 * */
 function heGunHoliData(nowDate) {
-    var nowYear = nowDate.getFullYear();
-    var nowMonth = nowDate.getMonth() +1;
-    var nowDay = nowDate.getDate();
-    var returnCode = -1;
-    for (var i = 0; i < hgunDay.length; i++) {
+    let nowYear = nowDate.getFullYear();
+    let nowMonth = nowDate.getMonth() +1;
+    let nowDay = nowDate.getDate();
+    let returnCode = -1;
+    for (let i = 0; i < hgunDay.length; i++) {
         if(hgunDay[i].year != nowYear) {
             continue;
         }
 
-        var yearOfMonthData = hgunDay[i].data;
-        for (var j = 0; j < yearOfMonthData.length; j++) {
+        let yearOfMonthData = hgunDay[i].data;
+        for (let j = 0; j < yearOfMonthData.length; j++) {
             if(yearOfMonthData[j].month != nowMonth) {
                 continue;
             } 
@@ -128,7 +91,7 @@ function heGunHoliData(nowDate) {
 }
 
 function getWeekOfDay(day) {
-    var returnDayStr = "";
+    let returnDayStr = "";
     switch (day) {
         case 0:
             returnDayStr = "일요일";
@@ -156,7 +119,7 @@ function getWeekOfDay(day) {
 }
 
 function playYoutube(connection, message) {
-    var server = servers[message.guild.id];
+    let server = servers[message.guild.id];
 
     if (server.queue.length == 0) {
         disconnectWithMessage(connection, message);
@@ -188,7 +151,7 @@ function disconnectWithMessage(connection, message) {
 }
 
 client.on("ready", () => {
-    console.log("Server Ready");
+    console.log(`Server Ready - now Runing: ${process.env.NODE_ENV != undefined ? process.env.NODE_ENV : "dev"}`);
 
     //servers 초기화
     client.guilds.forEach((value, index) => {
@@ -203,9 +166,9 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     let oldUserChannel = oldMember.voiceChannel;
 
     if(oldUserChannel === undefined && newUserChannel !== undefined) {
-        voiceLog.log("'" + newUserChannel.name + "' 채널에 '" + newMember.nickname + "' 님이 들어옴 time: " + new Date());
+        customTool.voiceLogRecorder("'" + newUserChannel.name + "' 채널에 '" + newMember.nickname + "' 님이 들어옴 time: " + new Date());
     } else if(newUserChannel === undefined){
-        voiceLog.log("'" + oldUserChannel.name + "' 채널에 '" + oldMember.nickname + "' 님이 나감 time: " + new Date());
+        customTool.voiceLogRecorder("'" + oldUserChannel.name + "' 채널에 '" + oldMember.nickname + "' 님이 나감 time: " + new Date());
     }
 });
 
@@ -214,7 +177,7 @@ client.on("message", message => {
 
     if (message.member.user.bot) return;
 
-    var args = message.content.split(" ");
+    let args = message.content.split(" ");
 
     switch (args[0].toLowerCase()) {
         /*
@@ -222,7 +185,7 @@ client.on("message", message => {
         해당 유투브 영상 재생 기능은 특정 이용자에 대한 소리끊김과 퀄리티 저하로 인해
         추후 수정될 예정
         */
-        case "!재생":
+        case "!재생": {
             if (permission(message)) return;
 
             if (!args[1]) {
@@ -241,7 +204,7 @@ client.on("message", message => {
                 }
             } 
 
-            var server = servers[message.guild.id];
+            let server = servers[message.guild.id];
 
             if (server.queue.length > 5) {
                 message.channel.send("대기열은 최대 5개까지만 등록이 가능합니다.");
@@ -255,16 +218,16 @@ client.on("message", message => {
                         return;
                     }
 
-                    var videoLength = info.player_response.videoDetails.lengthSeconds;
-                    var videoHour = (videoLength / 3600).toFixed(0);
-                    var videoMinute = (videoLength / 60).toFixed(0);
-                    var videoSecond = (videoLength % 60).toFixed(0);
+                    let videoLength = info.player_response.videoDetails.lengthSeconds;
+                    let videoHour = (videoLength / 3600).toFixed(0);
+                    let videoMinute = (videoLength / 60).toFixed(0);
+                    let videoSecond = (videoLength % 60).toFixed(0);
         
                     videoHour = videoHour > 9 ? videoHour : "0" + videoHour;
                     videoMinute = videoMinute > 9 ? videoMinute : "0" + videoMinute;
                     videoSecond = videoSecond > 9 ? videoSecond : "0" + videoSecond;
 
-                    var videoData = {
+                    let videoData = {
                         videoUrl : args[1],
                         videoTime : videoHour + ":" + videoMinute + ":" + videoSecond,
                         videoTitle : info.player_response.videoDetails.title,
@@ -284,7 +247,8 @@ client.on("message", message => {
             });
 
             break;
-        case "!소리":
+        }
+        case "!소리": {
             if (permission(message)) return;
 
             let volumeControlData = 0.2;
@@ -296,7 +260,7 @@ client.on("message", message => {
                 return;
             }
 
-            var server = servers[message.guild.id];
+            let server = servers[message.guild.id];
             
             if (!(server && server.dispatcher)) {
                 message.channel.send("플레이어를 아직 사용하지 않았습니다.");
@@ -325,10 +289,11 @@ client.on("message", message => {
             }
             message.channel.send("현재 소리 크기 : " + (server.dispatcher.volume / volumeControlMax * 100).toFixed(0) + "%");
             break;
-        case "!일시정지":
+        }
+        case "!일시정지": {
             if (permission(message)) return;
 
-            var server = servers[message.guild.id];
+            let server = servers[message.guild.id];
             
             if (!(server && server.dispatcher)) {
                 message.channel.send("플레이어를 아직 사용하지 않았습니다.");
@@ -344,20 +309,22 @@ client.on("message", message => {
             }
  
             break;
-        case "!스킵":
+        }
+        case "!스킵": {
             if (permission(message)) return;
 
-            var server = servers[message.guild.id];
+            let server = servers[message.guild.id];
 
             if (server && server.dispatcher) {
                 server.dispatcher.end(1);
             }
 
             break;
-        case "!목록":
+        }
+        case "!목록": {
             if (permission(message)) return;
 
-            var server = servers[message.guild.id];
+            let server = servers[message.guild.id];
 
             if (!server) {
                 message.channel.send("현재 재생 대기열이 없습니다.");
@@ -365,7 +332,7 @@ client.on("message", message => {
             }
            
             if (server.queue.length > 0) {
-                var videoArr = [];
+                let videoArr = [];
 
                 server.queue.forEach(function(element, index){
                     videoArr.push({name: (index + 1) + "순위" + ((element.videoState == true) ? " - (현재 재생중)" : "") , value: element.videoTitle + " / " + element.videoTime});
@@ -383,18 +350,18 @@ client.on("message", message => {
             }
 
             break;
-        case "!종료":
+        }
+        case "!종료": {
             if (permission(message)) return;
 
-            var server = servers[message.guild.id];
+            let server = servers[message.guild.id];
 
             if (server) server.queue = [];
 
             if (message.guild.voiceConnection) message.guild.voiceConnection.disconnect();
             break;
-
-
-        case "!롤":
+        }
+        case "!롤": {
             if (permission(message)) return;
 
             if (message.content.length < 3) {
@@ -402,16 +369,17 @@ client.on("message", message => {
                 return;
             }
 
-            var nickname = message.content.substring(3, message.content.length).trim();
+            let nickname = message.content.substring(3, message.content.length).trim();
 
-            lol.lolPlayerData(message, nickname, httppas);
+            customGame.searchLOLPlayerData(message, nickname, httppas);
 
             break;
-        case "!희건":
-            var nowDate = new Date();
-            var countParameter = args[1];
-            var printDataArr = [];
-            var checkParameterType = false;
+        }
+        case "!희건": {
+            let nowDate = new Date();
+            let countParameter = args[1];
+            let printDataArr = [];
+            let checkParameterType = false;
 
             if (countParameter === undefined) {
                 countParameter = 1;
@@ -439,9 +407,9 @@ client.on("message", message => {
             //checkParameterType == true == 날짜 검색
             //checkParameterType == false == 당일로부터 몇일 뒤 검색
             if (checkParameterType) {
-                var parameterToDate = new Date(args[1].substring(0,4), Number(args[1].substring(4,6)) -1, args[1].substring(6,8), 0, 0, 0);
+                let parameterToDate = new Date(args[1].substring(0,4), Number(args[1].substring(4,6)) -1, args[1].substring(6,8), 0, 0, 0);
 
-                var printData = "";
+                let printData = "";
                 switch (heGunHoliData(parameterToDate)) {
                     case 1:
                         printData = "쉬는날";
@@ -456,7 +424,7 @@ client.on("message", message => {
                         printData = "정보가 없습니다.";
                         break;
                 }
-                var printStr = parameterToDate.getFullYear() + "-" + ((parameterToDate.getMonth() + 1) > 9 ? (parameterToDate.getMonth() + 1) : "0" + (parameterToDate.getMonth() + 1)) + "-" + (parameterToDate.getDate() > 9 ? parameterToDate.getDate() : "0" + parameterToDate.getDate()) + " " + getWeekOfDay(parameterToDate.getDay());
+                let printStr = parameterToDate.getFullYear() + "-" + ((parameterToDate.getMonth() + 1) > 9 ? (parameterToDate.getMonth() + 1) : "0" + (parameterToDate.getMonth() + 1)) + "-" + (parameterToDate.getDate() > 9 ? parameterToDate.getDate() : "0" + parameterToDate.getDate()) + " " + getWeekOfDay(parameterToDate.getDay());
                 printDataArr.push({name: printStr, value: printData});
             } else {
                 if (countParameter > 7) {
@@ -492,8 +460,8 @@ client.on("message", message => {
                     return;
                 }
 
-                for (var i = 0; i < countParameter; i++) {
-                    var printData = "";
+                for (let i = 0; i < countParameter; i++) {
+                    let printData = "";
                     switch (heGunHoliData(nowDate)) {
                         case 1:
                             printData = "쉬는날";
@@ -508,7 +476,7 @@ client.on("message", message => {
                             printData = "정보가 없습니다.";
                             break;
                     }
-                    var printStr = nowDate.getFullYear() + "-" + ((nowDate.getMonth() + 1) > 9 ? (nowDate.getMonth() + 1) : "0" + (nowDate.getMonth() + 1)) + "-" + (nowDate.getDate() > 9 ? nowDate.getDate() : "0" + nowDate.getDate()) + " " + getWeekOfDay(nowDate.getDay());
+                    let printStr = nowDate.getFullYear() + "-" + ((nowDate.getMonth() + 1) > 9 ? (nowDate.getMonth() + 1) : "0" + (nowDate.getMonth() + 1)) + "-" + (nowDate.getDate() > 9 ? nowDate.getDate() : "0" + nowDate.getDate()) + " " + getWeekOfDay(nowDate.getDay());
                     printDataArr.push({name: printStr, value: printData});
                     nowDate.setDate(nowDate.getDate() + 1);
                 }
@@ -522,20 +490,24 @@ client.on("message", message => {
                 }
             });
             break;
-        case "!날씨":
-            weatherData(message);
+        }
+        case "!날씨": {
+            customTool.parseSeoulWeather(message, xmlConvert, httppas);
             break;
-        case "!메이플":
+        }
+        case "!메이플": {
             if (message.content.length < 3) {
                 message.channel.send("!메이플 <닉네임> ㄱㄱ");
                 return;
             }
-            var nickname = encodeURIComponent(message.content.substring(5, message.content.length).trim());
 
-            maple.maplePlayerData(message, nickname, 0, httppas, Discord);
+            let nickname = encodeURIComponent(message.content.substring(5, message.content.length).trim());
+
+            customGame.searchMaplePlayerData(message, nickname, 0, httppas, Discord);
 
             break;
-        case "!타이머":
+        }
+        case "!타이머": {
             if (permission(message)) return;
             if (message.content.length < 3 || isNaN(args[1]) || args.length < 4 || message.content.indexOf("\"") == -1) {
                 message.channel.send("!타이머 <분> <호출대상> \"<문구>\"ㄱㄱ");
@@ -554,7 +526,7 @@ client.on("message", message => {
             let sendText = message.content.substring(message.content.indexOf("\"") + 1, message.content.lastIndexOf("\""));
 
             serverMembers.forEach(function (member) {
-                var matchMember = member.nickname != null ? member.nickname : member.user.username;
+                let matchMember = member.nickname != null ? member.nickname : member.user.username;
 
                 if (matchMember.indexOf(args[2]) != -1) {
                     sendMembers += matchMember + ", ";
@@ -563,7 +535,7 @@ client.on("message", message => {
             });
 
             if (callUsers.length > 0) {
-                var printDataArr = [];
+                let printDataArr = [];
 
                 printDataArr.push({name: "타이머 호출대상", value: sendMembers});
                 printDataArr.push({name: "타이머 시간", value:  args[1] + "분"});
@@ -601,7 +573,8 @@ client.on("message", message => {
                 message.channel.send("호출 대상의 이름을 확인한 후 다시 입력해주세요!");
             }
             break;
-        case "!타이머취소":
+        }
+        case "!타이머취소": {
             if (permission(message)) return;
             
             if (message.content.length < 5 || args.length < 2 || isNaN(args[1])) {
@@ -621,20 +594,21 @@ client.on("message", message => {
                 }
             });
             break;
-        case "!상태":
+        }
+        case "!상태": {
             let cpuTemper, gpuTemper;
             exec("vcgencmd measure_temp", (err, stdout, stderr) => {
-                if (err) {
+                if (err || stderr) {
                     return;
                 }
                 gpuTemper = stdout.substring(5);
                 exec("cat /sys/class/thermal/thermal_zone0/temp", (err, stdout, stderr) => {
-                    if (err) {
+                    if (err || stderr) {
                         return;
                     }
                     cpuTemper = (stdout / 1000).toFixed(1) + "'C";
 
-                    var printDataArr = [];
+                    let printDataArr = [];
 
                     printDataArr.push({name: "Cpu 온도", value: cpuTemper});
                     printDataArr.push({name: "Gpu 온도", value: gpuTemper});
@@ -648,11 +622,13 @@ client.on("message", message => {
                 });
             });
             break;
-        case "!엔화":
-            exchange.exchangeJpy(message, httppas);
+        }
+        case "!엔화": {
+            customTool.exchangeWonToJpy(message, httppas);
             break;
-        case "!명령어":
-            var printDataArr = [];
+        }
+        case "!명령어": {
+            let printDataArr = [];
 
             printDataArr.push({name: "!롤 <닉네임>", value: "롤전적 검색"});
             printDataArr.push({name: "!희건 <오늘 부터 조회할 날짜 수> 또는 <조회하고 싶은 당일 (YYYYMMDD)>", value: "오늘이 야간,주간,휴일 인지 조회"});
@@ -669,9 +645,11 @@ client.on("message", message => {
                 }
             });
             break;
-        default:
+        }
+        default: {
             break;
+        }
     }
 });
 
-client.login(apiKey);
+client.login(process.env.DISCORD_API_KEY);

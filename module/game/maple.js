@@ -1,5 +1,6 @@
-let maplePersonSearchUrl = 'https://maplestory.nexon.com/Ranking/World/Total';
-function maplePlayerData (message, nickname, type, httppas, Discord) {
+const maplePersonSearchUrl = 'https://maplestory.nexon.com/Ranking/World/Total';
+
+export function searchMaplePlayerData (message, nickname, type, httppas, Discord) {
     /*
     * 20190626
     * 메이플 데이터 가져올때 사용
@@ -8,25 +9,25 @@ function maplePlayerData (message, nickname, type, httppas, Discord) {
     * type : 랭킹월드 구분 / 0 = 리부트 제외한 전체월드 / 254 = 리부트 월드들
     */
     var worldRank = null, chartacterName = null, chartacterJob = null, chartacterLevel = null;
-    httppas.fetch(maplePersonSearchUrl + "?c=" + nickname + "&w=" + type, "UTF-8", function (err, $, req, res) {
-        if(err){
+    httppas.fetch(maplePersonSearchUrl + "?c=" + nickname + "&w=" + type, "UTF-8", function (err, $) {
+        if (err) {
             console.log(err);
             return;
         }
-        $('.search_com_chk > td:nth-child(1) > p:nth-child(1)').each(function (post) {                  //랭킹
+        $('.search_com_chk > td:nth-child(1) > p:nth-child(1)').each(function () {                  //랭킹
             worldRank = $(this).text().trim();
         });
-        $('.search_com_chk > td:nth-child(2) > dl > dt').each(function (post) {                         //닉네임
+        $('.search_com_chk > td:nth-child(2) > dl > dt').each(function () {                         //닉네임
             chartacterName = $(this).text().trim();
         });
-        $('.search_com_chk > td:nth-child(2) > dl > dd').each(function (post) {                         //직업
+        $('.search_com_chk > td:nth-child(2) > dl > dd').each(function () {                         //직업
             chartacterJob = $(this).text().trim();
         });
-        $('.search_com_chk > td:nth-child(3)').each(function (post) {                                   //레벨
+        $('.search_com_chk > td:nth-child(3)').each(function () {                                   //레벨
             chartacterLevel = $(this).text().trim();
         });
 
-        $('.search_com_chk > td:nth-child(2) > span > img:nth-child(1)').each(function (post) {         //캐릭터사진
+        $('.search_com_chk > td:nth-child(2) > span > img:nth-child(1)').each(function () {         //캐릭터사진
             const embedMessage = new Discord.RichEmbed()
                 .setTitle("메이플 닉네임 검색")
                 .setColor("#3399CC")
@@ -41,11 +42,10 @@ function maplePlayerData (message, nickname, type, httppas, Discord) {
         });
         if(worldRank == null || chartacterName == null || chartacterJob == null) {
             if(type == 0) {
-                maplePlayerData (message, nickname, 254, httppas, Discord);
+                searchMaplePlayerData(message, nickname, 254, httppas, Discord);
             } else {
                 message.channel.send("검색 안되는거 보니 메이플 안하시나봄;");
             }
         }
     });
 }
-module.exports.maplePlayerData = maplePlayerData;

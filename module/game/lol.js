@@ -1,18 +1,17 @@
-let lolUrl = 'https://www.op.gg/summoner/';
-let lolInGameUrl = 'https://www.op.gg/summoner/ajax/spectateStatus/';
-let lolUpdateUrl = 'https://www.op.gg/summoner/ajax/renew.json/';
+const lolUrl = 'https://www.op.gg/summoner/';
+const lolInGameUrl = 'https://www.op.gg/summoner/ajax/spectateStatus/';
+const lolUpdateUrl = 'https://www.op.gg/summoner/ajax/renew.json/';
 
-//차후 공식 API를 사용하도록 수정 TODO
-function lolPlayerData (message, nickname, httppas) {
+export function searchLOLPlayerData (message, nickname, httppas) {
     var param = {userName: nickname};
-    httppas.fetch(lolUrl, param, function (err, $, res) {
+    httppas.fetch(lolUrl, param, function (err, $) {
         if (err) {
             console.log(err);
             return;
         }
-        $('.MostChampionContent.tabItem>div').each(function (post) {
+        $('.MostChampionContent.tabItem>div').each(function () {
             var userId = $(this).attr("data-summoner-id");
-            httppas.fetch(lolUpdateUrl, {summonerId: userId}, function (err, $, res) {
+            httppas.fetch(lolUpdateUrl, {summonerId: userId}, function () {
 
                 var lolUserName = null,
                     lolUserTier = null,
@@ -21,25 +20,22 @@ function lolPlayerData (message, nickname, httppas) {
                     lolInGame = null,
                     lolPlayList = [];
 
-                httppas.fetch(lolUrl + "userName=" + encodeURIComponent(nickname), "UTF-8", function (err, $, req, res) {
+                httppas.fetch(lolUrl + "userName=" + encodeURIComponent(nickname), "UTF-8", function (err, $) {
                     if (err) {
                         console.log(err);
                         return;
                     }
 
-                    $(".SummonerLayout>.Header>.Profile>.Information>.Name").each(function (post) {
+                    $(".SummonerLayout>.Header>.Profile>.Information>.Name").each(function () {
                         lolUserName = $(this).html().trim();
                     });
-                    $(".SummonerRatingMedium>.TierRankInfo>.TierRank").each(function (post) {
+                    $(".SummonerRatingMedium>.TierRankInfo>.TierRank").each(function () {
                         lolUserTier = $(this).html().trim();
                     });
-                    $(".SummonerRatingMedium>.TierRankInfo>.Series").each(function (post) {
-                        //console.log($(this).html().trim());
-                    });
-                    $(".SummonerRatingMedium>.TierRankInfo>.TierInfo>.LeaguePoints").each(function (post) {
+                    $(".SummonerRatingMedium>.TierRankInfo>.TierInfo>.LeaguePoints").each(function () {
                         lolUserTierPoint = $(this).html().trim();
                     });
-                    $(".SummonerLayout>.Header>.Face>.ProfileIcon>.Level").each(function (post) {
+                    $(".SummonerLayout>.Header>.Face>.ProfileIcon>.Level").each(function () {
                         lolUserLevel = $(this).html().trim();
                     });
                     $(".GameListContainer>.Content > .GameItemList .GameItemWrap .GameItem ").each(function (index) {
@@ -91,4 +87,3 @@ function lolPlayerData (message, nickname, httppas) {
         });
     });
 }
-module.exports.lolPlayerData = lolPlayerData;
