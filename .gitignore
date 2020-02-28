@@ -103,3 +103,4 @@ public
 # custom ignore
 *.dev
 *.prod
+voicelog/

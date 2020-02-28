@@ -23,9 +23,9 @@
     "eslint": "^6.8.0"
   },
   "scripts": {
-    "start": "forever start -c babel-node index.js",
+    "start": "export NODE_ENV=prod | forever start -c ./node_modules/.bin/babel-node index.js",
     "win-start": "./node_modules/.bin/babel-node.cmd index.js",
-    "stop": "forever stop -c babel-node index.js"
+    "stop": "forever stop -c ./node_modules/.bin/babel-node index.js"
   },
   "author": "",
   "license": "ISC"
