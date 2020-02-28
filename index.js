@@ -1,22 +1,23 @@
-const Discord = require("discord.js");                                                  //디스코드 봇 LIB
-const YTDL = require("ytdl-core");                                                      //유투브 소리 재생
-const httppas = require('cheerio-httpcli');                                             //웹 크롤러
-const hgunDay = require('./data/hoil.json');                                            //희건이 쉬는날
-const xmlConvert = require('xml-js');
-const dotenv = require("dotenv");
-const fs = require("fs");
-
-const { exec } = require('child_process');
+import * as Discord from "discord.js";
+import * as YTDL from "ytdl-core";
+import * as httpcli from "cheerio-httpcli";
+import * as xmlConvert from "xml-js";
+import * as dotenv from "dotenv";
+import * as fs from "fs";
+import * as exec from "child_process";
 
 import * as customGame from "./module/game";
 import * as customTool from "./module/tool";
 
 const client = new Discord.Client();
 
+const weekOfDayArray = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+
 let servers = {};
 let timerQueue = [];
 
-let administratorUserId = [356423613605478401];
+const administratorUserId = ["356423613605478401"];
+const botDevId = "682174735169486868";
 
 let envPath;
 switch (process.env.NODE_ENV) {
@@ -39,7 +40,7 @@ for (const k in envConfig) {
 //날짜 정규식
 const datePattern = /^(19|20)\d{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[0-1])$/;
 
-/*
+/**
 * 유저 권한 체크
 */
 function permission (message) {
@@ -51,71 +52,33 @@ function permission (message) {
     return true;
 }
 
-/*
-* 20190706
-* 유희건 회사 날짜 함수
-* retrun state code info
-* -1 = 해당 데이터가 없다
-*  1 = 휴일
-*  2 = 주간
-*  3 = 야간
-* */
-function heGunHoliData(nowDate) {
-    let nowYear = nowDate.getFullYear();
-    let nowMonth = nowDate.getMonth() +1;
-    let nowDay = nowDate.getDate();
-    let returnCode = -1;
-    for (let i = 0; i < hgunDay.length; i++) {
-        if(hgunDay[i].year != nowYear) {
-            continue;
+/**
+ * Date To String
+ */
+function dateToString(date, selector, option) {
+    if (typeof date == Date) {
+        if (option == "YYYYMMDDHH24MISS") {
+            return date.getFullYear()
+                + selector
+                + ((date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : "0" + (date.getMonth() + 1))
+                + selector
+                + (date.getDate() > 9 ? date.getDate() : "0" + date.getDate())
+                + " "
+                + (date.getHours() > 9 ? date.getHours() : "0" + date.getHours())
+                + ":"
+                + (date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinute())
+                + ":"
+                + (date.getSeconds() > 9 ? date.getSeconds() : "0" + date.getSeconds());
+        } else if (option == "YYYYMMDD") {
+            return date.getFullYear()
+                + selector
+                + ((date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : "0" + (date.getMonth() + 1))
+                + selector
+                + (date.getDate() > 9 ? date.getDate() : "0" + date.getDate());
         }
-
-        let yearOfMonthData = hgunDay[i].data;
-        for (let j = 0; j < yearOfMonthData.length; j++) {
-            if(yearOfMonthData[j].month != nowMonth) {
-                continue;
-            } 
-
-            if ( yearOfMonthData[j].data.holiday.find(item => item === nowDay)) {
-                returnCode = 1;
-            } else if (yearOfMonthData[j].data.afterwork.find(item => item === nowDay)) {
-                returnCode = 2;
-            } else if (yearOfMonthData[j].data.nightwork.find(item => item === nowDay)) {
-                returnCode = 3;
-            } else {
-                returnCode = -1;
-            }
-        }
+    } else {
+        return `1970${selector}01${selector}01`;
     }
-    return returnCode;
-}
-
-function getWeekOfDay(day) {
-    let returnDayStr = "";
-    switch (day) {
-        case 0:
-            returnDayStr = "일요일";
-            break;
-        case 1:
-            returnDayStr = "월요일";
-            break;
-        case 2:
-            returnDayStr = "화요일";
-            break;
-        case 3:
-            returnDayStr = "수요일";
-            break;
-        case 4:
-            returnDayStr = "목요일";
-            break;
-        case 5:
-            returnDayStr = "금요일";
-            break;
-        case 6:
-            returnDayStr = "토요일";
-            break;
-    }
-    return returnDayStr;
 }
 
 function playYoutube(connection, message) {
@@ -153,7 +116,6 @@ function disconnectWithMessage(connection, message) {
 client.on("ready", () => {
     console.log(`Server Ready - now Runing: ${process.env.NODE_ENV != undefined ? process.env.NODE_ENV : "dev"}`);
 
-    //servers 초기화
     client.guilds.forEach((value, index) => {
         servers[index] = {
             queue: []
@@ -165,19 +127,33 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     let newUserChannel = newMember.voiceChannel;
     let oldUserChannel = oldMember.voiceChannel;
 
-    if(oldUserChannel === undefined && newUserChannel !== undefined) {
-        customTool.voiceLogRecorder("'" + newUserChannel.name + "' 채널에 '" + newMember.nickname + "' 님이 들어옴 time: " + new Date());
-    } else if(newUserChannel === undefined){
-        customTool.voiceLogRecorder("'" + oldUserChannel.name + "' 채널에 '" + oldMember.nickname + "' 님이 나감 time: " + new Date());
+    //로그는 서버/채널/닉네임 순
+
+    if (oldUserChannel === undefined) {
+        customTool.voiceLogRecorder(`${newUserChannel.guild.name}/${newUserChannel.name}/${newMember.nickname}님 입장`);
+    } else if (newUserChannel === undefined) {
+        customTool.voiceLogRecorder(`${oldUserChannel.guild.name}'/'${oldUserChannel.name}/${oldMember.nickname}님 퇴장`);
+    } else if (oldUserChannel != undefined && newUserChannel != undefined) {
+        customTool.voiceLogRecorder(`${oldUserChannel.guild.name}'/'${oldUserChannel.name}/${oldMember.nickname}' 에서 '${newUserChannel.guild.name}'서버 '${newUserChannel.name}' 채널에 '${newMember.nickname}'로 이동함`);
     }
 });
-
 
 client.on("message", message => {
 
     if (message.member.user.bot) return;
 
     let args = message.content.split(" ");
+
+    if (process.env.NODE_ENV == "prod") {
+        let checkDevOn = message.guild.members.filter(function(el) {
+            return el.user.id == botDevId &&
+            el.user.presence.status == "online";
+        }).array().length;
+
+        if (checkDevOn > 0) {
+            return;
+        }
+    }
 
     switch (args[0].toLowerCase()) {
         /*
@@ -371,7 +347,7 @@ client.on("message", message => {
 
             let nickname = message.content.substring(3, message.content.length).trim();
 
-            customGame.searchLOLPlayerData(message, nickname, httppas);
+            customGame.searchLOLPlayerData(message, nickname, httpcli);
 
             break;
         }
@@ -393,7 +369,7 @@ client.on("message", message => {
                 checkParameterType = true;
             }
 
-            if (hgunDay == null) {
+            if (!(customTool.heeKunHolidayfileExist())) {
                 message.channel.send({
                     embed: {
                         color: 3447003,
@@ -409,23 +385,10 @@ client.on("message", message => {
             if (checkParameterType) {
                 let parameterToDate = new Date(args[1].substring(0,4), Number(args[1].substring(4,6)) -1, args[1].substring(6,8), 0, 0, 0);
 
-                let printData = "";
-                switch (heGunHoliData(parameterToDate)) {
-                    case 1:
-                        printData = "쉬는날";
-                        break;
-                    case 2:
-                        printData = "주간";
-                        break;
-                    case 3:
-                        printData = "야간";
-                        break;
-                    case -1:
-                        printData = "정보가 없습니다.";
-                        break;
-                }
-                let printStr = parameterToDate.getFullYear() + "-" + ((parameterToDate.getMonth() + 1) > 9 ? (parameterToDate.getMonth() + 1) : "0" + (parameterToDate.getMonth() + 1)) + "-" + (parameterToDate.getDate() > 9 ? parameterToDate.getDate() : "0" + parameterToDate.getDate()) + " " + getWeekOfDay(parameterToDate.getDay());
-                printDataArr.push({name: printStr, value: printData});
+                printDataArr.push({
+                    name: `${dateToString(parameterToDate, "-", "YYYYMMDD")} ${weekOfDayArray[parameterToDate.getDay()]}`,
+                    value: customTool.heeKunHoliday(parameterToDate).name
+                });
             } else {
                 if (countParameter > 7) {
                     message.channel.send({
@@ -461,23 +424,12 @@ client.on("message", message => {
                 }
 
                 for (let i = 0; i < countParameter; i++) {
-                    let printData = "";
-                    switch (heGunHoliData(nowDate)) {
-                        case 1:
-                            printData = "쉬는날";
-                            break;
-                        case 2:
-                            printData = "주간";
-                            break;
-                        case 3:
-                            printData = "야간";
-                            break;
-                        case -1:
-                            printData = "정보가 없습니다.";
-                            break;
-                    }
-                    let printStr = nowDate.getFullYear() + "-" + ((nowDate.getMonth() + 1) > 9 ? (nowDate.getMonth() + 1) : "0" + (nowDate.getMonth() + 1)) + "-" + (nowDate.getDate() > 9 ? nowDate.getDate() : "0" + nowDate.getDate()) + " " + getWeekOfDay(nowDate.getDay());
-                    printDataArr.push({name: printStr, value: printData});
+
+                    printDataArr.push({
+                        name: `${dateToString(nowDate, "-", "YYYYMMDD")} ${weekOfDayArray[nowDate.getDay()]}`,
+                        value: customTool.heeKunHoliday(nowDate).name
+                    });
+
                     nowDate.setDate(nowDate.getDate() + 1);
                 }
             }
@@ -492,7 +444,7 @@ client.on("message", message => {
             break;
         }
         case "!날씨": {
-            customTool.parseSeoulWeather(message, xmlConvert, httppas);
+            customTool.parseSeoulWeather(message, xmlConvert, httpcli);
             break;
         }
         case "!메이플": {
@@ -503,7 +455,7 @@ client.on("message", message => {
 
             let nickname = encodeURIComponent(message.content.substring(5, message.content.length).trim());
 
-            customGame.searchMaplePlayerData(message, nickname, 0, httppas, Discord);
+            customGame.searchMaplePlayerData(message, nickname, 0, httpcli, Discord);
 
             break;
         }
@@ -624,7 +576,7 @@ client.on("message", message => {
             break;
         }
         case "!엔화": {
-            customTool.exchangeWonToJpy(message, httppas);
+            customTool.exchangeWonToJpy(message, httpcli);
             break;
         }
         case "!명령어": {
@@ -652,4 +604,8 @@ client.on("message", message => {
     }
 });
 
-client.login(process.env.DISCORD_API_KEY);
+if (process.env.DISCORD_API_KEY) {
+    client.login(process.env.DISCORD_API_KEY);
+} else {
+    console.log("You Don't Have Api-Key go https://discordapp.com/developers/applications/");
+}
