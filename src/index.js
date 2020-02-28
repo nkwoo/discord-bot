@@ -22,13 +22,13 @@ const botDevId = "682174735169486868";
 let envPath;
 switch (process.env.NODE_ENV) {
     case "prod":
-        envPath = `${__dirname}/.env.prod`;
+        envPath = "./.env.prod";
         break;
     case "dev":
-        envPath = `${__dirname}/.env.dev`;
+        envPath = "./.env.dev";
         break;
     default:
-        envPath = `${__dirname}/.env.dev`;
+        envPath = "./.env.dev";
         break;
 }
 
@@ -132,9 +132,9 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     if (oldUserChannel === undefined) {
         customTool.voiceLogRecorder(`${newUserChannel.guild.name}/${newUserChannel.name}/${newMember.nickname}님 입장`);
     } else if (newUserChannel === undefined) {
-        customTool.voiceLogRecorder(`${oldUserChannel.guild.name}'/'${oldUserChannel.name}/${oldMember.nickname}님 퇴장`);
+        customTool.voiceLogRecorder(`${oldUserChannel.guild.name}/${oldUserChannel.name}/${oldMember.nickname}님 퇴장`);
     } else if (oldUserChannel != undefined && newUserChannel != undefined) {
-        customTool.voiceLogRecorder(`${oldUserChannel.guild.name}'/'${oldUserChannel.name}/${oldMember.nickname}' 에서 '${newUserChannel.guild.name}'서버 '${newUserChannel.name}' 채널에 '${newMember.nickname}'로 이동함`);
+        customTool.voiceLogRecorder(`${oldUserChannel.guild.name}/${oldUserChannel.name}/${oldMember.nickname} 에서 ${newUserChannel.guild.name}/${newUserChannel.name}/${newMember.nickname}'로 이동함`);
     }
 });
 

@@ -1,4 +1,4 @@
-import heeKunHolidayJson from "../../data/heekunholiday.json";
+import heeKunHolidayJson from "../../../data/heekunholiday.json";
 
 /**
 * 20190706

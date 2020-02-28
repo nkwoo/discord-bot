@@ -15,6 +15,8 @@ ENV command
 
 * linux
 
+    edit /etc/profile
+
     export NODE_ENV=prod
     echo $NODE_ENV
 
