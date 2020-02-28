@@ -1,7 +1,7 @@
 const exchangeUrl = 'https://api.manana.kr/exchange/rate/KRW/JPY.json';
 
-export function exchangeWonToJpy (message, httppas) {
-    httppas.fetch(exchangeUrl, function (err, $, res, body) {
+export function exchangeWonToJpy (message, httpcli) {
+    httpcli.fetch(exchangeUrl, function (err, $, res, body) {
         if (err) {
             message.channel.send("API 오류 발생");
             console.log(err);

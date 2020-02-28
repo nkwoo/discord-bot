@@ -1,10 +1,10 @@
 const wearther3DayInUrl = 'http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1100000000';
 const wearther3DayOutUrl = 'http://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
 
-export function parseSeoulWeather (message, xmlConvert, httppas) {
+export function parseSeoulWeather (message, xmlConvert, httpcli) {
 	message.channel.send("데이터 조회중......").then((editMsg)=> {
         let printDataArr = [];
-        httppas.fetch(wearther3DayInUrl, "UTF-8", function (err, $, req, res) {
+        httpcli.fetch(wearther3DayInUrl, "UTF-8", function (err, $, req, res) {
 
             let resultJson = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
             let dataArr = resultJson.rss.channel.item.description.body.data;
@@ -21,7 +21,7 @@ export function parseSeoulWeather (message, xmlConvert, httppas) {
                 }
             }
 
-            httppas.fetch(wearther3DayOutUrl, "UTF-8", function (err, $, req, res) {
+            httpcli.fetch(wearther3DayOutUrl, "UTF-8", function (err, $, req, res) {
 
                 let result2 = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
                 let dataArr = result2.rss.channel.item.description.body.location;

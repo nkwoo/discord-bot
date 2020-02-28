@@ -9,6 +9,8 @@ import * as exec from "child_process";
 import * as customGame from "./module/game";
 import * as customTool from "./module/tool";
 
+//TODO cheerio-httpcli 뒤집기
+
 const client = new Discord.Client();
 
 const weekOfDayArray = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
@@ -56,7 +58,7 @@ function permission (message) {
  * Date To String
  */
 function dateToString(date, selector, option) {
-    if (typeof date == Date) {
+    if (date instanceof Date) {
         if (option == "YYYYMMDDHH24MISS") {
             return date.getFullYear()
                 + selector
@@ -66,7 +68,7 @@ function dateToString(date, selector, option) {
                 + " "
                 + (date.getHours() > 9 ? date.getHours() : "0" + date.getHours())
                 + ":"
-                + (date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinute())
+                + (date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes())
                 + ":"
                 + (date.getSeconds() > 9 ? date.getSeconds() : "0" + date.getSeconds());
         } else if (option == "YYYYMMDD") {
@@ -77,7 +79,11 @@ function dateToString(date, selector, option) {
                 + (date.getDate() > 9 ? date.getDate() : "0" + date.getDate());
         }
     } else {
-        return `1970${selector}01${selector}01`;
+        if (option == "YYYYMMDDHH24MISS") {
+            return `1970${selector}01${selector}01 00:00:00`;
+        } else if (option == "YYYYMMDD") { 
+            return `1970${selector}01${selector}01`;
+        }
     }
 }
 
@@ -385,6 +391,8 @@ client.on("message", message => {
             if (checkParameterType) {
                 let parameterToDate = new Date(args[1].substring(0,4), Number(args[1].substring(4,6)) -1, args[1].substring(6,8), 0, 0, 0);
 
+                console.log(parameterToDate);
+
                 printDataArr.push({
                     name: `${dateToString(parameterToDate, "-", "YYYYMMDD")} ${weekOfDayArray[parameterToDate.getDay()]}`,
                     value: customTool.heeKunHoliday(parameterToDate).name
@@ -424,6 +432,8 @@ client.on("message", message => {
                 }
 
                 for (let i = 0; i < countParameter; i++) {
+
+                    console.log(nowDate);
 
                     printDataArr.push({
                         name: `${dateToString(nowDate, "-", "YYYYMMDD")} ${weekOfDayArray[nowDate.getDay()]}`,

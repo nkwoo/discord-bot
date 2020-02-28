@@ -1,6 +1,6 @@
 const maplePersonSearchUrl = 'https://maplestory.nexon.com/Ranking/World/Total';
 
-export function searchMaplePlayerData (message, nickname, type, httppas, Discord) {
+export function searchMaplePlayerData (message, nickname, type, httpcli, Discord) {
     /*
     * 20190626
     * 메이플 데이터 가져올때 사용
@@ -8,8 +8,11 @@ export function searchMaplePlayerData (message, nickname, type, httppas, Discord
     * nickname : 닉네임
     * type : 랭킹월드 구분 / 0 = 리부트 제외한 전체월드 / 254 = 리부트 월드들
     */
+
+    console.log(httpcli);
+
     var worldRank = null, chartacterName = null, chartacterJob = null, chartacterLevel = null;
-    httppas.fetch(maplePersonSearchUrl + "?c=" + nickname + "&w=" + type, "UTF-8", function (err, $) {
+    httpcli.fetch(maplePersonSearchUrl + "?c=" + nickname + "&w=" + type, "UTF-8", function (err, $) {
         if (err) {
             console.log(err);
             return;
@@ -42,7 +45,7 @@ export function searchMaplePlayerData (message, nickname, type, httppas, Discord
         });
         if(worldRank == null || chartacterName == null || chartacterJob == null) {
             if(type == 0) {
-                searchMaplePlayerData(message, nickname, 254, httppas, Discord);
+                searchMaplePlayerData(message, nickname, 254, httpcli, Discord);
             } else {
                 message.channel.send("검색 안되는거 보니 메이플 안하시나봄;");
             }

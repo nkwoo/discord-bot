@@ -2,16 +2,16 @@ const lolUrl = 'https://www.op.gg/summoner/';
 const lolInGameUrl = 'https://www.op.gg/summoner/ajax/spectateStatus/';
 const lolUpdateUrl = 'https://www.op.gg/summoner/ajax/renew.json/';
 
-export function searchLOLPlayerData (message, nickname, httppas) {
+export function searchLOLPlayerData (message, nickname, httpcli) {
     var param = {userName: nickname};
-    httppas.fetch(lolUrl, param, function (err, $) {
+    httpcli.fetch(lolUrl, param, function (err, $) {
         if (err) {
             console.log(err);
             return;
         }
         $('.MostChampionContent.tabItem>div').each(function () {
             var userId = $(this).attr("data-summoner-id");
-            httppas.fetch(lolUpdateUrl, {summonerId: userId}, function () {
+            httpcli.fetch(lolUpdateUrl, {summonerId: userId}, function () {
 
                 var lolUserName = null,
                     lolUserTier = null,
@@ -20,7 +20,7 @@ export function searchLOLPlayerData (message, nickname, httppas) {
                     lolInGame = null,
                     lolPlayList = [];
 
-                httppas.fetch(lolUrl + "userName=" + encodeURIComponent(nickname), "UTF-8", function (err, $) {
+                httpcli.fetch(lolUrl + "userName=" + encodeURIComponent(nickname), "UTF-8", function (err, $) {
                     if (err) {
                         console.log(err);
                         return;
@@ -46,7 +46,7 @@ export function searchLOLPlayerData (message, nickname, httppas) {
                         if (lolUserTier == null) lolUserTier = "Unranked";
                         if (lolUserTierPoint == null) lolUserTierPoint = "-";
 
-                        httppas.fetch(lolInGameUrl, param, function (err, $, res, body) {
+                        httpcli.fetch(lolInGameUrl, param, function (err, $, res, body) {
                             if (err) {
                                 console.log(err);
                                 return;
