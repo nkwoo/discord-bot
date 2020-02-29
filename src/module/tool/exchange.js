@@ -1,14 +1,14 @@
 const exchangeUrl = 'https://api.manana.kr/exchange/rate/KRW/JPY.json';
 
-export function exchangeWonToJpy (message, httpcli) {
-    httpcli.fetch(exchangeUrl, function (err, $, res, body) {
-        if (err) {
-            message.channel.send("API 오류 발생");
-            console.log(err);
+export function exchangeWonToJpy (message, htmlparser) {
+    htmlparser.getHtmlDocument(exchangeUrl).then(html => {
+
+        if (!html) {
+            message.channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다.");
             return;
         }
-
-        const jsonData =  JSON.parse(body);
+       
+        const jsonData =  html.data;
         
         if (jsonData.length > 0) {
             const date = jsonData[0].date;

@@ -1,12 +1,19 @@
 const wearther3DayInUrl = 'http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1100000000';
 const wearther3DayOutUrl = 'http://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
 
-export function parseSeoulWeather (message, xmlConvert, httpcli) {
+export function parseSeoulWeather (message, xmlConvert, htmlparser) {
+    
 	message.channel.send("데이터 조회중......").then((editMsg)=> {
         let printDataArr = [];
-        httpcli.fetch(wearther3DayInUrl, "UTF-8", function (err, $, req, res) {
+        htmlparser.getHtmlDocument(wearther3DayInUrl).then(html => {
 
-            let resultJson = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
+            if (!html) {
+                editMsg.edit("데이터 조회 실패 ❌");
+                message.channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다.");
+                return;
+            }
+
+            let resultJson = JSON.parse(xmlConvert.xml2json(html.data, {compact: true, spaces: 4}));
             let dataArr = resultJson.rss.channel.item.description.body.data;
             let checkNextDay = "";
             let nowDate = new Date();
@@ -21,9 +28,15 @@ export function parseSeoulWeather (message, xmlConvert, httpcli) {
                 }
             }
 
-            httpcli.fetch(wearther3DayOutUrl, "UTF-8", function (err, $, req, res) {
+            htmlparser.getHtmlDocument(wearther3DayOutUrl).then(html => {
 
-                let result2 = JSON.parse(xmlConvert.xml2json(res, {compact: true, spaces: 4}));
+                if (!html) {
+                    editMsg.edit("데이터 조회 실패 ❌");
+                    message.channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다.");
+                    return;
+                }
+            
+                let result2 = JSON.parse(xmlConvert.xml2json(html.data, {compact: true, spaces: 4}));
                 let dataArr = result2.rss.channel.item.description.body.location;
 
                 for(let j = 1; j < 11; j = j + 2) {
@@ -41,7 +54,6 @@ export function parseSeoulWeather (message, xmlConvert, httpcli) {
                         fields: printDataArr
                     }
                 });
-
             });
         });
     });

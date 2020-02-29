@@ -1,6 +1,7 @@
+import "babel-polyfill";
 import * as Discord from "discord.js";
 import * as YTDL from "ytdl-core";
-import * as httpcli from "cheerio-httpcli";
+import * as htmlparser from "./module/htmlparser";
 import * as xmlConvert from "xml-js";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
@@ -8,8 +9,6 @@ import * as exec from "child_process";
 
 import * as customGame from "./module/game";
 import * as customTool from "./module/tool";
-
-//TODO cheerio-httpcli 뒤집기
 
 const client = new Discord.Client();
 
@@ -59,7 +58,7 @@ function permission (message) {
  */
 function dateToString(date, selector, option) {
     if (date instanceof Date) {
-        if (option == "YYYYMMDDHH24MISS") {
+        if (option === "YYYYMMDDHH24MISS") {
             return date.getFullYear()
                 + selector
                 + ((date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : "0" + (date.getMonth() + 1))
@@ -71,7 +70,7 @@ function dateToString(date, selector, option) {
                 + (date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes())
                 + ":"
                 + (date.getSeconds() > 9 ? date.getSeconds() : "0" + date.getSeconds());
-        } else if (option == "YYYYMMDD") {
+        } else if (option === "YYYYMMDD") {
             return date.getFullYear()
                 + selector
                 + ((date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : "0" + (date.getMonth() + 1))
@@ -79,9 +78,9 @@ function dateToString(date, selector, option) {
                 + (date.getDate() > 9 ? date.getDate() : "0" + date.getDate());
         }
     } else {
-        if (option == "YYYYMMDDHH24MISS") {
+        if (option === "YYYYMMDDHH24MISS") {
             return `1970${selector}01${selector}01 00:00:00`;
-        } else if (option == "YYYYMMDD") { 
+        } else if (option === "YYYYMMDD") {
             return `1970${selector}01${selector}01`;
         }
     }
@@ -90,7 +89,7 @@ function dateToString(date, selector, option) {
 function playYoutube(connection, message) {
     let server = servers[message.guild.id];
 
-    if (server.queue.length == 0) {
+    if (server.queue.length === 0) {
         disconnectWithMessage(connection, message);
         return;
     }
@@ -129,7 +128,11 @@ client.on("ready", () => {
     });
 });
 
-client.on('voiceStateUpdate', (oldMember, newMember) => {
+client.on("error", () => {
+    console.error();
+});
+
+client.on("voiceStateUpdate", (oldMember, newMember) => {
     let newUserChannel = newMember.voiceChannel;
     let oldUserChannel = oldMember.voiceChannel;
 
@@ -353,7 +356,7 @@ client.on("message", message => {
 
             let nickname = message.content.substring(3, message.content.length).trim();
 
-            customGame.searchLOLPlayerData(message, nickname, httpcli);
+            customGame.searchLOLPlayerData(message, nickname, htmlparser);
 
             break;
         }
@@ -454,7 +457,7 @@ client.on("message", message => {
             break;
         }
         case "!날씨": {
-            customTool.parseSeoulWeather(message, xmlConvert, httpcli);
+            customTool.parseSeoulWeather(message, xmlConvert, htmlparser);
             break;
         }
         case "!메이플": {
@@ -465,7 +468,7 @@ client.on("message", message => {
 
             let nickname = encodeURIComponent(message.content.substring(5, message.content.length).trim());
 
-            customGame.searchMaplePlayerData(message, nickname, 0, httpcli, Discord);
+            customGame.searchMaplePlayerData(message, nickname, 0, htmlparser, Discord);
 
             break;
         }
@@ -586,7 +589,7 @@ client.on("message", message => {
             break;
         }
         case "!엔화": {
-            customTool.exchangeWonToJpy(message, httpcli);
+            customTool.exchangeWonToJpy(message, htmlparser);
             break;
         }
         case "!명령어": {
