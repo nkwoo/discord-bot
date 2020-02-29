@@ -1,6 +1,6 @@
-const lolUrl = 'https://www.op.gg/summoner/';
-const lolInGameUrl = 'https://www.op.gg/summoner/ajax/spectateStatus/';
-const lolUpdateUrl = 'https://www.op.gg/summoner/ajax/renew.json/';
+const lolUrl = "https://www.op.gg/summoner/";
+const lolInGameUrl = "https://www.op.gg/summoner/ajax/spectateStatus/";
+const lolUpdateUrl = "https://www.op.gg/summoner/ajax/renew.json/";
 
 export function searchLOLPlayerData (message, nickname, htmlparser) {
     htmlparser.getHtmlDocumentParameter(lolUrl, {userName: nickname}).then(html => {

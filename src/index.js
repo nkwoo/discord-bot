@@ -592,6 +592,10 @@ client.on("message", message => {
             customTool.exchangeWonToJpy(message, htmlparser);
             break;
         }
+        case "!코로나": {
+            customTool.searchCoronaData(message, htmlparser, dateToString(new Date(), "-", "YYYYMMDDHH24MISS"));
+            break;
+        }
         case "!명령어": {
             let printDataArr = [];
 

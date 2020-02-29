@@ -1,4 +1,4 @@
-const maplePersonSearchUrl = 'https://maplestory.nexon.com/Ranking/World/Total';
+const maplePersonSearchUrl = "https://maplestory.nexon.com/Ranking/World/Total";
 
 export function searchMaplePlayerData (message, nickname, type, htmlparser, Discord) {
     /*
