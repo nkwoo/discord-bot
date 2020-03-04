@@ -95,7 +95,12 @@ function playYoutube(connection, message) {
         return;
     }
 
-    server.dispatcher = connection.playStream(ytdl(server.queue[0].videoUrl, { quality: "highestaudio", filter: "audioonly" }))
+    const stream = ytdl(server.queue[0].videoUrl, { filter: "audioonly" });
+
+    server.dispatcher = connection.playStream(stream)
+    .on("start", function () {
+        message.channel.send(server.queue[0].videoTitle + "를(을) 재생중입니다.\n재생시간 : " + server.queue[0].videoTime);
+    })
     .on("end", function (check) {
         if (server.queue[0]) {
             if (check) {
@@ -103,7 +108,7 @@ function playYoutube(connection, message) {
             } else {
                 message.channel.send(server.queue[0].videoTitle + "를(을) 재생하였습니다.");
             }
-            server.dispatcher.destory();
+
             server.queue.shift();
             playYoutube(connection, message);
         } else {
@@ -111,7 +116,6 @@ function playYoutube(connection, message) {
         }
     });
 
-    message.channel.send(server.queue[0].videoTitle + "를(을) 재생중입니다.\n재생시간 : " + server.queue[0].videoTime);
     server.queue[0].videoState = true;
 }
 
@@ -233,7 +237,6 @@ client.on("message", message => {
                     }
                 });
             });
-
             break;
         }
         case "!소리": {
