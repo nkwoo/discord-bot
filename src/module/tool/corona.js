@@ -13,7 +13,7 @@ export function searchCoronaData (message, htmlparser, timeString) {
             const $ = htmlparser.changeHtmlToDom(html.data);
             let coronaArray = [];
 
-            $(".bvc_txt > .tbl_scrl_mini2").first().find("tr").each(function () {
+            $(".bvc_txt > .data_table > .num tr").each(function () {
                 let titleText = $(this).children("th").text();
                 let dataText = $(this).children("td").text();
                 coronaArray.push({name: titleText, value: dataText});

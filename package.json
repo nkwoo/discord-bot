@@ -6,6 +6,7 @@
   "type": "module",
   "dependencies": {
     "axios": "^0.19.2",
+    "axios-extensions": "^3.1.1",
     "babel-polyfill": "^6.26.0",
     "cheerio": "^1.0.0-rc.3",
     "discord.js": "^11.5.1",
@@ -16,7 +17,7 @@
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^3.10.0",
     "xml-js": "^1.6.11",
-    "ytdl-core": "^0.29.2"
+    "ytdl-core": "^2.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

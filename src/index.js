@@ -1,6 +1,7 @@
 import "babel-polyfill";
 import * as Discord from "discord.js";
-import * as YTDL from "ytdl-core";
+import ytdl from "ytdl-core";
+//https://github.com/fent/node-ytdl-core#usage
 import * as htmlparser from "./module/htmlparser";
 import * as xmlConvert from "xml-js";
 import * as dotenv from "dotenv";
@@ -44,7 +45,7 @@ const datePattern = /^(19|20)\d{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[0-1])$/;
 /**
 * 유저 권한 체크
 */
-function permission (message) {
+function permission(message) {
     let id = message.member.user.id;
     for (let i = 0; i < administratorUserId.length; i++) {
         if (administratorUserId[i] == id) return false;
@@ -94,7 +95,7 @@ function playYoutube(connection, message) {
         return;
     }
 
-    server.dispatcher = connection.playStream(YTDL(server.queue[0].videoUrl, { quality: "highestaudio", filter: "audioonly" }))
+    server.dispatcher = connection.playStream(ytdl(server.queue[0].videoUrl, { quality: "highestaudio", filter: "audioonly" }))
     .on("end", function (check) {
         if (server.queue[0]) {
             if (check) {
@@ -109,6 +110,7 @@ function playYoutube(connection, message) {
             disconnectWithMessage(connection, message);
         }
     });
+
     message.channel.send(server.queue[0].videoTitle + "를(을) 재생중입니다.\n재생시간 : " + server.queue[0].videoTime);
     server.queue[0].videoState = true;
 }
@@ -197,8 +199,9 @@ client.on("message", message => {
             }
 
             message.channel.send("로딩중......").then((editMsg)=> {
-                YTDL.getInfo(args[1], function(err, info) {
-                    if(err) {
+                ytdl.getInfo(args[1], function(err, info) {
+
+                    if (err) {
                         editMsg.edit("잘못된 주소거나 영상이 존재하지 않습니다.");
                         return;
                     }
