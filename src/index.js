@@ -13,8 +13,6 @@ import * as customTool from "./module/tool";
 
 const client = new Discord.Client();
 
-const weekOfDayArray = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-
 let servers = {};
 let timerQueue = [];
 
@@ -37,10 +35,7 @@ switch (process.env.NODE_ENV) {
 const envConfig = dotenv.parse(fs.readFileSync(envPath));
 for (const k in envConfig) {
     process.env[k] = envConfig[k];
-}
-
-//날짜 정규식
-const datePattern = /^(19|20)\d{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[0-1])$/;
+} 
 
 /**
 * 유저 권한 체크
@@ -52,39 +47,6 @@ function permission(message) {
     }
     message.channel.send("permission denied");
     return true;
-}
-
-/**
- * Date To String
- */
-function dateToString(date, selector, option) {
-    if (date instanceof Date) {
-        if (option === "YYYYMMDDHH24MISS") {
-            return date.getFullYear()
-                + selector
-                + ((date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : "0" + (date.getMonth() + 1))
-                + selector
-                + (date.getDate() > 9 ? date.getDate() : "0" + date.getDate())
-                + " "
-                + (date.getHours() > 9 ? date.getHours() : "0" + date.getHours())
-                + ":"
-                + (date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes())
-                + ":"
-                + (date.getSeconds() > 9 ? date.getSeconds() : "0" + date.getSeconds());
-        } else if (option === "YYYYMMDD") {
-            return date.getFullYear()
-                + selector
-                + ((date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : "0" + (date.getMonth() + 1))
-                + selector
-                + (date.getDate() > 9 ? date.getDate() : "0" + date.getDate());
-        }
-    } else {
-        if (option === "YYYYMMDDHH24MISS") {
-            return `1970${selector}01${selector}01 00:00:00`;
-        } else if (option === "YYYYMMDD") {
-            return `1970${selector}01${selector}01`;
-        }
-    }
 }
 
 function playYoutube(connection, message) {
@@ -367,99 +329,7 @@ client.on("message", message => {
             break;
         }
         case "!희건": {
-            let nowDate = new Date();
-            let countParameter = args[1];
-            let printDataArr = [];
-            let checkParameterType = false;
-
-            if (countParameter === undefined) {
-                countParameter = 1;
-            } else if (isNaN(Number(countParameter))) {
-                countParameter = -1;
-            } else {
-                countParameter = Number(countParameter);
-            }
-
-            if(datePattern.test(countParameter)) {
-                checkParameterType = true;
-            }
-
-            if (!(customTool.heeKunHolidayfileExist())) {
-                message.channel.send({
-                    embed: {
-                        color: 3447003,
-                        title: "희Gun이 상태",
-                        description: "쉬는날 파일을 불러올수 없습니다."
-                    }
-                });
-                return;
-            }
-            
-            //checkParameterType == true == 날짜 검색
-            //checkParameterType == false == 당일로부터 몇일 뒤 검색
-            if (checkParameterType) {
-                let parameterToDate = new Date(args[1].substring(0,4), Number(args[1].substring(4,6)) -1, args[1].substring(6,8), 0, 0, 0);
-
-                console.log(parameterToDate);
-
-                printDataArr.push({
-                    name: `${dateToString(parameterToDate, "-", "YYYYMMDD")} ${weekOfDayArray[parameterToDate.getDay()]}`,
-                    value: customTool.heeKunHoliday(parameterToDate).name
-                });
-            } else {
-                if (countParameter > 7) {
-                    message.channel.send({
-                        embed: {
-                            color: 3447003,
-                            title: "희Gun이 상태",
-                            description: "!희건 <조회할 날짜(YYYYMMDD)>\n명령어를 올바르게 기입해주세요."
-                        }
-                    });
-                    return;
-                }
-
-                if (countParameter < 1) {
-                    message.channel.send({
-                        embed: {
-                            color: 3447003,
-                            title: "희Gun이 상태",
-                            description: "!희건 <오늘 부터 조회할 날짜 수> 또는 <조회할 날짜(YYYYMMDD)>\n명령어를 올바르게 기입해주세요."
-                        }
-                    });
-                    return;
-                }
-
-                if (7 < countParameter) {
-                    message.channel.send({
-                        embed: {
-                            color: 3447003,
-                            title: "희Gun이 상태",
-                            description: "조회할 날짜 수 범위를 지켜주세요. (1 ~ 7)"
-                        }
-                    });
-                    return;
-                }
-
-                for (let i = 0; i < countParameter; i++) {
-
-                    console.log(nowDate);
-
-                    printDataArr.push({
-                        name: `${dateToString(nowDate, "-", "YYYYMMDD")} ${weekOfDayArray[nowDate.getDay()]}`,
-                        value: customTool.heeKunHoliday(nowDate).name
-                    });
-
-                    nowDate.setDate(nowDate.getDate() + 1);
-                }
-            }
-
-            message.channel.send({
-                embed: {
-                    color: 3447003,
-                    title: "희Gun이 상태",
-                    fields: printDataArr
-                }
-            });
+            customTool.checkHeeKunHoliday(message, args[1]);
             break;
         }
         case "!날씨": {
@@ -599,7 +469,7 @@ client.on("message", message => {
             break;
         }
         case "!코로나": {
-            customTool.searchCoronaData(message, htmlparser, dateToString(new Date(), "-", "YYYYMMDDHH24MISS"));
+            customTool.searchCoronaData(message, htmlparser);
             break;
         }
         case "!명령어": {
