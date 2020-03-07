@@ -14,6 +14,7 @@
     "ffmpeg-static": "^4.0.1",
     "moment": "^2.24.0",
     "opusscript": "0.0.7",
+    "systeminformation": "^4.22.5",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^3.10.0",
     "xml-js": "^1.6.11",

@@ -6,7 +6,6 @@ import * as htmlparser from "./module/htmlparser";
 import * as xmlConvert from "xml-js";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
-import * as exec from "child_process";
 
 import * as customGame from "./module/game";
 import * as customTool from "./module/tool";
@@ -437,31 +436,7 @@ client.on("message", message => {
             break;
         }
         case "!상태": {
-            let cpuTemper, gpuTemper;
-            exec("vcgencmd measure_temp", (err, stdout, stderr) => {
-                if (err || stderr) {
-                    return;
-                }
-                gpuTemper = stdout.substring(5);
-                exec("cat /sys/class/thermal/thermal_zone0/temp", (err, stdout, stderr) => {
-                    if (err || stderr) {
-                        return;
-                    }
-                    cpuTemper = (stdout / 1000).toFixed(1) + "'C";
-
-                    let printDataArr = [];
-
-                    printDataArr.push({name: "Cpu 온도", value: cpuTemper});
-                    printDataArr.push({name: "Gpu 온도", value: gpuTemper});
-
-                    message.channel.send({
-                        embed: {
-                            color: 3447003,
-                            fields: printDataArr
-                        }
-                    });
-                });
-            });
+            customTool.getSystemState(message);
             break;
         }
         case "!엔화": {
