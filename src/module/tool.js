@@ -4,5 +4,6 @@ import { voiceLogRecorder } from "./tool/voicelog";
 import { checkHeeKunHoliday } from "./tool/heekunwork";
 import { searchCoronaData } from "./tool/corona";
 import { getSystemState } from "./tool/system";
+import { namuRankingDoc } from "./tool/namu";
 
-export { exchangeWonToJpy, parseSeoulWeather, voiceLogRecorder, checkHeeKunHoliday, searchCoronaData, getSystemState };
+export { exchangeWonToJpy, parseSeoulWeather, voiceLogRecorder, checkHeeKunHoliday, searchCoronaData, getSystemState, namuRankingDoc };
