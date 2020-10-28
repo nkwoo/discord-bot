@@ -1,13 +1,18 @@
 {
-  "name": "dis",
+  "name": "discord-bot",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
+  "scripts": {
+    "build": "tsc && node ./dist/src/index.js",
+    "ts-start": "ts-node src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
+    "@types/cheerio": "^0.22.22",
     "axios": "^0.19.2",
     "axios-extensions": "^3.1.1",
-    "babel-polyfill": "^6.26.0",
     "cheerio": "^1.0.0-rc.3",
     "discord.js": "^11.6.1",
     "dotenv": "^8.2.0",
@@ -15,22 +20,17 @@
     "moment": "^2.24.0",
     "opusscript": "0.0.7",
     "systeminformation": "^4.22.5",
+    "typescript": "^4.0.3",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^3.10.0",
     "xml-js": "^1.6.11",
-    "ytdl-core": "^2.0.0"
+    "ytdl-core": "^4.0.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "eslint": "^6.8.0"
-  },
-  "scripts": {
-    "start": "forever start --minUptime 1000 --spinSleepTime 1000 dist/index.js",
-    "stop": "forever stop dist/index.js",
-    "build": "./node_modules/.bin/babel src -d dist",
-    "win-start": "./node_modules/.bin/babel.cmd src -d dist && node dist/index.js"
-  },
-  "author": "",
-  "license": "ISC"
+    "@typescript-eslint/eslint-plugin": "^4.3.0",
+    "@typescript-eslint/parser": "^4.3.0",
+    "eslint": "^7.10.0",
+    "nodemon": "^2.0.6",
+    "ts-node": "^9.0.0"
+  }
 }
