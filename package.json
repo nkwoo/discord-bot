@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.0.0",
+  "version": "1.5.14",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,6 @@
     "moment": "^2.24.0",
     "opusscript": "0.0.7",
     "systeminformation": "^4.22.5",
-    "typescript": "^4.0.3",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^3.10.0",
     "xml-js": "^1.6.11",
@@ -31,6 +30,7 @@
     "@typescript-eslint/parser": "^4.3.0",
     "eslint": "^7.10.0",
     "nodemon": "^2.0.6",
-    "ts-node": "^9.0.0"
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5"
   }
 }
