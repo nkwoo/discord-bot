@@ -21,7 +21,7 @@ export class YoutubeImpl implements YouTube {
         message.channel.send("로딩중......").then((editMsg) => {
             try {
                 ytdl.getInfo(videoUrl, {quality: "highestaudio"}).then(value => {
-                    let videoLength = value.player_response.videoDetails.lengthSeconds;
+                    const videoLength = value.player_response.videoDetails.lengthSeconds;
                     let videoHour = (Number(videoLength) / 3600).toFixed(0);
                     let videoMinute = (Number(videoLength) / 60).toFixed(0);
                     let videoSecond = (Number(videoLength) % 60).toFixed(0);
@@ -105,7 +105,7 @@ export class YoutubeImpl implements YouTube {
 
     getPlayList(channel: TextChannel | DMChannel | GroupDMChannel, list: YoutubeVideo[]): void {
         if (list.length > 0) {
-            let videoArr: {name: string, value: string}[] = [];
+            const videoArr: {name: string, value: string}[] = [];
 
             list.forEach((value, index) => {
                 videoArr.push({name: `${(index + 1)}순위 ${(value.state ? "- (현재 재생중)" : "")}`, value: `${value.title}/${value.time}`});

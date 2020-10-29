@@ -15,7 +15,7 @@ export class HeeGunHolidayImpl implements HeeGunHoliday {
         this.util = new UtilImpl();
     }
 
-    checkHeeKunHoliday(channel: TextChannel | DMChannel | GroupDMChannel, parameter: string = "1"): void {
+    checkHeeKunHoliday(channel: TextChannel | DMChannel | GroupDMChannel, parameter: string): void {
         if (heeKunHolidayJson == null) {
             channel.send({
                 embed: {
@@ -28,7 +28,7 @@ export class HeeGunHolidayImpl implements HeeGunHoliday {
         }
 
         if (DATE_PATTERN.test(String(parameter))) {
-            let parameterToDate = new Date(Number(parameter.substring(0, 4)), Number(parameter.substring(5, 7)) - 1, parseInt(parameter.substring(8, 10)), 0, 0, 0);
+            const parameterToDate = new Date(Number(parameter.substring(0, 4)), Number(parameter.substring(5, 7)) - 1, parseInt(parameter.substring(8, 10)), 0, 0, 0);
 
             channel.send({
                 embed: {
@@ -54,8 +54,8 @@ export class HeeGunHolidayImpl implements HeeGunHoliday {
                 return;
             }
 
-            let printDataArr = [];
-            let nowDate = new Date();
+            const printDataArr: {name: string, value: string}[] = [];
+            const nowDate = new Date();
 
             for (let i = 0; i < dayCount; i++) {
 
@@ -87,16 +87,16 @@ export class HeeGunHolidayImpl implements HeeGunHoliday {
 }
 
 function heeKunHoliday(nowDate: Date): {code: number, name: string} {
-    let nowYear = nowDate.getFullYear();
-    let nowMonth = nowDate.getMonth() +1;
-    let nowDay = nowDate.getDate();
+    const nowYear = nowDate.getFullYear();
+    const nowMonth = nowDate.getMonth() +1;
+    const nowDay = nowDate.getDate();
     let returnObject = { code: -1, name: "정보가 없습니다." };
     for (let i = 0; i < heeKunHolidayJson.length; i++) {
         if (heeKunHolidayJson[i].year != nowYear) {
             continue;
         }
 
-        let yearOfMonthData = heeKunHolidayJson[i].data;
+        const yearOfMonthData = heeKunHolidayJson[i].data;
         for (let j = 0; j < yearOfMonthData.length; j++) {
             if(yearOfMonthData[j].month != nowMonth) {
                 continue;

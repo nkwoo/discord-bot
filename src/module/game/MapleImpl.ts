@@ -12,7 +12,7 @@ export class MapleImpl implements Maple {
         this.htmlParser = new HtmlParser();
     }
 
-    searchMaplePlayerData(channel: TextChannel | DMChannel | GroupDMChannel, name: string, type: number = 0): void {
+    searchMaplePlayerData(channel: TextChannel | DMChannel | GroupDMChannel, name: string, type: number): void {
 
         /*
         * 20190626

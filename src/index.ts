@@ -50,7 +50,7 @@ setInterval(() => {
 * 유저 권한 체크
 */
 function permission(message: Message) {
-    let id = message.member.user.id;
+    const id = message.member.user.id;
     for (let i = 0; i < administratorUserId.length; i++) {
         if (administratorUserId[i] == id) return false;
     }
@@ -69,8 +69,8 @@ client.on("error", () => {
 });
 
 client.on("voiceStateUpdate", (oldMember, newMember) => {
-    let newUserChannel = newMember.voiceChannel;
-    let oldUserChannel = oldMember.voiceChannel;
+    const newUserChannel = newMember.voiceChannel;
+    const oldUserChannel = oldMember.voiceChannel;
 
     //로그는 서버/채널/닉네임 순
 
@@ -92,7 +92,7 @@ client.on("message", message => {
     const args = message.content.split(" ");
 
     if (process.env.NODE_ENV == "prod") {
-        let checkDevOn = message.guild.members.filter(function(el) {
+        const checkDevOn = message.guild.members.filter(function(el) {
             return el.user.id == botDevId &&
             el.user.presence.status == "online";
         }).array().length;
@@ -159,14 +159,14 @@ client.on("message", message => {
                 return;
             }
 
-            let nickname = message.content.substring(3, message.content.length).trim();
+            const nickname = message.content.substring(3, message.content.length).trim();
 
             game.lol.searchLoLPlayData(message.channel, nickname);
 
             break;
         }
         case "!희건": {
-            tool.heeGunHoliday.checkHeeKunHoliday(message.channel, args[1]);
+            tool.heeGunHoliday.checkHeeKunHoliday(message.channel, args[1] != null ? args[1] : "1");
             break;
         }
         case "!날씨": {
@@ -179,7 +179,7 @@ client.on("message", message => {
                 return;
             }
 
-            let nickname = encodeURIComponent(message.content.substring(5, message.content.length).trim());
+            const nickname = encodeURIComponent(message.content.substring(5, message.content.length).trim());
 
             game.maple.searchMaplePlayerData(message.channel, nickname, 0);
 
@@ -199,14 +199,14 @@ client.on("message", message => {
                 return;
             }
 
-            let serverMembers = message.guild.members.filter(member => !member.user.bot);
-            let callUsers: string[] = [];
+            const serverMembers = message.guild.members.filter(member => !member.user.bot);
+            const callUsers: string[] = [];
 
             let sendMembers = "호출대상 :";
-            let sendText = message.content.substring(message.content.indexOf("\"") + 1, message.content.lastIndexOf("\""));
+            const sendText = message.content.substring(message.content.indexOf("\"") + 1, message.content.lastIndexOf("\""));
 
             serverMembers.forEach(function (member) {
-                let matchMember = member.nickname != null ? member.nickname : member.user.username;
+                const matchMember = member.nickname != null ? member.nickname : member.user.username;
 
                 if (matchMember.indexOf(args[2]) != -1) {
                     sendMembers += matchMember + ", ";
@@ -215,16 +215,14 @@ client.on("message", message => {
             });
 
             if (callUsers.length > 0) {
-                let printDataArr = [];
-
-                printDataArr.push({name: "타이머 호출대상", value: sendMembers});
-                printDataArr.push({name: "타이머 시간", value:  args[1] + "분"});
-                printDataArr.push({name: "타이머 취소 방법", value: "!타이머취소 " + (timerQueue.length + 1)});
-
                 message.channel.send({
                     embed: {
                         color: 3447003,
-                        fields: printDataArr
+                        fields: [
+                            {name: "타이머 호출대상", value: sendMembers},
+                            {name: "타이머 시간", value:  args[1] + "분"},
+                            {name: "타이머 취소 방법", value: "!타이머취소 " + (timerQueue.length + 1)}
+                        ]
                     }
                 });
 
@@ -284,7 +282,7 @@ client.on("message", message => {
             break;
         }
         case "!명령어": {
-            let printDataArr = [];
+            const printDataArr: {name: string; value: string;}[] = [];
 
             printDataArr.push({name: "!롤 <닉네임>", value: "롤전적 검색"});
             printDataArr.push({name: "!희건 <오늘 부터 조회할 날짜 수> 또는 <조회하고 싶은 당일 (YYYYMMDD)>", value: "오늘이 야간,주간,휴일 인지 조회"});

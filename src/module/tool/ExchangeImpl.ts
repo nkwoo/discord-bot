@@ -27,18 +27,16 @@ export class ExchangeImpl implements Exchange {
                     const date = jsonData[0].date;
                     const price = jsonData[0].rate.toFixed(2);
 
-                    const printDataArr = [
-                        {name: "조회 시간", value: date},
-                        {name: "가격(1엔당)", value: price.toString()}
-                    ];
-
                     editMsg.edit("데이터 조회 성공 ✅");
                     channel.send({
                         embed: {
                             color: 3447003,
                             title: "엔화 정보",
                             description: "현재 엔화 가격",
-                            fields: printDataArr
+                            fields: [
+                                {name: "조회 시간", value: date},
+                                {name: "가격(1엔당)", value: price.toString()}
+                            ]
                         }
                     });
                 } else {

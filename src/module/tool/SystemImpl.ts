@@ -2,17 +2,17 @@ import {System} from "./interface/System";
 import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
 import * as system from "systeminformation";
 import command from "child_process";
+import {Systeminformation} from "systeminformation";
 
 export class SystemImpl implements System {
     async getSystemState(channel: TextChannel | DMChannel | GroupDMChannel) {
-        let printDataArr = [];
+        const printDataArr: {name: string; value: string; inline?: boolean;}[] = [];
 
-        let sendMessage = await channel.send("데이터 조회중......");
+        const sendMessage = await channel.send("데이터 조회중......");
 
         const serverOsInfo = await system.osInfo();
         const serverCpuInfo = await system.cpu();
 
-        //const serverCpuTemperature = await system.cpuTemperature();
         //TODO 타 OS 온도 지원
         const serverMemory = await system.mem();
         const serverDiskInfo = await system.fsSize();
@@ -23,6 +23,8 @@ export class SystemImpl implements System {
         printDataArr.push({name: "OS 정보", value: serverOsInfo.distro});
         printDataArr.push({name: "CPU 정보", value: `${serverCpuInfo.manufacturer} ${serverCpuInfo.brand}`});
 
+        const cpuTemp: Systeminformation.CpuTemperatureData = await system.cpuTemperature();
+        const graphicsData: Systeminformation.GraphicsData = await system.graphics();
 
         if (serverOsInfo.logofile == "raspbian") {
             const linuxTemper: ResultVo = await this.linuxGetCpuGpuTemperature();
@@ -34,7 +36,13 @@ export class SystemImpl implements System {
                 printDataArr.push({name: "CPU 온도", value: "미지원"});
                 printDataArr.push({name: "GPU 온도", value: "미지원"});
             }
+        } else {
+            printDataArr.push({name: "CPU 온도", value: `${cpuTemp.main}°C`});
+            graphicsData.controllers.forEach(value => {
+                printDataArr.push({name: "GPU 정보", value: `${value.model} / ${value.vram}`});
+            });
         }
+
 
         printDataArr.push({name: "Memory 사용량", value: `${usedMemory}GB / ${totalMemory}GB`});
 
@@ -95,7 +103,7 @@ export class SystemImpl implements System {
     }
 }
 
-interface ResultVo {
+export interface ResultVo {
     state: string,
     data: {
         cpu: string,

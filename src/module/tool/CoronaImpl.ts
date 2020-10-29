@@ -23,7 +23,7 @@ export class CoronaImpl implements Corona {
                 }
 
                 const $ = this.htmlParser.changeHtmlToDom(html.data);
-                let coronaArray: { name: string; value: string; }[] = [];
+                const coronaArray: {name: string; value: string;}[] = [];
 
                 $(".status_info ul li").each((index, element) => {
                     const titleText = $(element).children(".info_title").text();

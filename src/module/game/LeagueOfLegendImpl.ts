@@ -3,9 +3,9 @@ import {HtmlParser} from "../HtmlParser";
 import {LeagueOfLegend} from "./interface/LeagueOfLegend";
 import Cheerio = cheerio.Cheerio;
 
-const lolUrl: string = "https://www.op.gg/summoner/";
-const lolInGameUrl: string = "https://www.op.gg/summoner/ajax/spectateStatus/";
-const lolUpdateUrl: string  = "https://www.op.gg/summoner/ajax/renew.json/";
+const lolUrl = "https://www.op.gg/summoner/";
+const lolInGameUrl = "https://www.op.gg/summoner/ajax/spectateStatus/";
+const lolUpdateUrl = "https://www.op.gg/summoner/ajax/renew.json/";
 
 export class LeagueOfLegendImpl implements LeagueOfLegend {
 
@@ -15,7 +15,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
         this.htmlParser = new HtmlParser();
     }
 
-    searchLoLPlayData(channel: TextChannel | DMChannel | GroupDMChannel, nickname: string) {
+    searchLoLPlayData(channel: TextChannel | DMChannel | GroupDMChannel, nickname: string): void {
         this.htmlParser.getHtmlDocumentParameter(lolUrl, {userName: nickname}).then(html => {
 
             if (!html) {
@@ -41,8 +41,8 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
                         lolUserTier: string,
                         lolUserTierPoint: string,
                         lolUserLevel: string,
-                        lolInGame: string,
-                        lolPlayList: Array<string> = [];
+                        lolInGame: string;
+                    const lolPlayList: Array<string> = [];
 
                     this.htmlParser.getHtmlDocument(lolUrl + "userName=" + encodeURIComponent(nickname)).then(html => {
 
@@ -91,23 +91,21 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
                                 } else {
                                     lolInGame = "Nope";
                                 }
-
-                                let printDataArr = [];
-
-                                printDataArr.push({name: "닉넴", value: lolUserName});
-                                printDataArr.push({name: "레벨", value: lolUserLevel});
-                                printDataArr.push({name: "인게임", value: lolInGame});
-                                printDataArr.push({name: "티어", value: lolUserTier});
-                                printDataArr.push({name: "랭포", value: lolUserTierPoint});
-                                printDataArr.push({name: "최근 플레이한 챔프", value: lolPlayList.toString()});
-
+                                
                                 channel.send({
                                     embed: {
                                         color: 3447003,
                                         title: "롤전적",
                                         url: lolUrl + "userName=" + nickname,
                                         description: "당신의 전적을 검색해드립니다!",
-                                        fields: printDataArr
+                                        fields: [
+                                            {name: "닉넴", value: lolUserName},
+                                            {name: "레벨", value: lolUserLevel},
+                                            {name: "인게임", value: lolInGame},
+                                            {name: "티어", value: lolUserTier},
+                                            {name: "랭포", value: lolUserTierPoint},
+                                            {name: "최근 플레이한 챔프", value: lolPlayList.toString()}
+                                        ]
                                     }
                                 });
                             });
