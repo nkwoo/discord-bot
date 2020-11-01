@@ -35,3 +35,15 @@ How To Use Bot
         npm run-script stop
     
         (After Add)
+        
+NOTICE
+--
+해당 봇은 .env.<option> 파일이 존재해야 Docker로 빌드할 수 있습니다.
+
+Docker Build Command
+- docker build -t discord-bot:1.5.14 .
+- docker run --name bot discord-bot:1.5.14
+
+
+Docker None Images Remove
+- docker rmi $(docker images -f "dangling=true" -q)

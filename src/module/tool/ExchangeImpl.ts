@@ -25,7 +25,7 @@ export class ExchangeImpl implements Exchange {
 
                 if (jsonData.length > 0) {
                     const date = jsonData[0].date;
-                    const price = jsonData[0].rate.toFixed(2);
+                    const price = (Number(jsonData[0].rate) * 100).toFixed(1);
 
                     editMsg.edit("데이터 조회 성공 ✅");
                     channel.send({
@@ -35,7 +35,7 @@ export class ExchangeImpl implements Exchange {
                             description: "현재 엔화 가격",
                             fields: [
                                 {name: "조회 시간", value: date},
-                                {name: "가격(1엔당)", value: price.toString()}
+                                {name: "가격(100엔당)", value: price.toString()}
                             ]
                         }
                     });

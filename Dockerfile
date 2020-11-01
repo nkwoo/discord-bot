@@ -8,8 +8,6 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install typescript -g
-RUN npm install ts-node -g
 RUN npm install
 
 COPY . .
@@ -17,7 +15,7 @@ COPY . .
 ENV NODE_ENV prod
 COPY .env.prod .env.prod
 
-CMD npm run start
+CMD npm run build
 
 #ENTRYPOINT ["git", "clone", "https://github.com/nkwoo/discord-bot.git", "bot"]
 
