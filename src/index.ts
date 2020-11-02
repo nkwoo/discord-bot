@@ -4,7 +4,7 @@ import {Message} from "discord.js";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 
-import {Tool} from "./module/tool";
+import {Tool} from "./module/Tool";
 import {Game} from "./module/Game";
 import {TimeQueue} from "./module/discord/TimeQueue";
 import {DiscordServer} from "./module/discord/DiscordServer";
