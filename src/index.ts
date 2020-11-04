@@ -49,13 +49,15 @@ setInterval(() => {
 /**
 * 유저 권한 체크
 */
-function permission(message: Message) {
+function permission(message: Message): boolean {
     const id = message.member.user.id;
     for (let i = 0; i < administratorUserId.length; i++) {
         if (administratorUserId[i] == id) return false;
     }
 
-    message.channel.send("permission denied");
+    message.channel.send("권한이 없습니다.");
+
+    return true;
 }
 
 client.on("ready", () => {

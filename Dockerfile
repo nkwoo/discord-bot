@@ -2,7 +2,7 @@ FROM node:10.23-alpine
 
 MAINTAINER NamKyoungWoo
 LABEL title="Discord Bot"
-LABEL version="1.5.14"
+LABEL version="1.5.17"
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ COPY . .
 ENV NODE_ENV prod
 COPY .env.prod .env.prod
 
-CMD npm run build
+CMD npm run start
 
 #ENTRYPOINT ["git", "clone", "https://github.com/nkwoo/discord-bot.git", "bot"]
 
