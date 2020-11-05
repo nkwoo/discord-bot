@@ -16,6 +16,8 @@ import {NamuWiki} from "./tool/interface/NamuWiki";
 import {NamuWikiImpl} from "./tool/NamuWikiImpl";
 import {YouTube} from "./tool/interface/Youtube";
 import {YoutubeImpl} from "./tool/YoutubeImpl";
+import {Timer} from "./tool/interface/Timer";
+import {TimerImpl} from "./tool/TimerImpl";
 
 export class Tool {
     private readonly _corona: Corona;
@@ -27,6 +29,7 @@ export class Tool {
     private readonly _heeGunHoliday: HeeGunHoliday;
     private readonly _namuWiki: NamuWiki;
     private readonly _youtube: YouTube;
+    private readonly _timer: Timer;
 
     constructor() {
         this._corona = new CoronaImpl();
@@ -38,6 +41,7 @@ export class Tool {
         this._heeGunHoliday = new HeeGunHolidayImpl();
         this._namuWiki = new NamuWikiImpl();
         this._youtube = new YoutubeImpl();
+        this._timer = new TimerImpl();
     }
 
     get corona(): Corona {
@@ -74,5 +78,9 @@ export class Tool {
 
     get youtube(): YouTube {
         return this._youtube;
+    }
+
+    get timer(): Timer {
+        return this._timer;
     }
 }

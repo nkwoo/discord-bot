@@ -1,6 +1,24 @@
 Discord-Bot
 ===
 
+Discord Bot (Iru Bot)
+
+How To Use Bot
+---
+    1. you must invite bot on your discord server
+    2. make .env.prod file (Reference .env.example source code) with your bot api key
+    3. use command
+      - Run Command
+        npm run start (Typescript)
+        npm run build (Javascript)
+        
+      - Run in Docker
+        docker build -t discord-bot:1.5.14 .
+        docker run --name bot discord-bot:1.5.14
+        
+      - Docker None Images Remove
+        docker rmi $(docker images -f "dangling=true" -q)
+      
 ENV command
 ---
 * window cmd
@@ -18,32 +36,10 @@ ENV command
     edit /etc/profile
 
     export NODE_ENV=prod
-    echo $NODE_ENV
-
-How To Use Bot
----
-    1. you must invite bot on your discord server
-    2. make .env.prod file (Reference .env.example source code) with your bot api key
-    3. use command
-        npm install -g forever
-        ex) linux command(window command)
-           
-        npm run-script build(npm run-script win-build)
-        npm run-script start(npm run-script win-start)
-
-        -linux only
-        npm run-script stop
+    echo $NODE_ENV\
     
-        (After Add)
-        
 NOTICE
 --
-해당 봇은 .env.<option> 파일이 존재해야 Docker로 빌드할 수 있습니다.
+해당 봇은 .env.<option> 파일이 존재해야 빌드할 수 있습니다.
 
-Docker Build Command
-- docker build -t discord-bot:1.5.14 .
-- docker run --name bot discord-bot:1.5.14
-
-
-Docker None Images Remove
-- docker rmi $(docker images -f "dangling=true" -q)
+https://log-laboratory.tistory.com/190
