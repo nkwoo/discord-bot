@@ -1,11 +1,11 @@
 {
   "name": "discord-bot",
-  "version": "1.5.18",
+  "version": "1.5.19",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc && node ./dist/src/index.js",
-    "start": "nodemon --exec ts-node src/index.ts"
+    "start": "nodemon -x ts-node src/index.ts"
   },
   "author": "",
   "license": "ISC",

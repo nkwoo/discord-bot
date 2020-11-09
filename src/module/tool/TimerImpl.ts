@@ -3,11 +3,17 @@ import {TimeQueue} from "../discord/TimeQueue";
 import {Message} from "discord.js";
 
 export class TimerImpl implements Timer {
-    addTimer(message: Message, timerQueue: TimeQueue[], callUser: string, hour: number) {
+    addTimer(message: Message, timerQueue: TimeQueue[], callUser: string, hour: number): void {
+        const registeredTimerLen = timerQueue.filter(value => value.server === message.guild.id).filter(value => value.owner === message.member.user.id).length;
+        if (registeredTimerLen >= 5) {
+            message.channel.send("등록할 수 있는 타이머의 개수는 최대 5개입니다.");
+            return;
+        }
+
         const serverMembers = message.guild.members.filter(member => !member.user.bot);
         const callUsers: string[] = [];
 
-        let sendMembers = "호출대상 :";
+        let sendMembers = "호출대상 : ";
         const sendText = message.content.substring(message.content.indexOf("\"") + 1, message.content.lastIndexOf("\""));
 
         serverMembers.forEach(function (member) {
@@ -19,39 +25,40 @@ export class TimerImpl implements Timer {
             }
         });
 
-        if (callUsers.length > 0) {
-            message.channel.send({
-                embed: {
-                    color: 3447003,
-                    fields: [
-                        {name: "타이머 호출대상", value: sendMembers},
-                        {name: "타이머 시간", value:  hour + "분"},
-                        {name: "타이머 취소 방법", value: "!타이머취소 " + (timerQueue.length + 1)}
-                    ]
-                }
-            });
-
-            let callUserStr = "";
-
-            callUsers.forEach(function (id) {
-                callUserStr += " <@!" + id + ">";
-            });
-
-            const timeout = setTimeout(function() {
-                message.channel.send(sendText + callUserStr);
-                timerQueue.filter(value => value.endTime < new Date().getTime()).forEach((value, index) => {
-                    clearTimeout(value.timer);
-                    timerQueue.splice(index, 1);
-                });
-            }, hour * 60 * 1000);
-
-            timerQueue.push(new TimeQueue(timeout, new Date().getTime() + (hour * 60 * 1000), message.guild.id, message.member.user.id, timerQueue.filter(value => value.server === message.guild.id).length + 1,  sendText));
-        } else {
+        if (callUsers.length == 0) {
             message.channel.send("호출 대상의 이름을 확인한 후 다시 입력해주세요!");
+            return;
         }
+
+        message.channel.send({
+            embed: {
+                color: 3447003,
+                fields: [
+                    {name: "타이머 호출대상", value: sendMembers.substring(0, sendMembers.length -2)},
+                    {name: "타이머 시간", value:  hour + "분"},
+                    {name: "타이머 취소 방법", value: "!타이머취소 " + (timerQueue.length + 1)}
+                ]
+            }
+        });
+
+        let callUserStr = "";
+
+        callUsers.forEach(function (id) {
+            callUserStr += " <@!" + id + ">";
+        });
+
+        const timeout = setTimeout(function() {
+            message.channel.send(sendText + callUserStr);
+            timerQueue.filter(value => value.endTime < new Date().getTime()).forEach((value, index) => {
+                clearTimeout(value.timer);
+                timerQueue.splice(index, 1);
+            });
+        }, hour * 60 * 1000);
+
+        timerQueue.push(new TimeQueue(timeout, new Date().getTime() + (hour * 60 * 1000), message.guild.id, message.member.user.id, timerQueue.filter(value => value.server === message.guild.id).length + 1,  sendText));
     }
 
-    removeTimer(message: Message, timerQueue: TimeQueue[], inputRank: number) {
+    removeTimer(message: Message, timerQueue: TimeQueue[], inputRank: number): void {
         timerQueue.filter(value => value.server === message.guild.id).forEach(function (timeSch, idx) {
             if (timeSch.rank === inputRank) {
                 if (timeSch.owner != message.member.user.id) {
@@ -65,12 +72,12 @@ export class TimerImpl implements Timer {
         });
     }
 
-    timerList(message: Message, timerQueue: TimeQueue[]) {
-        const printDataArr: {name: string, value: any}[] = [];
+    timerList(message: Message, timerQueue: TimeQueue[]): void {
+        const printDataArr: {name: string, value: string}[] = [];
 
         const serverMembers = message.guild.members.filter(member => !member.user.bot);
 
-        timerQueue.filter(value => value.server === message.guild.id).forEach((value, index) => {
+        timerQueue.filter(value => value.server === message.guild.id).forEach((value) => {
 
             let userName = "";
 

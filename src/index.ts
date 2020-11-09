@@ -175,7 +175,6 @@ client.on("message", message => {
             break;
         }
         case "!타이머추가": {
-            if (permission(message)) return;
             const commandHour = Number(args[1]);
 
             if (message.content.length < 5 || isNaN(commandHour) || args.length < 4 || message.content.indexOf("\"") == -1) {
@@ -192,8 +191,6 @@ client.on("message", message => {
             break;
         }
         case "!타이머취소": {
-            if (permission(message)) return;
-
             if (message.content.length < 5 || args.length < 2) {
                 message.channel.send("!타이머취소 <타이머 번호> ㄱㄱ");
                 return;
@@ -234,6 +231,8 @@ client.on("message", message => {
             printDataArr.push({name: "!타이머추가 <분> <호출대상> \"<문구>\"", value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"});
             printDataArr.push({name: "!타이머취소 <타이머코드>", value: "타이머취소 방법"});
             printDataArr.push({name: "!엔화", value: "엔화 가격 조회"});
+            printDataArr.push({name: "!코로나", value: "코로나 현황 조회"});
+            printDataArr.push({name: "!나무랭킹", value: "나무위키 검색 랭킹 조회"});
 
             message.channel.send({
                 embed: {
