@@ -43,3 +43,14 @@ NOTICE
 해당 봇은 .env.<option> 파일이 존재해야 빌드할 수 있습니다.
 
 https://log-laboratory.tistory.com/190
+
+서버 버전 업데이트시 하단 파일들을 모두 버전 업데이트 해주셔야합니다.
+
+```
+.env.dev
+.env.example
+.env.prod
+Dockerfile
+package.json
+package-lock.json
+```

@@ -4,6 +4,7 @@ import { load } from "cheerio";
 import { cacheAdapterEnhancer } from "axios-extensions";
 import { AxiosAdapter } from "axios";
 import Root = cheerio.Root;
+import querystring from "querystring";
 //https://yamoo9.github.io/axios/guide/error-handling.html
 
 export class HtmlParser {
@@ -24,6 +25,7 @@ export class HtmlParser {
             console.error(error);
         }
     }
+
     async getHtmlDocumentParameter(url: string, parameterJson: any = {}) {
         try {
             return await axios.default.get(url, {
@@ -35,6 +37,21 @@ export class HtmlParser {
                 validateStatus: function (status) {
                     return status < 500;
                 }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async getPostJson<T>(url: string, headerJson: any = {}, parameterJson: any = {}) {
+        try {
+            return await axios.default.post<T>(url, querystring.stringify(parameterJson), {
+                headers: headerJson,
+                validateStatus: function (status: number) {
+                    return status < 500;
+                }
+            }).catch(error => {
+                console.log(error);
             });
         } catch (error) {
             console.error(error);

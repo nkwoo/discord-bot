@@ -39,8 +39,8 @@ for (const k in envConfig) {
 }
 
 /**
-* 유저 권한 체크
-*/
+ * 유저 권한 체크
+ */
 function permission(message: Discord.Message): boolean {
     const id = message.member.user.id;
     for (let i = 0; i < administratorUserId.length; i++) {
@@ -88,7 +88,7 @@ client.on("message", message => {
     if (process.env.NODE_ENV == "prod") {
         const checkDevOn = message.guild.members.filter(function(el) {
             return el.user.id == botDevId &&
-            el.user.presence.status == "online";
+                el.user.presence.status == "online";
         }).array().length;
 
         if (checkDevOn > 0) {
@@ -195,7 +195,7 @@ client.on("message", message => {
                 message.channel.send("!타이머취소 <타이머 번호> ㄱㄱ");
                 return;
             }
-            
+
             tool.timer.removeTimer(message, timerQueue, Number(args[1]));
             break;
         }
@@ -221,6 +221,39 @@ client.on("message", message => {
             tool.namuWiki.getNamuRanking(message.channel);
             break;
         }
+        case "!번역": {
+            const commandLang = args[1];
+
+            if (commandLang === undefined || args.length < 3 || message.content.indexOf("\"") == -1) {
+                message.channel.send("!번역 <번역코드> \"<문구>\" ㄱㄱ");
+                return;
+            }
+
+            const sendText = message.content.substring(message.content.indexOf("\"") + 1, message.content.lastIndexOf("\""));
+
+            tool.translation.translationLang(message.channel, sendText, commandLang);
+            break;
+        }
+        case "!번역코드": {
+            tool.translation.getTranslationCode(message.channel);
+            break;
+        }
+        case "!이루": {
+            const version = process.env.VERSION != undefined ? process.env.VERSION.toString() : "Edit Env File";
+
+            const printDataArr: {name: string; value: string;}[] = [];
+
+            printDataArr.push({name: "만든이", value: "라이따이"});
+            printDataArr.push({name: "VERSION", value: version});
+
+            message.channel.send({
+                embed: {
+                    color: 3447003,
+                    fields: printDataArr
+                }
+            });
+            break;
+        }
         case "!명령어": {
             const printDataArr: {name: string; value: string;}[] = [];
 
@@ -233,6 +266,8 @@ client.on("message", message => {
             printDataArr.push({name: "!엔화", value: "엔화 가격 조회"});
             printDataArr.push({name: "!코로나", value: "코로나 현황 조회"});
             printDataArr.push({name: "!나무랭킹", value: "나무위키 검색 랭킹 조회"});
+            printDataArr.push({name: "!번역 <번역코드> \"<문구>\"", value: "파파고 API를 이용한 번역"});
+            printDataArr.push({name: "!번역코드", value: "번역 가능한 코드 조회"});
 
             message.channel.send({
                 embed: {
