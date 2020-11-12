@@ -13,8 +13,7 @@ How To Use Bot
         npm run build (Javascript)
         
       - Run in Docker
-        docker build -t discord-bot:1.5.14 .
-        docker run --name bot discord-bot:1.5.14
+        docker build -t discord-bot:1.5.19 . && docker run --name discord-bot -d -e TZ=Asia/Seoul discord-bot:1.5.19 
         
       - Docker None Images Remove
         docker rmi $(docker images -f "dangling=true" -q)
@@ -43,6 +42,8 @@ NOTICE
 해당 봇은 .env.<option> 파일이 존재해야 빌드할 수 있습니다.
 
 https://log-laboratory.tistory.com/190
+
+
 
 서버 버전 업데이트시 하단 파일들을 모두 버전 업데이트 해주셔야합니다.
 
