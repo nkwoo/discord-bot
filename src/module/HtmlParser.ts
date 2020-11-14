@@ -58,6 +58,20 @@ export class HtmlParser {
         }
     }
 
+    async getGetJson<T>(url: string, headerJson: any = {}, parameterJson: any = {}) {
+        try {
+            return await axios.default.get<T>(url, {
+                headers: headerJson,
+                params: parameterJson,
+                validateStatus: function (status) {
+                    return status < 500;
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     changeHtmlToDom(html: string): Root {
         return load(html);
     }

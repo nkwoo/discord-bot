@@ -13,13 +13,6 @@ const client = new Discord.Client();
 const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
 
-const tool = new Tool();
-const game = new Game();
-
-const administratorUserId = ["356423613605478401"];
-const botDevId = "682174735169486868";
-
-
 let envPath;
 switch (process.env.NODE_ENV) {
     case "prod":
@@ -37,6 +30,12 @@ const envConfig = dotenv.parse(fs.readFileSync(envPath));
 for (const k in envConfig) {
     process.env[k] = envConfig[k];
 }
+
+const tool = new Tool();
+const game = new Game();
+
+const administratorUserId = ["356423613605478401"];
+const botDevId = "682174735169486868";
 
 /**
  * 유저 권한 체크
@@ -141,8 +140,6 @@ client.on("message", message => {
             break;
         }
         case "!롤": {
-            if (permission(message)) return;
-
             if (message.content.length < 3) {
                 message.channel.send("!롤 <닉네임> ㄱㄱ");
                 return;
@@ -152,6 +149,10 @@ client.on("message", message => {
 
             game.lol.searchLoLPlayData(message.channel, nickname);
 
+            break;
+        }
+        case "!로테": {
+            game.lol.getRotationsChampion(message.channel);
             break;
         }
         case "!희건": {

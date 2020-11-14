@@ -1,18 +1,27 @@
 import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {LeagueOfLegend} from "./interface/LeagueOfLegend";
+import {LeagueOfLegendResource} from "./data/LeagueOfLegendResource";
 
 const lolUrl = "https://www.op.gg/summoner/";
 const lolInGameUrl = "https://www.op.gg/summoner/ajax/spectateStatus/";
 const lolUpdateUrl = "https://www.op.gg/summoner/ajax/renew.json/";
 
+const lolRotationsChampionUrl = "https://kr.api.riotgames.com/lol/platform/v3/champion-rotations";
+
 export class LeagueOfLegendImpl implements LeagueOfLegend {
 
     private htmlParser: HtmlParser;
+    private lolResource: LeagueOfLegendResource;
 
     constructor() {
         this.htmlParser = new HtmlParser();
+        this.lolResource = new LeagueOfLegendResource(this.htmlParser);
     }
+
+    // getChampion() {
+    //     https://ddragon.leagueoflegends.com/cdn/10.6.1/data/ko_KR/champion.json
+    // }
 
     searchLoLPlayData(channel: TextChannel | DMChannel | GroupDMChannel, nickname: string): void {
         channel.send("데이터 조회중......").then((editMsg) => {
@@ -129,4 +138,65 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
             });
         });
     }
+
+    getRotationsChampion(channel: TextChannel | DMChannel | GroupDMChannel) {
+        channel.send("데이터 조회중......").then((editMsg) => {
+
+            const headerJson = {
+                "X-Riot-Token": process.env.LOL_API_KEY
+            };
+
+            this.htmlParser.getGetJson<ApiRotationsChampionInfo>(lolRotationsChampionUrl, headerJson).then(json => {
+                if (json === undefined) {
+                    editMsg.edit("데이터 조회 실패 ❌");
+                    channel.send("로테이션 정보를 가져올 수 없습니다..");
+                    return;
+                }
+
+                const champion = this.lolResource.champion;
+
+                if (champion === undefined) {
+                    editMsg.edit("데이터 조회 실패 ❌");
+                    channel.send("챔피언 정보를 가져올 수 없습니다..");
+                    return;
+                }
+
+                const championArray = Object.values(champion.data);
+
+                const freeChampionArray: string[] = [];
+                const freeNewChampionArray: string[] = [];
+
+                championArray.filter(champion =>
+                    !!json.data.freeChampionIds.find(freeChampion => +champion.key === freeChampion)
+                ).forEach(value => {
+                    freeChampionArray.push(value.name);
+                });
+
+                championArray.filter(champion =>
+                    !!json.data.freeChampionIdsForNewPlayers.find(freeNewChampion => +champion.key === freeNewChampion)
+                ).forEach(value => {
+                    freeNewChampionArray.push(value.name);
+                });
+
+                editMsg.edit("데이터 조회 성공 ✅");
+                channel.send({
+                    embed: {
+                        color: 3447003,
+                        title: "이번주 롤 로테이션",
+                        fields: [
+                            {name: "로테이션", value: freeChampionArray.join(", ")},
+                            {name: "로테이션 - 뉴비용", value: freeNewChampionArray.join(", ")}
+                        ]
+                    }
+                });
+                //channel.send({files: ['https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png', 'https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Aatrox.png','https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png', 'https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Aatrox.png']});
+            });
+        });
+    }
+}
+
+interface ApiRotationsChampionInfo {
+    freeChampionIds: number[],
+    freeChampionIdsForNewPlayers: number[],
+    maxNewPlayerLevel: number
 }
