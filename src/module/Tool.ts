@@ -20,6 +20,7 @@ import {Timer} from "./tool/interface/Timer";
 import {TimerImpl} from "./tool/TimerImpl";
 import {Translation} from "./tool/interface/Translation";
 import {TranslationImpl} from "./tool/TranslationImpl";
+import {HtmlParser} from "./HtmlParser";
 
 export class Tool {
     private readonly _corona: Corona;
@@ -34,18 +35,18 @@ export class Tool {
     private readonly _timer: Timer;
     private readonly _translation: Translation;
 
-    constructor() {
-        this._corona = new CoronaImpl();
-        this._exchange = new ExchangeImpl();
+    constructor(private htmlParser: HtmlParser) {
+        this._corona = new CoronaImpl(this.htmlParser);
+        this._exchange = new ExchangeImpl(this.htmlParser);
         this._system = new SystemImpl();
         this._util = new UtilImpl();
-        this._weather = new WeatherImpl();
+        this._weather = new WeatherImpl(this.htmlParser);
         this._voiceLog = new VoiceLogImpl();
         this._heeGunHoliday = new HeeGunHolidayImpl();
-        this._namuWiki = new NamuWikiImpl();
+        this._namuWiki = new NamuWikiImpl(this.htmlParser);
         this._youtube = new YoutubeImpl();
         this._timer = new TimerImpl();
-        this._translation = new TranslationImpl();
+        this._translation = new TranslationImpl(this.htmlParser);
     }
 
     get corona(): Corona {

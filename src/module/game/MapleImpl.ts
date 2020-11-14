@@ -6,10 +6,7 @@ const maplePersonSearchUrl = "https://maplestory.nexon.com/Ranking/World/Total";
 
 export class MapleImpl implements Maple {
 
-    private htmlParser: HtmlParser;
-
-    constructor() {
-        this.htmlParser = new HtmlParser();
+    constructor(private htmlParser: HtmlParser) {
     }
 
     searchMaplePlayerData(channel: TextChannel | DMChannel | GroupDMChannel, name: string, type: number): void {

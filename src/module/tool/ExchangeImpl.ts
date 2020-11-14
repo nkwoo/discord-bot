@@ -5,13 +5,11 @@ import {HtmlParser} from "../HtmlParser";
 const exchangeUrl = 'https://api.manana.kr/exchange/rate/KRW/JPY.json';
 
 export class ExchangeImpl implements Exchange {
-    private htmlParser: HtmlParser;
 
-    constructor() {
-        this.htmlParser = new HtmlParser();
+    constructor(private htmlParser: HtmlParser) {
     }
 
-    getExchangeWonToJpy(channel: TextChannel | DMChannel | GroupDMChannel) {
+    getExchangeWonToJpy(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
             this.htmlParser.getHtmlDocument(exchangeUrl).then(html => {
 

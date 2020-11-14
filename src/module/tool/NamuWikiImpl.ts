@@ -1,16 +1,12 @@
 import {NamuWiki} from "./interface/NamuWiki";
 import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
-import {AxiosResponse} from "axios";
 
 const namuRankingUrl = 'https://search.namu.wiki/api/ranking';
 
 export class NamuWikiImpl implements NamuWiki {
 
-    private htmlParser: HtmlParser;
-
-    constructor() {
-        this.htmlParser = new HtmlParser();
+    constructor(private htmlParser: HtmlParser) {
     }
 
     getNamuRanking(channel: TextChannel | DMChannel | GroupDMChannel): void {
@@ -27,7 +23,7 @@ export class NamuWikiImpl implements NamuWiki {
 
                 if (rankingArray.length > 0) {
 
-                    const printDataArr: {name: string, value: any}[] = [];
+                    const printDataArr: {name: string, value: string}[] = [];
 
                     rankingArray.forEach((value, index) => {
                         printDataArr.push({name: (index + 1) + "등", value: value});

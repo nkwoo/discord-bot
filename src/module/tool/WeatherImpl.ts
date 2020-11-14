@@ -7,10 +7,8 @@ const weather3DayInUrl = 'http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=11000000
 const weather3DayOutUrl = 'http://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
 
 export class WeatherImpl implements Weather {
-    private htmlParser: HtmlParser;
 
-    constructor() {
-        this.htmlParser = new HtmlParser();
+    constructor(private htmlParser: HtmlParser) {
     }
 
     getSeoulWeather(channel: TextChannel | DMChannel | GroupDMChannel): void {

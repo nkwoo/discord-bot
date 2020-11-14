@@ -7,6 +7,7 @@ import {Tool} from "./module/Tool";
 import {Game} from "./module/Game";
 import {TimeQueue} from "./module/discord/TimeQueue";
 import {DiscordServer} from "./module/discord/DiscordServer";
+import {HtmlParser} from "./module/HtmlParser";
 
 const client = new Discord.Client();
 
@@ -27,12 +28,14 @@ switch (process.env.NODE_ENV) {
 }
 
 const envConfig = dotenv.parse(fs.readFileSync(envPath));
-for (const k in envConfig) {
-    process.env[k] = envConfig[k];
+for (const key in envConfig) {
+    process.env[key] = envConfig[key];
 }
 
-const tool = new Tool();
-const game = new Game();
+const htmlParser = new HtmlParser();
+
+const tool = new Tool(htmlParser);
+const game = new Game(htmlParser);
 
 const administratorUserId = ["356423613605478401"];
 const botDevId = "682174735169486868";
@@ -52,7 +55,7 @@ function permission(message: Discord.Message): boolean {
 }
 
 client.on("ready", () => {
-    console.log(`Server Ready - now Runing: ${process.env.NODE_ENV != undefined ? process.env.NODE_ENV : "dev"}`);
+    console.log(`Server Ready - now Running: ${process.env.NODE_ENV != undefined ? process.env.NODE_ENV : "dev"}`);
 
     client.guilds.forEach((value, index) => discordServer.push(new DiscordServer(index, value.name)));
 });

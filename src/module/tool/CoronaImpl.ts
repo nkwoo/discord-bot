@@ -6,10 +6,7 @@ const coronaSearchUrl = "https://m.search.naver.com/search.naver?sm=mtp_hty.top&
 
 export class CoronaImpl implements Corona {
 
-    private htmlParser: HtmlParser;
-
-    constructor() {
-        this.htmlParser = new HtmlParser();
+    constructor(private htmlParser: HtmlParser) {
     }
 
     getCoronaState(channel: TextChannel | DMChannel | GroupDMChannel): void {

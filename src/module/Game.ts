@@ -2,14 +2,15 @@ import {LeagueOfLegend} from "./game/interface/LeagueOfLegend";
 import {LeagueOfLegendImpl} from "./game/LeagueOfLegendImpl";
 import {Maple} from "./game/interface/Maple";
 import {MapleImpl} from "./game/MapleImpl";
+import {HtmlParser} from "./HtmlParser";
 
 export class Game {
     private readonly _lol: LeagueOfLegend;
     private readonly _maple: Maple;
 
-    constructor() {
-        this._lol = new LeagueOfLegendImpl();
-        this._maple = new MapleImpl();
+    constructor(private htmlParser: HtmlParser) {
+        this._lol = new LeagueOfLegendImpl(this.htmlParser);
+        this._maple = new MapleImpl(this.htmlParser);
     }
 
     get lol(): LeagueOfLegend {

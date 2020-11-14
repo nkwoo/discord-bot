@@ -11,11 +11,9 @@ const lolRotationsChampionUrl = "https://kr.api.riotgames.com/lol/platform/v3/ch
 
 export class LeagueOfLegendImpl implements LeagueOfLegend {
 
-    private htmlParser: HtmlParser;
     private lolResource: LeagueOfLegendResource;
 
-    constructor() {
-        this.htmlParser = new HtmlParser();
+    constructor(private htmlParser: HtmlParser) {
         this.lolResource = new LeagueOfLegendResource(this.htmlParser);
     }
 
@@ -139,7 +137,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
         });
     }
 
-    getRotationsChampion(channel: TextChannel | DMChannel | GroupDMChannel) {
+    getRotationsChampion(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
 
             const headerJson = {
