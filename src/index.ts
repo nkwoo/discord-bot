@@ -151,7 +151,6 @@ client.on("message", message => {
             const nickname = message.content.substring(3, message.content.length).trim();
 
             game.lol.searchLoLPlayData(message.channel, nickname);
-
             break;
         }
         case "!로테": {
@@ -175,7 +174,6 @@ client.on("message", message => {
             const nickname = encodeURIComponent(message.content.substring(5, message.content.length).trim());
 
             game.maple.searchMaplePlayerData(message.channel, nickname, 0);
-
             break;
         }
         case "!타이머추가": {
