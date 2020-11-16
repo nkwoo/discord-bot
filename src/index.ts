@@ -240,6 +240,17 @@ client.on("message", message => {
             tool.translation.getTranslationCode(message.channel);
             break;
         }
+        case "!맞춤법" : {
+            if (message.content.length < 7) {
+                message.channel.send("!맞춤법 <텍스트> ㄱㄱ");
+                return;
+            }
+
+            const content = message.content.substring(4, message.content.length).trim();
+
+            tool.translation.checkSpellMessage(message.channel, content);
+            break;
+        }
         case "!이루": {
             const version = process.env.VERSION != undefined ? process.env.VERSION.toString() : "Edit Env File";
 

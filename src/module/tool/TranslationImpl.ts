@@ -94,6 +94,31 @@ export class TranslationImpl implements Translation {
             }
         });
     }
+
+    //TODO 맞춤법 로직 번역로직에 있는데 분리 해야할까?
+    checkSpellMessage(channel: TextChannel | DMChannel | GroupDMChannel, content: string): void {
+        channel.send("데이터 조회중......").then((editMsg) => {
+            this.htmlParser.getGetJson<ApiSpellInfo>(`https://search.naver.com/p/csearch/ocontent/util/SpellerProxy?q=${encodeURI(content)}&where=nexearch&color_blindness=0`).then(json => {
+                if (json === undefined) {
+                    editMsg.edit("데이터 조회 실패 ❌");
+                    channel.send("맞춤법 정보를 가져올 수 없습니다..");
+                    return;
+                }
+
+                editMsg.edit("데이터 조회 성공 ✅");
+                channel.send({
+                    embed: {
+                        color: 3447003,
+                        title: "맞춤법 검사기",
+                        fields: [
+                            {name: "교정전 텍스트", value: content},
+                            {name: "교정후 텍스트", value: json.data.message.result.notag_html}
+                        ]
+                    }
+                });
+            });
+        });
+    }
 }
 
 function checkKnownLang(channel: TextChannel | DMChannel | GroupDMChannel, editMsg: Message, lang: Language) {
@@ -120,4 +145,15 @@ interface ApiMessage {
     },
     errorMessage: string,
     errorCode: string
+}
+
+interface ApiSpellInfo {
+    message: {
+        result:{
+            errata_count: number,
+            origin_html: string,
+            html: string,
+            notag_html: string
+        }
+    }
 }
