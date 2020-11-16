@@ -2,6 +2,7 @@ import {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {LeagueOfLegend} from "./interface/LeagueOfLegend";
 import {LeagueOfLegendResource} from "./data/LeagueOfLegendResource";
+import {getLeagueOfLegendGameType, LeagueOfLegendGameType} from "../../enum/LeagueOfLegendGameType";
 
 const lolRotationsChampionUrl = "https://kr.api.riotgames.com/lol/platform/v3/champion-rotations";
 
@@ -91,18 +92,50 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
                         if (championNameArray.length === 0) championNameArray.push("최근 플레이 없음");
 
-                        editMsg.edit("데이터 조회 성공 ✅");
-                        channel.send(new RichEmbed()
-                            .setColor("#3399CC")
-                            .setTitle(summonerInfo.name)
-                            .setURL(`http://www.op.gg/summoner/userName=${encodeURI(nickname)}`)
-                            .setDescription(`레벨 : ${summonerInfo.summonerLevel}`)
-                            .setThumbnail(profileIconImageUrl)
-                            .addField("개인/듀오 랭크", soloInfo, true)
-                            .addField("자유 랭크", freeInfo, true)
-                            .addField("최근 플레이 한 챔피언", championNameArray.join("\n"))
-                        );
-                        //TODO 추가적으로 상세한 KDA 출력
+                        this.htmlParser.getGetJson<ApiSpectatorInfo>(`https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerInfo.id}`, this.headerJson).then(json => {
+                            if (json === undefined || !(json.status === 200 || json.status === 404)) {
+                                editMsg.edit("데이터 조회 실패 ❌");
+                                channel.send("유저정보를 가져올 수 없습니다..");
+                                return;
+                            }
+
+                            let inGameStatus = "현재 게임중이 아닙니다.";
+
+                            if (json.status === 200) {
+                                const spectatorInfo = json.data;
+
+                                inGameStatus = getLeagueOfLegendGameType(spectatorInfo.gameMode) === LeagueOfLegendGameType.CLASSIC && spectatorInfo.bannedChampions.length > 0 ? "솔랭" : getLeagueOfLegendGameType(spectatorInfo.gameMode);
+
+                                const gameStartDiff = new Date().getTime() - new Date(spectatorInfo.gameStartTime).getTime();
+
+                                const gameSecond = gameStartDiff / 1000;
+
+                                if (gameSecond > 60) {
+                                    const gameMinutes = gameSecond / 60;
+                                    if (gameMinutes > 60) {
+                                        inGameStatus += ` - ${(gameMinutes / 60).toFixed(0)}시간 ${(gameMinutes % 60).toFixed(0)}분 ${(gameSecond % 60).toFixed(0)}초`;
+                                    } else {
+                                        inGameStatus += ` - ${(gameMinutes % 60).toFixed(0)}분 ${(gameSecond % 60).toFixed(0)}초`;
+                                    }
+                                } else {
+                                    inGameStatus += ` - ${(gameSecond / 60).toFixed(0)}초`;
+                                }
+                            }
+
+                            editMsg.edit("데이터 조회 성공 ✅");
+                            channel.send(new RichEmbed()
+                                .setColor("#3399CC")
+                                .setTitle(summonerInfo.name)
+                                .setURL(`http://www.op.gg/summoner/userName=${encodeURI(nickname)}`)
+                                .setDescription(`레벨 : ${summonerInfo.summonerLevel}`)
+                                .setThumbnail(profileIconImageUrl)
+                                .addField("개인/듀오 랭크", soloInfo, true)
+                                .addField("자유 랭크", freeInfo, true)
+                                .addField("인게임", inGameStatus)
+                                .addField("최근 플레이 한 챔피언", championNameArray.join("\n"))
+                            );
+                            //TODO 추가적으로 상세한 KDA 출력
+                        });
                     });
                 });
             });
@@ -167,34 +200,34 @@ interface ApiRotationsChampionInfo {
 }
 
 interface ApiSummonerInfo {
-    "id": string,
-    "accountId": string,
-    "puuid": string,
-    "name": string,
-    "profileIconId": number,
-    "revisionDate": number,
-    "summonerLevel": number
+    id: string,
+    accountId: string,
+    puuid: string,
+    name: string,
+    profileIconId: number,
+    revisionDate: number,
+    summonerLevel: number
 }
 
 interface ApiLeagueInfo {
-    "leagueId": string,
-    "queueType": string,
-    "tier": string,
-    "rank": string,
-    "summonerId": string,
-    "summonerName": string,
-    "leaguePoints": number,
-    "wins": number,
-    "losses": number,
-    "veteran": boolean,
-    "inactive": boolean,
-    "freshBlood": boolean,
-    "hotStreak": boolean,
-    "miniSeries": {
-        "target": number,
-        "wins": number,
-        "losses": number,
-        "progress": string
+    leagueId: string,
+    queueType: string,
+    tier: string,
+    rank: string,
+    summonerId: string,
+    summonerName: string,
+    leaguePoints: number,
+    wins: number,
+    losses: number,
+    veteran: boolean,
+    inactive: boolean,
+    freshBlood: boolean,
+    hotStreak: boolean,
+    miniSeries: {
+        target: number,
+        wins: number,
+        losses: number,
+        progress: string
     }
 }
 
@@ -212,4 +245,39 @@ interface ApiMatchInfo {
     startIndex: number,
     endIndex: number,
     totalGames: number
+}
+
+interface ApiSpectatorInfo {
+    gameId: number,
+    mapId: number,
+    gameMode: string,
+    gameType: string,
+    gameQueueConfigId: number,
+    participants: {
+        teamId: number,
+        spell1Id: number,
+        spell2Id: number,
+        championId: number,
+        profileIconId: number,
+        summonerName: string,
+        bot: boolean,
+        summonerId: string,
+        gameCustomizationObjects: [],
+        perks: {
+            perkIds: number[],
+            perkStyle: number,
+            perkSubStyle: number
+        }
+    }[],
+    observers: {
+        encryptionKey: string
+    },
+    platformId: string,
+    bannedChampions: {
+        championId: number,
+        teamId: number,
+        pickTurn: number
+    }[],
+    gameStartTime: number,
+    gameLength: number
 }
