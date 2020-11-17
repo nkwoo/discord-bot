@@ -1,0 +1,21 @@
+{
+    "apiKey": {
+        "discord": "<KEY>",
+        "naver": {
+            "papago": {
+                "detectLang": {
+                    "clientId": "<KEY>",
+                    "clientSecret": "<KEY>"
+                },
+                "nmt": {
+                    "clientId": "<KEY>",
+                    "clientSecret": "<KEY>"
+                }
+            }
+        },
+        "lol": "<KEY>"
+    },
+    "administratorId": ["<administratorId>"],
+    "botDevId": "<devId>",
+    "version": "<version>"
+}

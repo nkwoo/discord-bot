@@ -2,7 +2,7 @@ FROM node:10.23-alpine
 
 MAINTAINER NamKyoungWoo
 LABEL title="Discord Bot"
-LABEL version="1.6.6"
+LABEL version="1.7.0"
 
 WORKDIR /app
 
@@ -13,7 +13,6 @@ RUN npm install
 COPY . .
 
 ENV NODE_ENV prod
-COPY .env.prod .env.prod
 
 CMD npm run start
 

@@ -3,6 +3,7 @@ import {HtmlParser} from "../HtmlParser";
 import {LeagueOfLegend} from "./interface/LeagueOfLegend";
 import {LeagueOfLegendResource} from "./data/LeagueOfLegendResource";
 import {getLeagueOfLegendGameType, LeagueOfLegendGameType} from "../../enum/LeagueOfLegendGameType";
+import {GlobalConfig} from "../../global/GlobalConfig";
 
 const lolRotationsChampionUrl = "https://kr.api.riotgames.com/lol/platform/v3/champion-rotations";
 
@@ -11,11 +12,11 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
     private lolResource: LeagueOfLegendResource;
     private headerJson: {"X-Riot-Token": string | undefined;};
 
-    constructor(private htmlParser: HtmlParser) {
+    constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
         this.lolResource = new LeagueOfLegendResource(this.htmlParser);
 
         this.headerJson = {
-            "X-Riot-Token": process.env.LOL_API_KEY
+            "X-Riot-Token": globalConfig.apiKey.lol
         };
     }
 

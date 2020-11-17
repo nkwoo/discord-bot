@@ -1,6 +1,5 @@
 import * as Discord from "discord.js";
 //https://github.com/fent/node-ytdl-core#usage
-import * as dotenv from "dotenv";
 import * as fs from "fs";
 
 import {Tool} from "./module/Tool";
@@ -8,45 +7,40 @@ import {Game} from "./module/Game";
 import {TimeQueue} from "./module/discord/TimeQueue";
 import {DiscordServer} from "./module/discord/DiscordServer";
 import {HtmlParser} from "./module/HtmlParser";
+import {GlobalConfig} from "./global/GlobalConfig";
 
 const client = new Discord.Client();
 
 const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
 
-let envPath;
+let configPath;
 switch (process.env.NODE_ENV) {
     case "prod":
-        envPath = "./.env.prod";
+        configPath = "./env/prod.json";
         break;
     case "dev":
-        envPath = "./.env.dev";
+        configPath = "./env/dev.json";
         break;
     default:
-        envPath = "./.env.dev";
+        configPath = "./env/dev.json";
         break;
 }
 
-const envConfig = dotenv.parse(fs.readFileSync(envPath));
-for (const key in envConfig) {
-    process.env[key] = envConfig[key];
-}
+const globalConfig: GlobalConfig = JSON.parse(fs.readFileSync(configPath).toString());
 
 const htmlParser = new HtmlParser();
 
-const tool = new Tool(htmlParser);
-const game = new Game(htmlParser);
-
-const administratorUserId = ["356423613605478401"];
-const botDevId = "682174735169486868";
+const tool = new Tool(htmlParser, globalConfig);
+const game = new Game(htmlParser, globalConfig);
 
 /**
  * 유저 권한 체크
  */
 function permission(message: Discord.Message): boolean {
     const id = message.member.user.id;
-    for (let i = 0; i < administratorUserId.length; i++) {
-        if (administratorUserId[i] == id) return false;
+    for (let i = 0; i < globalConfig.administratorId.length; i++) {
+        if (globalConfig.administratorId[i] == id) return false;
     }
 
     message.channel.send("권한이 없습니다.");
@@ -89,7 +83,7 @@ client.on("message", message => {
 
     if (process.env.NODE_ENV == "prod") {
         const checkDevOn = message.guild.members.filter(function(el) {
-            return el.user.id == botDevId &&
+            return el.user.id == globalConfig.botDevId &&
                 el.user.presence.status == "online";
         }).array().length;
 
@@ -252,7 +246,7 @@ client.on("message", message => {
             break;
         }
         case "!이루": {
-            const version = process.env.VERSION != undefined ? process.env.VERSION.toString() : "Edit Env File";
+            const version = globalConfig.version;
 
             const printDataArr: {name: string; value: string;}[] = [];
 
@@ -293,8 +287,8 @@ client.on("message", message => {
     }
 });
 
-if (process.env.DISCORD_API_KEY) {
-    client.login(process.env.DISCORD_API_KEY);
+if (globalConfig.apiKey.discord != undefined) {
+    client.login(globalConfig.apiKey.discord);
 } else {
     console.log("You Don't Have Api-Key go https://discordapp.com/developers/applications/");
 }

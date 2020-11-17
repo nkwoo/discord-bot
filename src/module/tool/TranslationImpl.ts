@@ -2,13 +2,27 @@ import {Translation} from "./interface/Translation";
 import {DMChannel, GroupDMChannel, Message, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {getLanguage, getLanguageKorean, Language} from "../../enum/Language";
+import {GlobalConfig} from "../../global/GlobalConfig";
 
-const getDectUrl = "https://papago.naver.com/apis/langs/dect";
+const getDectUrl = "https://openapi.naver.com/v1/papago/detectLangs";
 const getTranslationTextUrl = "https://openapi.naver.com/v1/papago/n2mt";
 
 export class TranslationImpl implements Translation {
 
-    constructor(private htmlParser: HtmlParser) {
+    private nmtHeaderJson: NaverApiHeader;
+    private descHeaderJson: NaverApiHeader;
+
+    constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
+        this.nmtHeaderJson = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Naver-Client-Id": globalConfig.apiKey.naver.papago.nmt.clientId,
+            "X-Naver-Client-Secret": globalConfig.apiKey.naver.papago.nmt.clientSecret
+        }
+        this.descHeaderJson = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Naver-Client-Id": globalConfig.apiKey.naver.papago.detectLang.clientId,
+            "X-Naver-Client-Secret": globalConfig.apiKey.naver.papago.detectLang.clientSecret
+        }
     }
 
     translationLang(channel: TextChannel | DMChannel | GroupDMChannel, content: string, target: string): void {
@@ -17,13 +31,7 @@ export class TranslationImpl implements Translation {
 
             if (checkKnownLang(channel, editMsg, targetLang)) return;
 
-            const headerJson = {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "X-Naver-Client-Id": process.env.NAVER_CLIENT_ID,
-                "X-Naver-Client-Secret": process.env.NAVER_CLIENT_SECRET
-            };
-
-            this.htmlParser.getPostJson<PapagoDest>(getDectUrl, headerJson, {query: content}).then((json) => {
+            this.htmlParser.getPostJson<PapagoDest>(getDectUrl, this.descHeaderJson, {query: content}).then((json) => {
                 if (json === undefined) {
                     editMsg.edit("데이터 조회 실패 ❌");
                     channel.send("데이터 조회 도중 오류가 발생하였습니다..");
@@ -45,7 +53,7 @@ export class TranslationImpl implements Translation {
                     "text": content
                 };
 
-                this.htmlParser.getPostJson<ApiMessage>(getTranslationTextUrl, headerJson, parameterJson).then((json) => {
+                this.htmlParser.getPostJson<ApiMessage>(getTranslationTextUrl, this.nmtHeaderJson, parameterJson).then((json) => {
                     if (json === undefined) {
                         editMsg.edit("데이터 조회 실패 ❌");
                         channel.send("번역 도중 오류가 발생하였습니다..");
@@ -129,6 +137,12 @@ function checkKnownLang(channel: TextChannel | DMChannel | GroupDMChannel, editM
     }
 
     return false;
+}
+
+interface NaverApiHeader {
+    "Content-Type": string,
+    "X-Naver-Client-Id": string,
+    "X-Naver-Client-Secret": string
 }
 
 interface PapagoDest {

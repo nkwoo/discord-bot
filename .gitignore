@@ -101,8 +101,8 @@ public
 .tern-port
 
 # custom ignore
-*.dev
-*.prod
+dev.json
+prod.json
 voicelog/
 dist/
 .idea/

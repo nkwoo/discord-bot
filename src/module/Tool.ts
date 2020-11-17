@@ -21,6 +21,7 @@ import {TimerImpl} from "./tool/TimerImpl";
 import {Translation} from "./tool/interface/Translation";
 import {TranslationImpl} from "./tool/TranslationImpl";
 import {HtmlParser} from "./HtmlParser";
+import {GlobalConfig} from "../global/GlobalConfig";
 
 export class Tool {
     private readonly _corona: Corona;
@@ -35,7 +36,7 @@ export class Tool {
     private readonly _timer: Timer;
     private readonly _translation: Translation;
 
-    constructor(private htmlParser: HtmlParser) {
+    constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
         this._corona = new CoronaImpl(this.htmlParser);
         this._exchange = new ExchangeImpl(this.htmlParser);
         this._system = new SystemImpl();
@@ -46,7 +47,7 @@ export class Tool {
         this._namuWiki = new NamuWikiImpl(this.htmlParser);
         this._youtube = new YoutubeImpl();
         this._timer = new TimerImpl();
-        this._translation = new TranslationImpl(this.htmlParser);
+        this._translation = new TranslationImpl(this.htmlParser, globalConfig);
     }
 
     get corona(): Corona {

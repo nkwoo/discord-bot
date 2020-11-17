@@ -3,13 +3,14 @@ import {LeagueOfLegendImpl} from "./game/LeagueOfLegendImpl";
 import {Maple} from "./game/interface/Maple";
 import {MapleImpl} from "./game/MapleImpl";
 import {HtmlParser} from "./HtmlParser";
+import {GlobalConfig} from "../global/GlobalConfig";
 
 export class Game {
     private readonly _lol: LeagueOfLegend;
     private readonly _maple: Maple;
 
-    constructor(private htmlParser: HtmlParser) {
-        this._lol = new LeagueOfLegendImpl(this.htmlParser);
+    constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
+        this._lol = new LeagueOfLegendImpl(this.htmlParser, globalConfig);
         this._maple = new MapleImpl(this.htmlParser);
     }
 
