@@ -30,6 +30,8 @@ export function getLeagueOfLegendGameType(lang: string): LeagueOfLegendGameType 
             return LeagueOfLegendGameType.ARAM;
         case "TUTORIAL":
             return LeagueOfLegendGameType.TUTORIAL;
+        case "URF":
+            return LeagueOfLegendGameType.URF;
         case "DOOMBOTSTEEMO":
             return LeagueOfLegendGameType.DOOMBOTSTEEMO;
         case "ONEFORALL":
