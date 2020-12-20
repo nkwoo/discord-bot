@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.7.4",
+  "version": "1.8.0",
   "description": "Discord Chat Bot Iru",
   "main": "index.js",
   "scripts": {
@@ -17,10 +17,13 @@
     "discord.js": "^11.6.1",
     "ffmpeg-static": "^4.0.1",
     "moment": "^2.24.0",
+    "mysql": "^2.18.1",
     "nodemon": "^2.0.6",
     "opusscript": "0.0.7",
+    "reflect-metadata": "^0.1.13",
     "systeminformation": "^4.22.5",
     "ts-node": "^9.0.0",
+    "typeorm": "^0.2.29",
     "typescript": "^4.0.5",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^3.10.0",

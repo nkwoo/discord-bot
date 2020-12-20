@@ -124,3 +124,10 @@ Dockerfile
 package.json
 package-lock.json
 ```
+
+DB 계정 
+```
+create user 'bot'@'%' identified by '1234';
+create schema bot;
+grant all privileges on bot.* to 'bot'@'%';
+```
