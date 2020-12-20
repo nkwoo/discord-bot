@@ -5,7 +5,7 @@ import * as fs from "fs";
 
 export class VoiceLogImpl implements VoiceLog {
 
-    voiceLogRecorder(info: string): void {
+    record(info: string): void {
         if (!fs.existsSync("voicelog/")) {
             fs.mkdirSync("voicelog/");
         }

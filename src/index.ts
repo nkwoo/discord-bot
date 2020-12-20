@@ -65,11 +65,21 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
     //로그는 서버/채널/닉네임 순
 
     if (oldUserChannel === undefined) {
-        tool.voiceLog.voiceLogRecorder(`${newUserChannel.guild.name}/${newUserChannel.name}/${newMember.nickname}님 입장`);
+        if (newUserChannel.guild !== undefined) {
+            tool.voiceLog.record(`${newUserChannel.guild.name}/${newUserChannel.name}/${newMember.nickname}님 입장`);
+        } else {
+            console.log("LOGGER - Voice Channel In Error");
+            console.log(newUserChannel);
+        }
     } else if (newUserChannel === undefined) {
-        tool.voiceLog.voiceLogRecorder(`${oldUserChannel.guild.name}/${oldUserChannel.name}/${oldMember.nickname}님 퇴장`);
+        if (oldUserChannel.guild !== undefined) {
+            tool.voiceLog.record(`${oldUserChannel.guild.name}/${oldUserChannel.name}/${oldMember.nickname}님 퇴장`);
+        } else {
+            console.log("LOGGER - Voice Channel Out Error");
+            console.log(oldUserChannel);
+        }
     } else if (oldUserChannel != undefined && newUserChannel != undefined) {
-        tool.voiceLog.voiceLogRecorder(`${oldUserChannel.guild.name}/${oldUserChannel.name}/${oldMember.nickname} 에서 ${newUserChannel.guild.name}/${newUserChannel.name}/${newMember.nickname}'로 이동함`);
+        tool.voiceLog.record(`${oldUserChannel.guild.name}/${oldUserChannel.name}/${oldMember.nickname} 에서 ${newUserChannel.guild.name}/${newUserChannel.name}/${newMember.nickname}'로 이동함`);
     }
 });
 
