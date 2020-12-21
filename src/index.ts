@@ -36,6 +36,8 @@ const htmlParser = new HtmlParser();
 const tool = new Tool(htmlParser, globalConfig);
 const game = new Game(htmlParser, globalConfig);
 
+console.log(process.env.NODE_ENV);
+
 /**
  * 유저 권한 체크
  */
@@ -51,8 +53,8 @@ function permission(message: Discord.Message): boolean {
 }
 createConnection({
     "type": "mysql",
-    "host": process.env.MARIA_HOST_IP != undefined ? process.env.MARIA_HOST_IP : "localhost",
-    "port": 3306,
+    "host": process.env.NODE_ENV == "prod" ? "mariadb" : "192.168.100.2",
+    "port": process.env.NODE_ENV == "prod" ? 3306 : 9986,
     "username": "bot",
     "password": "1234",
     "database": "bot",

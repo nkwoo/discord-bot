@@ -4,8 +4,6 @@ services:
   mariadb:
     image: mariadb
     restart: always
-    ports:
-      - "9986:3306"
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: bot
@@ -15,11 +13,21 @@ services:
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - /home/ahri/bot/mariadb:/var/lib/mysql
+    ports:
+      - "9986:3306"
+    networks:
+      - bot
   discord-bot:
-    depends_on:
-      - mariadb
-    image: discord-bot:1.8.0
+    image: discord-bot:1.8.1
     restart: always
     environment:
-      MARIA_HOST_IP: mariadb
       TZ: Asia/Seoul
+    depends_on:
+      - mariadb
+    links:
+      - mariadb
+    networks:
+      - bot
+networks:
+  bot:
+    driver: bridge
