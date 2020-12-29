@@ -51,6 +51,11 @@ function permission(message: Discord.Message): boolean {
 
     return true;
 }
+
+function compareVoiceChannel(oldChannel: Discord.VoiceChannel, newChannel: Discord.VoiceChannel): boolean {
+    return oldChannel.guild !== undefined && newChannel.guild !== undefined ? oldChannel.guild.name === newChannel.guild.name && oldChannel.name === newChannel.name : false;
+}
+
 createConnection({
     "type": "mysql",
     "host": process.env.NODE_ENV == "prod" ? "mariadb" : "192.168.100.2",
@@ -98,7 +103,9 @@ createConnection({
                 console.log(oldUserChannel);
             }
         } else if (oldUserChannel != undefined && newUserChannel != undefined) {
-            voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.nickname != null ? oldMember.nickname : oldMember.displayName, VoiceLogType.MOVE, newUserChannel.name);
+            if (!compareVoiceChannel(oldUserChannel, newUserChannel)) {
+                voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.nickname != null ? oldMember.nickname : oldMember.displayName, VoiceLogType.MOVE, `${newUserChannel.guild.name} / ${newUserChannel.name}`);
+            }
         }
     });
 
