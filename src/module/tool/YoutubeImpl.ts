@@ -1,6 +1,7 @@
 import {YouTube} from "./interface/Youtube";
 import {DMChannel, GroupDMChannel, Message, StreamDispatcher, TextChannel, VoiceConnection} from "discord.js";
 import ytdl from "ytdl-core";
+// https://github.com/fent/node-ytdl-core#usage
 import {DiscordServer} from "../discord/DiscordServer";
 import {YoutubeVideo} from "../discord/YoutubeVideo";
 

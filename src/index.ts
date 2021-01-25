@@ -1,5 +1,4 @@
 import * as Discord from "discord.js";
-//https://github.com/fent/node-ytdl-core#usage
 import * as fs from "fs";
 
 import {Tool} from "./module/Tool";
@@ -58,8 +57,8 @@ function compareVoiceChannel(oldChannel: Discord.VoiceChannel, newChannel: Disco
 
 createConnection({
     "type": "mysql",
-    "host": process.env.NODE_ENV == "prod" ? "mariadb" : "192.168.100.2",
-    "port": process.env.NODE_ENV == "prod" ? 3306 : 9986,
+    "host": process.env.NODE_ENV == "prod" ? "mariadb" : "192.168.0.192",
+    "port": process.env.NODE_ENV == "prod" ? 3306 : 3306,
     "username": "bot",
     "password": "1234",
     "database": "bot",
@@ -89,18 +88,12 @@ createConnection({
         const oldUserChannel = oldMember.voiceChannel;
 
         if (oldUserChannel === undefined) {
-            if (newUserChannel.guild !== undefined) {
+            if (newUserChannel !== undefined && newUserChannel.guild !== undefined) {
                 voiceLogService.record(newUserChannel.guild.name, newUserChannel.name, newMember.nickname != null ? newMember.nickname : newMember.displayName, VoiceLogType.IN);
-            } else {
-                console.log("LOGGER - Voice Channel In Error");
-                console.log(newUserChannel);
             }
         } else if (newUserChannel === undefined) {
             if (oldUserChannel.guild !== undefined) {
                 voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.nickname != null ? oldMember.nickname : oldMember.displayName, VoiceLogType.OUT);
-            } else {
-                console.log("LOGGER - Voice Channel Out Error");
-                console.log(oldUserChannel);
             }
         } else if (oldUserChannel != undefined && newUserChannel != undefined) {
             if (!compareVoiceChannel(oldUserChannel, newUserChannel)) {

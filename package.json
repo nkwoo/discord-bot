@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "Discord Chat Bot Iru",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "opusscript": "0.0.7",
     "reflect-metadata": "^0.1.13",
     "systeminformation": "^4.22.5",
-    "ts-node": "^9.0.0",
+    "ts-node": "^9.1.1",
     "typeorm": "^0.2.29",
     "typescript": "^4.0.5",
     "winston": "^3.2.1",
