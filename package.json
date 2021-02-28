@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/cheerio": "^0.22.22",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "axios-extensions": "^3.1.1",
     "cheerio": "^1.0.0-rc.3",
     "discord.js": "^11.6.1",
