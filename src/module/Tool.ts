@@ -10,8 +10,6 @@ import {Weather} from "./tool/interface/Weather";
 import {WeatherImpl} from "./tool/WeatherImpl";
 import {VoiceLog} from "./tool/interface/VoiceLog";
 import {VoiceLogImpl} from "./tool/VoiceLogImpl";
-import {HeeGunHoliday} from "./tool/interface/HeeGunHoliday";
-import {HeeGunHolidayImpl} from "./tool/HeeGunHolidayImpl";
 import {NamuWiki} from "./tool/interface/NamuWiki";
 import {NamuWikiImpl} from "./tool/NamuWikiImpl";
 import {YouTube} from "./tool/interface/Youtube";
@@ -30,7 +28,6 @@ export class Tool {
     private readonly _util: Util;
     private readonly _weather: Weather;
     private readonly _voiceLog: VoiceLog;
-    private readonly _heeGunHoliday: HeeGunHoliday;
     private readonly _namuWiki: NamuWiki;
     private readonly _youtube: YouTube;
     private readonly _timer: Timer;
@@ -43,7 +40,6 @@ export class Tool {
         this._util = new UtilImpl();
         this._weather = new WeatherImpl(this.htmlParser);
         this._voiceLog = new VoiceLogImpl();
-        this._heeGunHoliday = new HeeGunHolidayImpl();
         this._namuWiki = new NamuWikiImpl(this.htmlParser);
         this._youtube = new YoutubeImpl();
         this._timer = new TimerImpl();
@@ -72,10 +68,6 @@ export class Tool {
 
     get voiceLog(): VoiceLog {
         return this._voiceLog;
-    }
-
-    get heeGunHoliday(): HeeGunHoliday {
-        return this._heeGunHoliday;
     }
 
     get namuWiki(): NamuWiki {

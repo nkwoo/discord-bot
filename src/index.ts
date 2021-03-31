@@ -57,8 +57,8 @@ function compareVoiceChannel(oldChannel: Discord.VoiceChannel, newChannel: Disco
 
 createConnection({
     "type": "mysql",
-    "host": process.env.NODE_ENV == "prod" ? "mariadb" : "192.168.0.192",
-    "port": process.env.NODE_ENV == "prod" ? 3306 : 3306,
+    "host": process.env.NODE_ENV == "prod" ? "mariadb" : "192.168.100.2",
+    "port": process.env.NODE_ENV == "prod" ? 3306 : 9986,
     "username": "bot",
     "password": "1234",
     "database": "bot",
@@ -180,10 +180,6 @@ createConnection({
                 game.lol.getRotationsChampion(message.channel);
                 break;
             }
-            case "!희건": {
-                tool.heeGunHoliday.checkHeeKunHoliday(message.channel, args[1] != null ? args[1] : "1");
-                break;
-            }
             case "!날씨": {
                 tool.weather.getSeoulWeather(message.channel);
                 break;
@@ -294,7 +290,6 @@ createConnection({
                 const printDataArr: {name: string; value: string;}[] = [];
 
                 printDataArr.push({name: "!롤 <닉네임>", value: "롤전적 검색"});
-                printDataArr.push({name: "!희건 <오늘 부터 조회할 날짜 수> 또는 <조회하고 싶은 당일 (YYYYMMDD)>", value: "오늘이 야간,주간,휴일 인지 조회"});
                 printDataArr.push({name: "!메이플 <닉네임>", value: "메이플 정보 검색"});
                 printDataArr.push({name: "!날씨", value: "서울시 날씨 데이터를 조회"});
                 printDataArr.push({name: "!타이머추가 <분> <호출대상> \"<문구>\"", value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"});
