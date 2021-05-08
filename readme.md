@@ -1,4 +1,4 @@
-Discord Bot (Iru Bot)
+Discord Bot
 ===
 
 디스코드 자동 응답 봇 입니다.

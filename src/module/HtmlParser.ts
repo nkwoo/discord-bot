@@ -26,17 +26,15 @@ export class HtmlParser {
         }
     }
 
-    async getHtmlDocumentParameter(url: string, parameterJson: any = {}) {
+    async getPostHtml(url: string, parameterJson: any = {}) {
         try {
-            return await axios.default.get(url, {
-                headers: {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36",
-                    "Content-Type": "text/html"
-                },
-                params: parameterJson,
+            console.log(querystring.stringify(parameterJson));
+            return await axios.default.post(url, querystring.stringify(parameterJson), {
                 validateStatus: function (status) {
                     return status < 500;
                 }
+            }).catch(error => {
+                console.log(error);
             });
         } catch (error) {
             console.error(error);

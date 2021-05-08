@@ -1,5 +1,7 @@
 import * as Discord from "discord.js";
+import {TextChannel} from "discord.js";
 import * as fs from "fs";
+import * as cron from "node-cron";
 
 import {Tool} from "./module/Tool";
 import {Game} from "./module/Game";
@@ -11,9 +13,11 @@ import {GlobalConfig} from "./global/GlobalConfig";
 import {createConnection} from "typeorm";
 import {VoiceLogType} from "./enum/VoiceLogType";
 import {VoiceLogService} from "./database/service/VoiceLogService";
+import {KnouNoticeService} from "./database/service/KnouNoticeService";
 
 const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
+const knouTextChannelList: TextChannel[] = [];
 
 let configPath;
 switch (process.env.NODE_ENV) {
@@ -57,30 +61,61 @@ function compareVoiceChannel(oldChannel: Discord.VoiceChannel, newChannel: Disco
 
 createConnection({
     "type": "mysql",
-    "host": process.env.NODE_ENV == "prod" ? "mariadb" : "192.168.100.2",
+    "host": process.env.NODE_ENV == "prod" ? "mariadb" : "127.0.0.1",
     "port": process.env.NODE_ENV == "prod" ? 3306 : 9986,
     "username": "bot",
     "password": "1234",
     "database": "bot",
     "synchronize": true,
-    "logging": false,
+    "logging": process.env.NODE_ENV != "prod",
     "entities": [
         "src/database/entity/**/*.ts"
     ]
 }).then(async connection => {
 
     const voiceLogService = new VoiceLogService(connection);
+    const knouNoticeService = new KnouNoticeService(connection);
+
+    const crawlingCron = cron.schedule("* 0,6,12,18 * * *", () => {
+        tool.knou.getNoticeData().then(noticeDtoArray => noticeDtoArray.forEach(noticeData => knouNoticeService.upsertNotice(noticeData)));
+    }, {
+        scheduled: false
+    });
+
+    const discordNotifyCron = cron.schedule("* 1,7,13,19 * * *", () => {
+        knouNoticeService.getUnNotifyNotices().then(noticeList =>
+            noticeList.forEach(notice =>
+                knouTextChannelList.forEach(channel =>
+                    tool.knou.sendNotice(channel, notice)
+                        .then(() => knouNoticeService.updateNotifyNotice(notice)))));
+    }, {
+        scheduled: false
+    });
 
     const client = new Discord.Client();
 
     client.on("ready", () => {
         console.log(`Server Ready - now Running: ${process.env.NODE_ENV != undefined ? process.env.NODE_ENV : "dev"}`);
 
-        client.guilds.forEach((value, index) => discordServer.push(new DiscordServer(index, value.name)));
+        client.guilds.forEach((guild, index) => {
+            discordServer.push(new DiscordServer(index, guild.name));
+
+            guild.channels.filter(channel => channel.name === "knou").forEach(channel => {
+                if (channel instanceof TextChannel) {
+                    knouTextChannelList.push(channel);
+                }
+            });
+        });
+
+        crawlingCron.start();
+        discordNotifyCron.start();
     });
 
     client.on("error", () => {
         console.error();
+
+        crawlingCron.stop();
+        discordNotifyCron.stop();
     });
 
     client.on("voiceStateUpdate", (oldMember, newMember) => {
@@ -312,7 +347,7 @@ createConnection({
     });
 
     if (globalConfig.apiKey.discord != undefined) {
-        client.login(globalConfig.apiKey.discord);
+        await client.login(globalConfig.apiKey.discord);
     } else {
         console.log("You Don't Have Api-Key go https://discordapp.com/developers/applications/");
     }

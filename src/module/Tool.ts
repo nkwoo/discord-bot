@@ -20,6 +20,8 @@ import {Translation} from "./tool/interface/Translation";
 import {TranslationImpl} from "./tool/TranslationImpl";
 import {HtmlParser} from "./HtmlParser";
 import {GlobalConfig} from "../global/GlobalConfig";
+import {Knou} from "./tool/interface/Knou";
+import {KnouImpl} from "./tool/KnouImpl";
 
 export class Tool {
     private readonly _corona: Corona;
@@ -32,6 +34,7 @@ export class Tool {
     private readonly _youtube: YouTube;
     private readonly _timer: Timer;
     private readonly _translation: Translation;
+    private readonly _knou: Knou;
 
     constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
         this._corona = new CoronaImpl(this.htmlParser);
@@ -44,6 +47,7 @@ export class Tool {
         this._youtube = new YoutubeImpl();
         this._timer = new TimerImpl();
         this._translation = new TranslationImpl(this.htmlParser, globalConfig);
+        this._knou = new KnouImpl(this.htmlParser);
     }
 
     get corona(): Corona {
@@ -84,5 +88,9 @@ export class Tool {
 
     get translation(): Translation {
         return this._translation;
+    }
+
+    get knou(): Knou {
+        return this._knou;
     }
 }
