@@ -1,4 +1,4 @@
-import {Connection} from "typeorm/index";
+import {Connection} from "typeorm";
 import {KnouNoticeRepository} from "../repository/KnouNoticeRepository";
 import {KnouNoticeEntity} from "../entity/domain/KnouNoticeEntity";
 import {KnouNoticeDomain} from "../entity/KnouNoticeDomain";

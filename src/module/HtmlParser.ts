@@ -28,7 +28,6 @@ export class HtmlParser {
 
     async getPostHtml(url: string, parameterJson: any = {}) {
         try {
-            console.log(querystring.stringify(parameterJson));
             return await axios.default.post(url, querystring.stringify(parameterJson), {
                 validateStatus: function (status) {
                     return status < 500;

@@ -1,7 +1,7 @@
 export class Queue<T> {
     private _list: T[] = [];
 
-    public getLength() {
+    public getLength(): number {
         return this._list.length;
     }
 
@@ -13,11 +13,11 @@ export class Queue<T> {
         this._list = value;
     }
 
-    public enqueue(item: T) {
+    public enqueue(item: T): void {
         this._list.push(item);
     }
 
-    public dequeue() {
+    public dequeue(): void {
         this._list.shift();
     }
 }

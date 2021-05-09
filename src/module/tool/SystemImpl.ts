@@ -5,7 +5,7 @@ import command from "child_process";
 import {Systeminformation} from "systeminformation";
 
 export class SystemImpl implements System {
-    async getSystemState(channel: TextChannel | DMChannel | GroupDMChannel) {
+    async getSystemState(channel: TextChannel | DMChannel | GroupDMChannel): Promise<void> {
         const printDataArr: {name: string; value: string; inline?: boolean;}[] = [];
 
         const sendMessage = await channel.send("데이터 조회중......");
@@ -58,8 +58,8 @@ export class SystemImpl implements System {
 
         printDataArr.push({name: "Disk 사용량", value: diskInfoString, inline: true});
 
-        sendMessage.edit("데이터 조회 성공 ✅");
-        channel.send({
+        await sendMessage.edit("데이터 조회 성공 ✅");
+        await channel.send({
             embed: {
                 color: 3447003,
                 fields: printDataArr

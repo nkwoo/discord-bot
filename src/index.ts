@@ -60,15 +60,15 @@ function compareVoiceChannel(oldChannel: Discord.VoiceChannel, newChannel: Disco
 }
 
 createConnection({
-    "type": "mysql",
-    "host": process.env.NODE_ENV == "prod" ? "mariadb" : "127.0.0.1",
-    "port": process.env.NODE_ENV == "prod" ? 3306 : 9986,
-    "username": "bot",
-    "password": "1234",
-    "database": "bot",
-    "synchronize": true,
-    "logging": process.env.NODE_ENV != "prod",
-    "entities": [
+    type: "mysql",
+    host: process.env.NODE_ENV == "prod" ? "mariadb" : "127.0.0.1",
+    port: process.env.NODE_ENV == "prod" ? 3306 : 9986,
+    username: "bot",
+    password: "1234",
+    database: "bot",
+    synchronize: true,
+    logging: process.env.NODE_ENV != "prod",
+    entities: [
         "src/database/entity/**/*.ts"
     ]
 }).then(async connection => {

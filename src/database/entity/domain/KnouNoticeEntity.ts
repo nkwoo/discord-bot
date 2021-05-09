@@ -1,4 +1,4 @@
-import {BaseEntity, Column, Entity, PrimaryColumn} from "typeorm/index";
+import {BaseEntity, Column, Entity, PrimaryColumn} from "typeorm";
 
 @Entity('KNOU_NOTICE')
 export class KnouNoticeEntity extends BaseEntity {

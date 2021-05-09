@@ -44,7 +44,7 @@ export class DiscordServer {
         return this._musicPlayer;
     }
 
-    setMusicPlayer(value: StreamDispatcher) {
+    setMusicPlayer(value: StreamDispatcher): void {
         this._musicPlayer = value;
     }
 }

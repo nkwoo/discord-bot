@@ -1,4 +1,4 @@
-import {EntityRepository, Repository} from "typeorm/index";
+import {EntityRepository, Repository} from "typeorm";
 import {VoiceLogEntity} from "../entity/domain/VoiceLogEntity";
 
 @EntityRepository(VoiceLogEntity)

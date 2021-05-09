@@ -1,5 +1,5 @@
 import {VoiceLogType} from "../../enum/VoiceLogType";
-import {Connection} from "typeorm/index";
+import {Connection} from "typeorm";
 import {VoiceLogRepository} from "../repository/VoiceLogRepository";
 
 export class VoiceLogService {

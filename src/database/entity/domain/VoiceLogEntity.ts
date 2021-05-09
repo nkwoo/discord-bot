@@ -1,4 +1,4 @@
-import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm/index";
+import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 import {VoiceLogType} from "../../../enum/VoiceLogType";
 
 @Entity('voice_log')
