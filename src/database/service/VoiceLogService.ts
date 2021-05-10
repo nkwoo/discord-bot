@@ -1,6 +1,6 @@
 import {VoiceLogType} from "../../enum/VoiceLogType";
 import {Connection} from "typeorm";
-import {VoiceLogRepository} from "../repository/VoiceLogRepository";
+import {VoiceLogEntity} from "../entity/domain/VoiceLogEntity";
 
 export class VoiceLogService {
 
@@ -8,15 +8,20 @@ export class VoiceLogService {
     }
 
     async record(serverName: string, channelName: string, userName: string, logType: VoiceLogType, moveChannelName?: string): Promise<void> {
-        const voiceLogRepository = this.connection.getCustomRepository(VoiceLogRepository);
-
-        const voiceLog = voiceLogRepository.create();
-        voiceLog.server = serverName;
-        voiceLog.channel = channelName;
-        voiceLog.user = userName;
-        voiceLog.type = logType;
-        voiceLog.moveChannel = logType === VoiceLogType.MOVE ? moveChannelName : undefined;
-
-        await voiceLogRepository.save(voiceLog);
+        await this.connection.createQueryBuilder()
+            .insert()
+            .into(VoiceLogEntity)
+            .values({
+                server: serverName,
+                channel: channelName,
+                user: userName,
+                type: logType,
+                moveChannel: logType === VoiceLogType.MOVE ? moveChannelName : undefined
+            })
+            .execute()
+            .catch(reason => {
+                console.log(reason);
+                return false;
+            });
     }
 }

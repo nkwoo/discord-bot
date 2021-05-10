@@ -1,28 +1,28 @@
 import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 import {VoiceLogType} from "../../../enum/VoiceLogType";
 
-@Entity('voice_log')
+@Entity('VOICE_LOG')
 export class VoiceLogEntity extends BaseEntity {
 
     @PrimaryGeneratedColumn()
     idx: number;
 
-    @Column({name: "serverName"})
+    @Column({name: "SERVER_NAME"})
     server!: string;
 
-    @Column({name: "channelName"})
+    @Column({name: "CHANNEL_NAME"})
     channel!: string;
 
-    @Column({name: "userName"})
+    @Column({name: "USER_NAME"})
     user!: string;
 
-    @Column({name: "logTime", type: "timestamp",  default: () => "CURRENT_TIMESTAMP"})
+    @Column({name: "LOG_DT", type: "timestamp",  default: () => "CURRENT_TIMESTAMP"})
     time!: Date;
 
-    @Column({name: "logType"})
+    @Column({name: "LOG_TYPE"})
     type!: VoiceLogType;
 
-    @Column({name: "moveChannel", nullable: true})
+    @Column({name: "MOVE_CHANNEL", nullable: true})
     moveChannel?: string;
 
 }

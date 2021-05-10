@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.8.9",
+  "version": "1.8.10",
   "description": "Discord Chat Bot Iru",
   "main": "index.js",
   "scripts": {
