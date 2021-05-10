@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.8.10",
+  "version": "1.8.11",
   "description": "Discord Chat Bot Iru",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "axios": "^0.21.1",
     "axios-extensions": "^3.1.1",
     "cheerio": "^1.0.0-rc.3",
-    "discord.js": "^11.6.1",
+    "discord.js": "^11.6.4",
     "ffmpeg-static": "^4.0.1",
     "moment": "^2.24.0",
     "mysql": "^2.18.1",

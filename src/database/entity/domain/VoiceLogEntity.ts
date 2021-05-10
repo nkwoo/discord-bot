@@ -4,7 +4,7 @@ import {VoiceLogType} from "../../../enum/VoiceLogType";
 @Entity('VOICE_LOG')
 export class VoiceLogEntity extends BaseEntity {
 
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({name: "IDX"})
     idx: number;
 
     @Column({name: "SERVER_NAME"})
