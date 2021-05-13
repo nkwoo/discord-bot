@@ -4,6 +4,7 @@ import {LeagueOfLegend} from "./interface/LeagueOfLegend";
 import {LeagueOfLegendResource} from "./data/LeagueOfLegendResource";
 import {getLeagueOfLegendGameType, LeagueOfLegendGameType} from "../../enum/LeagueOfLegendGameType";
 import {GlobalConfig} from "../../global/GlobalConfig";
+import {HttpMethod} from "../../enum/HttpMethod";
 
 const lolRotationsChampionUrl = "https://kr.api.riotgames.com/lol/platform/v3/champion-rotations";
 
@@ -22,7 +23,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
     searchLoLPlayData(channel: TextChannel | DMChannel | GroupDMChannel, nickname: string): void {
         channel.send("데이터 조회중......").then((editMsg) => {
-            this.htmlParser.getGetJson<ApiSummonerInfo>(`https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/${encodeURI(nickname)}`, this.headerJson).then(json => {
+            this.htmlParser.requestHeaderData<ApiSummonerInfo>(HttpMethod.GET, `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/${encodeURI(nickname)}`, this.headerJson).then((json) => {
                 if (json === undefined || json.status != 200) {
                     editMsg.edit("데이터 조회 실패 ❌");
                     channel.send("유저정보를 가져올 수 없습니다..");
@@ -48,7 +49,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
                 const summonerInfo = json.data;
 
-                this.htmlParser.getGetJson<ApiLeagueInfo[]>(`https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerInfo.id}`, this.headerJson).then(json => {
+                this.htmlParser.requestHeaderData<ApiLeagueInfo[]>(HttpMethod.GET, `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerInfo.id}`, this.headerJson).then((json) => {
                     if (json === undefined || json.status != 200) {
                         editMsg.edit("데이터 조회 실패 ❌");
                         channel.send("유저정보를 가져올 수 없습니다..");
@@ -74,7 +75,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
                         }
                     });
 
-                    this.htmlParser.getGetJson<ApiMatchInfo>(`https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/${summonerInfo.accountId}?endIndex=8`, this.headerJson).then(json => {
+                    this.htmlParser.requestHeaderData<ApiMatchInfo>(HttpMethod.GET, `https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/${summonerInfo.accountId}?endIndex=8`, this.headerJson).then((json) => {
                         if (json === undefined || json.status != 200) {
                             editMsg.edit("데이터 조회 실패 ❌");
                             channel.send("유저정보를 가져올 수 없습니다..");
@@ -93,7 +94,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
                         if (championNameArray.length === 0) championNameArray.push("최근 플레이 없음");
 
-                        this.htmlParser.getGetJson<ApiSpectatorInfo>(`https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerInfo.id}`, this.headerJson).then(json => {
+                        this.htmlParser.requestHeaderData<ApiSpectatorInfo>(HttpMethod.GET, `https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerInfo.id}`, this.headerJson).then((json) => {
                             if (json === undefined || !(json.status === 200 || json.status === 404)) {
                                 editMsg.edit("데이터 조회 실패 ❌");
                                 channel.send("유저정보를 가져올 수 없습니다..");
@@ -145,7 +146,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
     getRotationsChampion(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
-            this.htmlParser.getGetJson<ApiRotationsChampionInfo>(lolRotationsChampionUrl, this.headerJson).then(json => {
+            this.htmlParser.requestHeaderData<ApiRotationsChampionInfo>(HttpMethod.GET, lolRotationsChampionUrl, this.headerJson).then((json) => {
                 if (json === undefined) {
                     editMsg.edit("데이터 조회 실패 ❌");
                     channel.send("로테이션 정보를 가져올 수 없습니다..");

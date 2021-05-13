@@ -3,9 +3,10 @@ import {DMChannel, GroupDMChannel, Message, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {getLanguage, getLanguageKorean, Language} from "../../enum/Language";
 import {GlobalConfig} from "../../global/GlobalConfig";
+import {HttpMethod} from "../../enum/HttpMethod";
 
-const getDectUrl = "https://openapi.naver.com/v1/papago/detectLangs";
-const getTranslationTextUrl = "https://openapi.naver.com/v1/papago/n2mt";
+const PAPAGO_DESC_URL = "https://openapi.naver.com/v1/papago/detectLangs";
+const PAPAGO_TRANSLATION_URL = "https://openapi.naver.com/v1/papago/n2mt";
 
 export class TranslationImpl implements Translation {
 
@@ -14,12 +15,12 @@ export class TranslationImpl implements Translation {
 
     constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
         this.nmtHeaderJson = {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
             "X-Naver-Client-Id": globalConfig.apiKey.naver.papago.nmt.clientId,
             "X-Naver-Client-Secret": globalConfig.apiKey.naver.papago.nmt.clientSecret
         }
         this.descHeaderJson = {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
             "X-Naver-Client-Id": globalConfig.apiKey.naver.papago.detectLang.clientId,
             "X-Naver-Client-Secret": globalConfig.apiKey.naver.papago.detectLang.clientSecret
         }
@@ -31,14 +32,14 @@ export class TranslationImpl implements Translation {
 
             if (checkKnownLang(channel, editMsg, targetLang)) return;
 
-            this.htmlParser.getPostJson<PapagoDest>(getDectUrl, this.descHeaderJson, {query: content}).then((json) => {
-                if (json === undefined) {
+            this.htmlParser.requestHeaderParameterData<PapagoDest>(HttpMethod.POST, PAPAGO_DESC_URL, this.descHeaderJson, {query: content}).then((destJson) => {
+                if (destJson === undefined) {
                     editMsg.edit("데이터 조회 실패 ❌");
                     channel.send("데이터 조회 도중 오류가 발생하였습니다..");
                     return;
                 }
 
-                const sourceLang = getLanguage(json.data.langCode);
+                const sourceLang = getLanguage(destJson.data.langCode);
                 if (checkKnownLang(channel, editMsg, sourceLang)) return;
 
                 if (sourceLang === targetLang) {
@@ -53,20 +54,22 @@ export class TranslationImpl implements Translation {
                     "text": content
                 };
 
-                this.htmlParser.getPostJson<ApiMessage>(getTranslationTextUrl, this.nmtHeaderJson, parameterJson).then((json) => {
+                this.htmlParser.requestHeaderParameterData<ApiMessage>(HttpMethod.POST, PAPAGO_TRANSLATION_URL, this.nmtHeaderJson, parameterJson).then((json) => {
                     if (json === undefined) {
                         editMsg.edit("데이터 조회 실패 ❌");
                         channel.send("번역 도중 오류가 발생하였습니다..");
                         return;
                     }
 
-                    if (json.data.errorCode !== undefined) {
+                    const jsonData = json.data;
+
+                    if (jsonData.errorCode !== undefined) {
                         editMsg.edit("데이터 조회 실패 ❌");
-                        channel.send(json.data.errorMessage);
+                        channel.send(jsonData.errorMessage);
                         return;
                     }
 
-                    const resultData = json.data.message.result;
+                    const resultData = jsonData.message.result;
 
                     const printDataArr = [
                         {name: "번역 대상 언어", value: getLanguageKorean(resultData.srcLangType)},
@@ -106,7 +109,7 @@ export class TranslationImpl implements Translation {
     //TODO 맞춤법 로직 번역로직에 있는데 분리 해야할까?
     checkSpellMessage(channel: TextChannel | DMChannel | GroupDMChannel, content: string): void {
         channel.send("데이터 조회중......").then((editMsg) => {
-            this.htmlParser.getGetJson<ApiSpellInfo>(`https://search.naver.com/p/csearch/ocontent/util/SpellerProxy?q=${encodeURI(content)}&where=nexearch&color_blindness=0`).then(json => {
+            this.htmlParser.requestNoHeaderParameterData<ApiSpellInfo>(HttpMethod.GET, `https://search.naver.com/p/csearch/ocontent/util/SpellerProxy?q=${encodeURI(content)}&where=nexearch&color_blindness=0`).then((json) => {
                 if (json === undefined) {
                     editMsg.edit("데이터 조회 실패 ❌");
                     channel.send("맞춤법 정보를 가져올 수 없습니다..");

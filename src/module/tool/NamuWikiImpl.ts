@@ -1,6 +1,7 @@
 import {NamuWiki} from "./interface/NamuWiki";
 import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
+import {HttpMethod} from "../../enum/HttpMethod";
 
 const namuRankingUrl = 'https://search.namu.wiki/api/ranking';
 
@@ -11,15 +12,15 @@ export class NamuWikiImpl implements NamuWiki {
 
     getNamuRanking(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg)=> {
-            this.htmlParser.getHtmlDocument(namuRankingUrl).then(html => {
+            this.htmlParser.requestNoHeaderParameterData<string[]>(HttpMethod.GET, namuRankingUrl).then((json) => {
 
-                if (!html) {
+                if (!json) {
                     editMsg.edit("데이터 조회 실패 ❌");
                     channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다.");
                     return;
                 }
 
-                const rankingArray: Array<string> = html.data;
+                const rankingArray: Array<string> = json.data;
 
                 if (rankingArray.length > 0) {
 

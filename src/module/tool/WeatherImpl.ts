@@ -2,6 +2,7 @@ import {Weather} from "./interface/Weather";
 import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {xml2json} from "xml-js";
+import {HttpMethod} from "../../enum/HttpMethod";
 
 const weather3DayInUrl = 'http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1100000000';
 const weather3DayOutUrl = 'http://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
@@ -14,7 +15,7 @@ export class WeatherImpl implements Weather {
     getSeoulWeather(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
             const printDataArr: {name: string; value: string;}[] = [];
-            this.htmlParser.getHtmlDocument(weather3DayInUrl).then(html => {
+            this.htmlParser.requestDomData<string>(HttpMethod.GET, weather3DayInUrl).then((html) => {
 
                 if (!html) {
                     editMsg.edit("데이터 조회 실패 ❌");
@@ -37,7 +38,7 @@ export class WeatherImpl implements Weather {
                     }
                 }
 
-                this.htmlParser.getHtmlDocument(weather3DayOutUrl).then(html => {
+                this.htmlParser.requestDomData<string>(HttpMethod.GET, weather3DayOutUrl).then((html) => {
 
                     if (!html) {
                         editMsg.edit("데이터 조회 실패 ❌");

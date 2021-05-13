@@ -1,6 +1,7 @@
 import {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
 import {Maple} from "./interface/Maple";
 import {HtmlParser} from "../HtmlParser";
+import {HttpMethod} from "../../enum/HttpMethod";
 
 const maplePersonSearchUrl = "https://maplestory.nexon.com/Ranking/World/Total";
 
@@ -25,7 +26,7 @@ export class MapleImpl implements Maple {
             characterLevel: string;
 
         channel.send("데이터 조회중......").then((editMsg) => {
-            this.htmlParser.getHtmlDocument(`${maplePersonSearchUrl}?c=${name}&w=${type}`).then((html) => {
+            this.htmlParser.requestDomData<string>(HttpMethod.GET, `${maplePersonSearchUrl}?c=${name}&w=${type}`).then((html) => {
                 if (html != undefined) {
                     const $ = this.htmlParser.changeHtmlToDom(html.data);
 

@@ -1,6 +1,7 @@
 import {Corona} from "./interface/Corona";
 import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
+import {HttpMethod} from "../../enum/HttpMethod";
 
 const coronaSearchUrl = "https://m.search.naver.com/search.naver?sm=mtp_hty.top&where=m&query=%EC%BD%94%EB%A1%9C%EB%82%9819";
 
@@ -11,7 +12,7 @@ export class CoronaImpl implements Corona {
 
     getCoronaState(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg)=> {
-            this.htmlParser.getHtmlDocument(coronaSearchUrl).then(html => {
+            this.htmlParser.requestDomData<string>(HttpMethod.GET, coronaSearchUrl).then((html) => {
 
                 if (!html) {
                     editMsg.edit("데이터 조회 실패 ❌");

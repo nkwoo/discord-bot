@@ -3,6 +3,8 @@ import {HtmlParser} from "../HtmlParser";
 import {KnouNoticeDto} from "../../database/dto/KnouNoticeDto";
 import {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
 import {KnouNoticeEntity} from "../../database/entity/domain/KnouNoticeEntity";
+import {HttpMethod} from "../../enum/HttpMethod";
+import querystring from "querystring";
 
 const knouNoticeUrl = "https://www.knou.ac.kr/bbs/knou/51/artclList.do";
 
@@ -23,7 +25,7 @@ export class KnouImpl implements Knou {
     async getNoticeData(): Promise<KnouNoticeDto[]> {
         const noticeData: KnouNoticeDto[] = [];
 
-        await this.htmlParser.getPostHtml(knouNoticeUrl, knouNoticeParameter).then(html => {
+        await this.htmlParser.requestParameterData<string>(HttpMethod.POST, knouNoticeUrl, querystring.stringify(knouNoticeParameter)).then((html) => {
             if (!html) {
                 console.log("공지사항을 가져올 수 없습니다.");
                 return;

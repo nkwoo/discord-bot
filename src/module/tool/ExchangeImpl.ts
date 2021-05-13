@@ -1,6 +1,7 @@
 import {Exchange} from "./interface/Exchange";
 import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
+import {HttpMethod} from "../../enum/HttpMethod";
 
 const exchangeUrl = 'https://api.manana.kr/exchange/rate/KRW/JPY.json';
 
@@ -11,7 +12,7 @@ export class ExchangeImpl implements Exchange {
 
     getExchangeWonToJpy(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
-            this.htmlParser.getHtmlDocument(exchangeUrl).then(html => {
+            this.htmlParser.requestNoHeaderParameterData<ExchangeData[]>(HttpMethod.GET, exchangeUrl).then(html => {
 
                 if (!html) {
                     editMsg.edit("데이터 조회 실패 ❌");
@@ -44,4 +45,11 @@ export class ExchangeImpl implements Exchange {
             });
         });
     }
+}
+
+interface ExchangeData {
+    date: string,
+    name: string,
+    rate: number,
+    timestamp: string
 }

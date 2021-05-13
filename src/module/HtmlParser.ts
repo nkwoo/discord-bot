@@ -1,69 +1,58 @@
 import * as axios from "axios";
-import { load } from "cheerio";
+import {AxiosAdapter, AxiosRequestConfig, AxiosResponse} from "axios";
+import {load} from "cheerio";
 //axios cache
-import { cacheAdapterEnhancer } from "axios-extensions";
-import { AxiosAdapter } from "axios";
+import {cacheAdapterEnhancer} from "axios-extensions";
+import {HttpMethod} from "../enum/HttpMethod";
 import Root = cheerio.Root;
-import querystring from "querystring";
+
 //https://yamoo9.github.io/axios/guide/error-handling.html
 
 export class HtmlParser {
-    async getHtmlDocument(url: string) {
-        try {
-            return await axios.default.get(url, {
-                headers: {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36",
-                    "Content-Type": "text/html",
-                    "Cache-Control": "no-cache"
-                },
-                adapter: cacheAdapterEnhancer(<AxiosAdapter>axios.default.defaults.adapter, { enabledByDefault: false }),
-                validateStatus: function (status) {
-                    return status < 500;
-                }
-            });
-        } catch (error) {
-            console.error(error);
-        }
+    async requestDomData<T>(method: HttpMethod, url:  string): Promise<AxiosResponse<T> | undefined> {
+        const requestHeader = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36",
+            "Content-Type": "text/html",
+            "Cache-Control": "no-cache"
+        };
+
+        return this.requestHeaderParameterData<T>(method, url, requestHeader, {}, cacheAdapterEnhancer(<AxiosAdapter>axios.default.defaults.adapter, { enabledByDefault: false }));
     }
 
-    async getPostHtml(url: string, parameterJson: any = {}) {
-        try {
-            return await axios.default.post(url, querystring.stringify(parameterJson), {
-                validateStatus: function (status) {
-                    return status < 500;
-                }
-            }).catch(error => {
-                console.log(error);
-            });
-        } catch (error) {
-            console.error(error);
-        }
+    async requestNoHeaderParameterData<T>(method: HttpMethod, url: string): Promise<AxiosResponse<T> | undefined> {
+        return this.requestHeaderParameterData<T>(method, url);
     }
 
-    async getPostJson<T>(url: string, headerJson: any = {}, parameterJson: any = {}) {
+    async requestHeaderData<T>(method: HttpMethod, url: string, headerJson: any = {}): Promise<AxiosResponse<T> | undefined> {
+        return this.requestHeaderParameterData<T>(method, url, headerJson);
+    }
+
+    async requestParameterData<T>(method: HttpMethod, url: string, parameterJson: any = {}): Promise<AxiosResponse<T> | undefined> {
+        return this.requestHeaderParameterData<T>(method, url, {}, parameterJson);
+    }
+
+    async requestHeaderParameterData<T>(method: HttpMethod, url: string, headerJson: any = {}, parameterJson: any = {}, adapter?: AxiosAdapter): Promise<AxiosResponse<T> | undefined> {
         try {
-            return await axios.default.post<T>(url, querystring.stringify(parameterJson), {
+            const configJson: AxiosRequestConfig = {
+                url: url,
+                method: method,
                 headers: headerJson,
-                validateStatus: function (status: number) {
+                validateStatus: (status: number) => {
                     return status < 500;
                 }
-            }).catch(error => {
-                console.log(error);
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
+            };
 
-    async getGetJson<T>(url: string, headerJson: any = {}, parameterJson: any = {}) {
-        try {
-            return await axios.default.get<T>(url, {
-                headers: headerJson,
-                params: parameterJson,
-                validateStatus: function (status) {
-                    return status < 500;
-                }
-            });
+            if (adapter != undefined) {
+                configJson.adapter = adapter;
+            }
+
+            if (method !== HttpMethod.GET) {
+                configJson.data = parameterJson;
+            } else {
+                configJson.params = parameterJson;
+            }
+
+            return await axios.default.request<T>(configJson);
         } catch (error) {
             console.error(error);
         }

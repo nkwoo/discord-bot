@@ -18,7 +18,7 @@ services:
     networks:
       - bot
   discord-bot:
-    image: discord-bot:1.8.11
+    image: discord-bot:1.8.12
     restart: always
     environment:
       TZ: Asia/Seoul

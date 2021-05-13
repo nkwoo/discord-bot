@@ -1,4 +1,5 @@
 import {HtmlParser} from "../../HtmlParser";
+import {HttpMethod} from "../../../enum/HttpMethod";
 
 const resourceApiVersionCheckApi = "https://ddragon.leagueoflegends.com/realms/kr.json";
 
@@ -13,17 +14,17 @@ export class LeagueOfLegendResource {
 
     resourceRefresh(): void {
         //리소스 서버 버전 가져오기
-        this.htmlParser.getGetJson<ResourceVersionVo>(resourceApiVersionCheckApi).then(json => {
+        this.htmlParser.requestNoHeaderParameterData<ResourceVersionVo>(HttpMethod.GET, resourceApiVersionCheckApi).then((json) => {
             if (json != undefined) {
                 this.resourceVersion = json.data;
 
-                this.htmlParser.getGetJson<ChampionVo>(`https://ddragon.leagueoflegends.com/cdn/${this.resourceVersion.n.champion}/data/ko_KR/champion.json`).then(json => {
+                this.htmlParser.requestNoHeaderParameterData<ChampionVo>(HttpMethod.GET, `https://ddragon.leagueoflegends.com/cdn/${this.resourceVersion.n.champion}/data/ko_KR/champion.json`).then((json) => {
                     if (json != undefined) {
                         this.champion = json.data;
                     }
                 });
 
-                this.htmlParser.getGetJson<ProfileIconVo>(`https://ddragon.leagueoflegends.com/cdn/${this.resourceVersion.n.profileicon}/data/ko_KR/profileicon.json`).then(json => {
+                this.htmlParser.requestNoHeaderParameterData<ProfileIconVo>(HttpMethod.GET, `https://ddragon.leagueoflegends.com/cdn/${this.resourceVersion.n.profileicon}/data/ko_KR/profileicon.json`).then((json) => {
                     if (json != undefined) {
                         this.profileIcon = json.data;
                     }
