@@ -34,8 +34,7 @@ export class TranslationImpl implements Translation {
 
             this.htmlParser.requestHeaderParameterData<PapagoDest>(HttpMethod.POST, PAPAGO_DESC_URL, this.descHeaderJson, {query: content}).then((destJson) => {
                 if (destJson === undefined) {
-                    editMsg.edit("데이터 조회 실패 ❌");
-                    channel.send("데이터 조회 도중 오류가 발생하였습니다..");
+                    editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("데이터 조회 도중 오류가 발생하였습니다.."));
                     return;
                 }
 
@@ -43,8 +42,7 @@ export class TranslationImpl implements Translation {
                 if (checkKnownLang(channel, editMsg, sourceLang)) return;
 
                 if (sourceLang === targetLang) {
-                    editMsg.edit("데이터 조회 실패 ❌");
-                    channel.send("동일한 언어로 번역이 불가능합니다..");
+                    editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("동일한 언어로 번역이 불가능합니다.."));
                     return true;
                 }
 
@@ -56,16 +54,14 @@ export class TranslationImpl implements Translation {
 
                 this.htmlParser.requestHeaderParameterData<ApiMessage>(HttpMethod.POST, PAPAGO_TRANSLATION_URL, this.nmtHeaderJson, parameterJson).then((json) => {
                     if (json === undefined) {
-                        editMsg.edit("데이터 조회 실패 ❌");
-                        channel.send("번역 도중 오류가 발생하였습니다..");
+                        editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("번역 도중 오류가 발생하였습니다.."));
                         return;
                     }
 
                     const jsonData = json.data;
 
                     if (jsonData.errorCode !== undefined) {
-                        editMsg.edit("데이터 조회 실패 ❌");
-                        channel.send(jsonData.errorMessage);
+                        editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send(jsonData.errorMessage));
                         return;
                     }
 
@@ -76,17 +72,17 @@ export class TranslationImpl implements Translation {
                         {name: "번역 결과 언어", value: getLanguageKorean(resultData.tarLangType)}
                     ];
 
-                    editMsg.edit("데이터 조회 성공 ✅");
-
-                    channel.send({
-                        embed: {
-                            color: 3447003,
-                            title: "번역 결과",
-                            fields: printDataArr
-                        }
+                    editMsg.edit("데이터 조회 성공 ✅").then(() => {
+                        channel.send({
+                            embed: {
+                                color: 3447003,
+                                title: "번역 결과",
+                                fields: printDataArr
+                            }
+                        }).then(() => {
+                            channel.send("```" + resultData.translatedText + "```");
+                        });
                     });
-
-                    channel.send("```" + resultData.translatedText + "```");
                 });
             });
         });
@@ -111,21 +107,21 @@ export class TranslationImpl implements Translation {
         channel.send("데이터 조회중......").then((editMsg) => {
             this.htmlParser.requestNoHeaderParameterData<ApiSpellInfo>(HttpMethod.GET, `https://search.naver.com/p/csearch/ocontent/util/SpellerProxy?q=${encodeURI(content)}&where=nexearch&color_blindness=0`).then((json) => {
                 if (json === undefined) {
-                    editMsg.edit("데이터 조회 실패 ❌");
-                    channel.send("맞춤법 정보를 가져올 수 없습니다..");
+                    editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("맞춤법 정보를 가져올 수 없습니다.."));
                     return;
                 }
 
-                editMsg.edit("데이터 조회 성공 ✅");
-                channel.send({
-                    embed: {
-                        color: 3447003,
-                        title: "맞춤법 검사기",
-                        fields: [
-                            {name: "교정전 텍스트", value: content},
-                            {name: "교정후 텍스트", value: json.data.message.result.notag_html}
-                        ]
-                    }
+                editMsg.edit("데이터 조회 성공 ✅").then(() => {
+                    channel.send({
+                        embed: {
+                            color: 3447003,
+                            title: "맞춤법 검사기",
+                            fields: [
+                                {name: "교정전 텍스트", value: content},
+                                {name: "교정후 텍스트", value: json.data.message.result.notag_html}
+                            ]
+                        }
+                    });
                 });
             });
         });
@@ -134,8 +130,7 @@ export class TranslationImpl implements Translation {
 
 function checkKnownLang(channel: TextChannel | DMChannel | GroupDMChannel, editMsg: Message, lang: Language) {
     if (lang === Language.KNOWN) {
-        editMsg.edit("데이터 조회 실패 ❌");
-        channel.send("변경할 수 없는 언어입니다..");
+        editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("변경할 수 없는 언어입니다.."));
         return true;
     }
 

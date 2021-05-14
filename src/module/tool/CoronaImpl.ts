@@ -15,8 +15,7 @@ export class CoronaImpl implements Corona {
             this.htmlParser.requestDomData<string>(HttpMethod.GET, coronaSearchUrl).then((html) => {
 
                 if (!html) {
-                    editMsg.edit("데이터 조회 실패 ❌");
-                    channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다.");
+                    editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다."));
                     return;
                 }
 
@@ -31,16 +30,16 @@ export class CoronaImpl implements Corona {
                     coronaArray.push({name: titleText, value: `${dataText}명 ${changeTrendText}`});
                 });
 
-                editMsg.edit("데이터 조회 성공 ✅");
-                channel.send({
-                    embed: {
-                        color: 3447003,
-                        title: "현재 코로나 현황",
-                        description: $(".status_bottom > div > a").text(),
-                        fields: coronaArray
-                    }
+                editMsg.edit("데이터 조회 성공 ✅").then(() => {
+                    channel.send({
+                        embed: {
+                            color: 3447003,
+                            title: "현재 코로나 현황",
+                            description: $(".status_bottom > div > a").text(),
+                            fields: coronaArray
+                        }
+                    });
                 });
-
             });
         });
     }

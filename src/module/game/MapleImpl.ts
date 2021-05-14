@@ -47,28 +47,25 @@ export class MapleImpl implements Maple {
                         const embedMessage = new RichEmbed()
                             .setTitle("메이플 닉네임 검색")
                             .setColor("#3399CC")
-                            .setDescription("당신의 쪼렙 메이플 닉네임 검색 해드립니다.")
+                            .setDescription("메이플 캐릭터 정보")
                             .setURL(maplePersonSearchUrl + "?c=" + name)
                             .addField("닉네임", characterName, true)
                             .addField("직업", characterJob, true)
                             .addField("월드 랭킹", worldRank, true)
                             .addField("레벨", characterLevel, true);
 
-                        editMsg.edit("데이터 조회 성공 ✅");
-                        channel.send({files: [$(element)[0].attribs.src]}).then(() => channel.send(embedMessage));
+                        editMsg.edit("데이터 조회 성공 ✅").then(() => channel.send({files: [$(element)[0].attribs.src]}).then(() => channel.send(embedMessage)));
                     });
 
                     if (worldRank == null || characterName == null || characterJob == null) {
                         if (type == 0) {
                             this.searchMaplePlayerData(channel, name, 254);
                         } else {
-                            editMsg.edit("데이터 조회 실패 ❌");
-                            channel.send("검색 안되는거 보니 메이플 안하시나봄;");
+                            editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("해당 유저를 찾을 수 없습니다.."));
                         }
                     }
                 } else {
-                    editMsg.edit("데이터 조회 실패 ❌");
-                    channel.send("데이터를 가져올 수 없습니다.");
+                    editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("데이터를 가져올 수 없습니다."));
                 }
             });
         });

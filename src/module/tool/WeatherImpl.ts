@@ -4,8 +4,8 @@ import {HtmlParser} from "../HtmlParser";
 import {xml2json} from "xml-js";
 import {HttpMethod} from "../../enum/HttpMethod";
 
-const weather3DayInUrl = 'http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1100000000';
-const weather3DayOutUrl = 'http://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
+const WEATHER_3DAY_IN_URL = 'https://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1100000000';
+const WEATHER_3DAY_OUT_URL = 'https://www.weather.go.kr/weather/forecast/mid-term-rss3.jsp?stnId=109';
 
 export class WeatherImpl implements Weather {
 
@@ -15,11 +15,10 @@ export class WeatherImpl implements Weather {
     getSeoulWeather(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
             const printDataArr: {name: string; value: string;}[] = [];
-            this.htmlParser.requestDomData<string>(HttpMethod.GET, weather3DayInUrl).then((html) => {
+            this.htmlParser.requestDomData<string>(HttpMethod.GET, WEATHER_3DAY_IN_URL).then((html) => {
 
                 if (!html) {
-                    editMsg.edit("데이터 조회 실패 ❌");
-                    channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다.");
+                    editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다."));
                     return;
                 }
 
@@ -38,11 +37,10 @@ export class WeatherImpl implements Weather {
                     }
                 }
 
-                this.htmlParser.requestDomData<string>(HttpMethod.GET, weather3DayOutUrl).then((html) => {
+                this.htmlParser.requestDomData<string>(HttpMethod.GET, WEATHER_3DAY_OUT_URL).then((html) => {
 
                     if (!html) {
-                        editMsg.edit("데이터 조회 실패 ❌");
-                        channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다.");
+                        editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("조회 서버 오류로 인해 데이터를 가져올 수 없습니다."));
                         return;
                     }
 
@@ -55,14 +53,15 @@ export class WeatherImpl implements Weather {
                         printDataArr.push({ name: printStr, value: printData});
                     }
 
-                    editMsg.edit("데이터 조회 성공 ✅");
-                    channel.send({
-                        embed: {
-                            color: 3447003,
-                            title: "날씨",
-                            description: "서울시 날씨 데이터입니다!",
-                            fields: printDataArr
-                        }
+                    editMsg.edit("데이터 조회 성공 ✅").then(() => {
+                        channel.send({
+                            embed: {
+                                color: 3447003,
+                                title: "날씨",
+                                description: "서울시 날씨 데이터입니다!",
+                                fields: printDataArr
+                            }
+                        })
                     });
                 });
             });
