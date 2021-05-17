@@ -37,7 +37,9 @@ export class SystemImpl implements System {
                 printDataArr.push({name: "GPU 온도", value: "미지원"});
             }
         } else {
-            printDataArr.push({name: "CPU 온도", value: `${cpuTemp.main}°C`});
+            if (cpuTemp != null) {
+                printDataArr.push({name: "CPU 온도", value: `${cpuTemp.main}°C`});
+            }
             graphicsData.controllers.forEach(value => {
                 printDataArr.push({name: "GPU 정보", value: `${value.model} / ${value.vram}`});
             });

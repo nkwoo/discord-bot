@@ -15,7 +15,17 @@ export interface GlobalConfig {
         },
         lol: string
     },
-    administratorId: string[],
-    botDevId: string,
-    version: string
+    connection: {
+        host: string,
+        port: number,
+        username: string,
+        password: string,
+        database: string,
+        logging: boolean
+    },
+    docker: {
+        host: string,
+        port: number
+    }
+    administratorId: string[]
 }

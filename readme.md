@@ -15,6 +15,43 @@ Prerequisites
  
 아래의 페이지에서 API KEY를 발급받아 ```env```폴더 안에 ```dev.json```과 ```prod.json``` 파일을 만들어야 합니다.
 
+작성 예시 파일은 ```env```폴더 안에 ```example.json```파일이 있습니다.
+
+예시
+```json
+{
+  "apiKey": {
+    "discord": "NjgyMTc0NzXXXXXXXXXXXXXXXXXXXXXX",
+    "naver": {
+      "papago": {
+        "detectLang": {
+          "clientId": "aiKvXXXXXXXXXXXXXXXXXXXXXX",
+          "clientSecret": "cBeXXXXX"
+        },
+        "nmt": {
+          "clientId": "yUzuXXXXXXXXXXXXXXXXXXXXXX",
+          "clientSecret": "bZbXXXXX"
+        }
+      }
+    },
+    "lol": "RGAPI-f7cXXXXXXXXXXXXXXXXXXXXXX"
+  },
+  "connection": {
+    "host": "127.0.0.1",
+    "port": 3307,
+    "username": "nkwoo",
+    "password": "1234",
+    "database": "bot",
+    "logging": true
+  },
+  "docker": {
+    "host": "mariadb",
+    "port": 3306
+  },
+  "administratorId": ["11111111111111111"]
+}
+```
+
 - [네이버 파파고 언어 번역(NMT)](https://developers.naver.com/docs/papago/papago-nmt-overview.md)
 - [네이버 파파고 언어 감지](https://developers.naver.com/docs/papago/papago-detectlangs-overview.md)
 - [디스코드 봇 키 발급 & 앱 등록](https://blog.naver.com/wpdus2694/221192640522)
@@ -96,8 +133,8 @@ npm run start
 Dockerfile로 docker에 배포할 수 있습니다.
 
 ```
-docker build -t iru-bot:1.7.0 . 
-docker run --name iru-bot -d -e TZ=Asia/Seoul iru-bot:1.7.0
+docker build -t discord-bot:1.7.0 . 
+docker run --name discord-bot -d -e TZ=Asia/Seoul discord-bot:1.7.0
 ```
 
 p.s
@@ -118,8 +155,7 @@ ETC
 서버 버전 업데이트시 하단 파일들을 모두 버전 업데이트 해주셔야합니다.
 
 ```
-env/dev.json
-env/prod.json
+index.ts
 Dockerfile
 package.json
 package-lock.json

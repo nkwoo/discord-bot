@@ -1,21 +1,31 @@
 {
     "apiKey": {
-        "discord": "<KEY>",
+        "discord": "<발급한 디스코드 봇 키>",
         "naver": {
             "papago": {
                 "detectLang": {
-                    "clientId": "<KEY>",
-                    "clientSecret": "<KEY>"
+                    "clientId": "<발급한 네이버 파파고 언어 감지 Id>",
+                    "clientSecret": "<발급한 네이버 파파고 언어 감지 Secret>"
                 },
                 "nmt": {
-                    "clientId": "<KEY>",
-                    "clientSecret": "<KEY>"
+                    "clientId": "<발급한 네이버 파파고 언어 번역 Id>",
+                    "clientSecret": "<발급한 네이버 파파고 언어 번역 Secret>"
                 }
             }
         },
-        "lol": "<KEY>"
+        "lol": "<발급한 롤 API 키>"
     },
-    "administratorId": ["<administratorId>"],
-    "botDevId": "<devId>",
-    "version": "<version>"
+    "connection": {
+        "host": "<데이터베이스 주소>",
+        "port": 3306,
+        "username": "<데이터베이스 ID>",
+        "password": "<데이터베이스 PW>",
+        "database": "<데이터베이스 명>",
+        "logging": false
+    },
+    "docker": {
+        "host": "<docker-compose 사용시 >",
+        "port": 3306
+    },
+    "administratorId": ["<관리자 기능 사용할 디스코드 고유 ID값>"]
 }

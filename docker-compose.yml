@@ -15,13 +15,16 @@ services:
       - /home/ahri/bot/mariadb:/var/lib/mysql
     ports:
       - "9986:3306"
+    expose:
+      - "3306"
     networks:
       - bot
   discord-bot:
-    image: discord-bot:1.9.2
+    image: discord-bot:latest
     restart: always
     environment:
       TZ: Asia/Seoul
+      DOCKER_COMPOSE_CHECK: "true"
     depends_on:
       - mariadb
     links:

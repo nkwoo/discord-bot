@@ -17,15 +17,17 @@ import {Schedule} from "./module/Schedule";
 const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
 
-let configPath;
+let configPath = "./env/dev.json";
+
+if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = "dev";
+}
+
 switch (process.env.NODE_ENV) {
     case "prod":
         configPath = "./env/prod.json";
         break;
     case "dev":
-        configPath = "./env/dev.json";
-        break;
-    default:
         configPath = "./env/dev.json";
         break;
 }
@@ -37,7 +39,8 @@ const htmlParser = new HtmlParser();
 const tool = new Tool(htmlParser, globalConfig);
 const game = new Game(htmlParser, globalConfig);
 
-console.log(process.env.NODE_ENV);
+console.log(`Server Env - ${process.env.NODE_ENV}`);
+console.log("loading......");
 
 /**
  * 유저 권한 체크
@@ -57,15 +60,18 @@ function compareVoiceChannel(oldChannel: Discord.VoiceChannel, newChannel: Disco
     return oldChannel.guild !== undefined && newChannel.guild !== undefined ? oldChannel.guild.name === newChannel.guild.name && oldChannel.name === newChannel.name : false;
 }
 
+const databaseHost: string = process.env.NODE_ENV == "prod" && process.env.DOCKER_COMPOSE_CHECK == "true" ? globalConfig.docker.host : globalConfig.connection.host;
+const databasePort: number = process.env.NODE_ENV == "prod" && process.env.DOCKER_COMPOSE_CHECK == "true" ? globalConfig.docker.port : globalConfig.connection.port;
+
 createConnection({
-    type: "mysql",
-    host: process.env.NODE_ENV == "prod" ? "mariadb" : "127.0.0.1",
-    port: process.env.NODE_ENV == "prod" ? 3306 : 9986,
-    username: "bot",
-    password: "1234",
-    database: "bot",
+    type: "mariadb",
+    host: databaseHost,
+    port: databasePort,
+    username: globalConfig.connection.username,
+    password: globalConfig.connection.password,
+    database: globalConfig.connection.database,
     synchronize: true,
-    logging: process.env.NODE_ENV != "prod",
+    logging: globalConfig.connection.logging,
     entities: [
         "src/database/entity/**/*.ts"
     ]
@@ -78,7 +84,8 @@ createConnection({
     const client = new Discord.Client();
 
     client.on("ready", () => {
-        console.log(`Server Ready - now Running: ${process.env.NODE_ENV != undefined ? process.env.NODE_ENV : "dev"}`);
+        console.log("done!");
+        console.log("Server Ready");
 
         const knouTextChannelList: TextChannel[] = [];
 
@@ -127,17 +134,6 @@ createConnection({
         const server = discordServer.filter(value => value.code == message.guild.id)[0];
 
         const args = message.content.split(" ");
-
-        if (process.env.NODE_ENV == "prod") {
-            const checkDevOn = message.guild.members.filter(function(el) {
-                return el.user.id == globalConfig.botDevId &&
-                    el.user.presence.status == "online";
-            }).array().length;
-
-            if (checkDevOn > 0) {
-                return;
-            }
-        }
 
         switch (args[0].toLowerCase()) {
             case "!재생": {
@@ -289,12 +285,10 @@ createConnection({
                 break;
             }
             case "!이루": {
-                const version = globalConfig.version;
-
                 const printDataArr: {name: string; value: string;}[] = [];
 
-                printDataArr.push({name: "만든이", value: "라이따이"});
-                printDataArr.push({name: "VERSION", value: version});
+                printDataArr.push({name: "만든이", value: "NKWOO"});
+                printDataArr.push({name: "VERSION", value: "1.9.3"});
 
                 message.channel.send({
                     embed: {
