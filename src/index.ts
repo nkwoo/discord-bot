@@ -1,7 +1,6 @@
 import * as Discord from "discord.js";
 import {TextChannel} from "discord.js";
 import * as fs from "fs";
-import * as cron from "node-cron";
 
 import {Tool} from "./module/Tool";
 import {Game} from "./module/Game";
@@ -13,11 +12,10 @@ import {GlobalConfig} from "./global/GlobalConfig";
 import {createConnection} from "typeorm";
 import {VoiceLogType} from "./enum/VoiceLogType";
 import {VoiceLogService} from "./database/service/VoiceLogService";
-import {KnouNoticeService} from "./database/service/KnouNoticeService";
+import {Schedule} from "./module/Schedule";
 
 const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
-const knouTextChannelList: TextChannel[] = [];
 
 let configPath;
 switch (process.env.NODE_ENV) {
@@ -74,28 +72,15 @@ createConnection({
 }).then(async connection => {
 
     const voiceLogService = new VoiceLogService(connection);
-    const knouNoticeService = new KnouNoticeService(connection);
 
-    const crawlingCron = cron.schedule("* 0,6,12,18 * * *", () => {
-        tool.knou.getNoticeData().then(noticeDtoArray => noticeDtoArray.forEach(noticeData => knouNoticeService.upsertNotice(noticeData)));
-    }, {
-        scheduled: false
-    });
-
-    const discordNotifyCron = cron.schedule("* 1,7,13,19 * * *", () => {
-        knouNoticeService.getUnNotifyNotices().then(noticeList =>
-            noticeList.forEach(notice =>
-                knouTextChannelList.forEach(channel =>
-                    tool.knou.sendNotice(channel, notice)
-                        .then(() => knouNoticeService.updateNotifyNotice(notice)))));
-    }, {
-        scheduled: false
-    });
+    const schedule = new Schedule(connection, tool);
 
     const client = new Discord.Client();
 
     client.on("ready", () => {
         console.log(`Server Ready - now Running: ${process.env.NODE_ENV != undefined ? process.env.NODE_ENV : "dev"}`);
+
+        const knouTextChannelList: TextChannel[] = [];
 
         client.guilds.forEach((guild, index) => {
             discordServer.push(new DiscordServer(index, guild.name));
@@ -107,15 +92,13 @@ createConnection({
             });
         });
 
-        crawlingCron.start();
-        discordNotifyCron.start();
+        schedule.init(knouTextChannelList);
+
+        schedule.start();
     });
 
     client.on("error", () => {
         console.error();
-
-        crawlingCron.stop();
-        discordNotifyCron.stop();
     });
 
     client.on("voiceStateUpdate", (oldMember, newMember) => {

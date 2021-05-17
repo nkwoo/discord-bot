@@ -25,24 +25,26 @@ export class KnouNoticeService {
         await knouNoticeRepository.save(entity);
     }
 
-    async upsertNotice(domainDto: KnouNoticeDomain): Promise<void> {
-        await this.connection.createQueryBuilder()
-            .insert()
-            .into(KnouNoticeEntity)
-            .values({
-                boardIdx: domainDto.boardIdx,
-                title: domainDto.title,
-                writeDate: domainDto.writeDate,
-                postLink: domainDto.postLink
-            })
-            .orUpdate({
-                conflict_target: ["BOARD_IDX"],
-                overwrite: ["TITLE", "WRITE_DT", "POST_LINK"]
-            })
-            .execute()
-            .catch(reason => {
-                console.log(reason);
-                return false;
-            });
+    async upsertNotice(domainDtoArray: KnouNoticeDomain[]): Promise<void> {
+        await domainDtoArray.forEach(domainDto => {
+             this.connection.createQueryBuilder()
+                .insert()
+                .into(KnouNoticeEntity)
+                .values({
+                    boardIdx: domainDto.boardIdx,
+                    title: domainDto.title,
+                    writeDate: domainDto.writeDate,
+                    postLink: domainDto.postLink
+                })
+                .orUpdate({
+                    conflict_target: ["BOARD_IDX"],
+                    overwrite: ["TITLE", "WRITE_DT", "POST_LINK"]
+                })
+                .execute()
+                .catch(reason => {
+                    console.log(reason);
+                    return false;
+                });
+        });
     }
 }
