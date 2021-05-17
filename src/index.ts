@@ -284,38 +284,34 @@ createConnection({
                 tool.translation.checkSpellMessage(message.channel, content);
                 break;
             }
-            case "!이루": {
-                const printDataArr: {name: string; value: string;}[] = [];
-
-                printDataArr.push({name: "만든이", value: "NKWOO"});
-                printDataArr.push({name: "VERSION", value: "1.9.3"});
-
+            case "!봇": {
                 message.channel.send({
                     embed: {
                         color: 3447003,
-                        fields: printDataArr
+                        fields: [
+                            {name: "만든이", value: "NKWOO"},
+                            {name: "VERSION", value: "1.9.4"}
+                        ]
                     }
                 });
                 break;
             }
             case "!명령어": {
-                const printDataArr: {name: string; value: string;}[] = [];
-
-                printDataArr.push({name: "!롤 <닉네임>", value: "롤전적 검색"});
-                printDataArr.push({name: "!메이플 <닉네임>", value: "메이플 정보 검색"});
-                printDataArr.push({name: "!날씨", value: "서울시 날씨 데이터를 조회"});
-                printDataArr.push({name: "!타이머추가 <분> <호출대상> \"<문구>\"", value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"});
-                printDataArr.push({name: "!타이머취소 <타이머코드>", value: "타이머취소 방법"});
-                printDataArr.push({name: "!엔화", value: "엔화 가격 조회"});
-                printDataArr.push({name: "!코로나", value: "코로나 현황 조회"});
-                printDataArr.push({name: "!나무랭킹", value: "나무위키 검색 랭킹 조회"});
-                printDataArr.push({name: "!번역 <번역코드> \"<문구>\"", value: "파파고 API를 이용한 번역"});
-                printDataArr.push({name: "!번역코드", value: "번역 가능한 코드 조회"});
-
                 message.channel.send({
                     embed: {
                         color: 3447003,
-                        fields: printDataArr
+                        fields: [
+                            {name: "!롤 <닉네임>", value: "롤전적 검색"},
+                            {name: "!메이플 <닉네임>", value: "메이플 정보 검색"},
+                            {name: "!날씨", value: "서울시 날씨 데이터를 조회"},
+                            {name: "!타이머추가 <분> <호출대상> \"<문구>\"", value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"},
+                            {name: "!타이머취소 <타이머코드>", value: "타이머취소 방법"},
+                            {name: "!엔화", value: "엔화 가격 조회"},
+                            {name: "!코로나", value: "코로나 현황 조회"},
+                            {name: "!나무랭킹", value: "나무위키 검색 랭킹 조회"},
+                            {name: "!번역 <번역코드> \"<문구>\"", value: "파파고 API를 이용한 번역"},
+                            {name: "!번역코드", value: "번역 가능한 코드 조회"}
+                        ]
                     }
                 });
                 break;

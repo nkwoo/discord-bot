@@ -87,8 +87,8 @@ export class TimerImpl implements Timer {
 
             printDataArr.push({
                 name: `Rank - ${value.rank}`,
-                value: `이용자 명 : ${userName}
-                종료 시간: ${formatDate(value.endTime, "-")}`
+                value: `호출대상 : ${userName}
+                종료 시간 : ${formatDate(value.endTime, "-")}`
             });
         });
 

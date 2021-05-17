@@ -15,6 +15,7 @@ export class WeatherImpl implements Weather {
     getSeoulWeather(channel: TextChannel | DMChannel | GroupDMChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
             const printDataArr: {name: string; value: string;}[] = [];
+
             this.htmlParser.requestDomData<string>(HttpMethod.GET, WEATHER_3DAY_IN_URL).then((html) => {
 
                 if (!html) {
@@ -31,6 +32,7 @@ export class WeatherImpl implements Weather {
                     if (dataArr[j].day._text != checkNextDay) {
                         const printStr = nowDate.getFullYear() + "-" + ((nowDate.getMonth() + 1) > 9 ? (nowDate.getMonth() + 1) : "0" + (nowDate.getMonth() + 1)) + "-" + (nowDate.getDate() > 9 ? nowDate.getDate() : "0" + nowDate.getDate());
                         const printData = "날씨 : " + dataArr[j].wfKor._text + "\n최저온도 : " + Number(dataArr[j].tmn._text) + "도\n최고온도 : " + Number(dataArr[j].tmx._text) + "도";
+
                         nowDate.setDate(nowDate.getDate() + 1);
                         printDataArr.push({ name: printStr, value: printData});
                         checkNextDay = dataArr[j].day._text;
@@ -50,6 +52,7 @@ export class WeatherImpl implements Weather {
                     for(let j = 1; j < 11; j = j + 2) {
                         const printStr = dataArr[0].data[j].tmEf._text.substring(0,10);
                         const printData = "날씨 : " + dataArr[0].data[j].wf._text + "\n최저온도 : " + dataArr[0].data[j].tmn._text + "도\n최고온도 : " + dataArr[0].data[j].tmx._text + "도";
+
                         printDataArr.push({ name: printStr, value: printData});
                     }
 

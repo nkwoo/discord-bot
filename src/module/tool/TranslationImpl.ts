@@ -67,17 +67,15 @@ export class TranslationImpl implements Translation {
 
                     const resultData = jsonData.message.result;
 
-                    const printDataArr = [
-                        {name: "번역 대상 언어", value: getLanguageKorean(resultData.srcLangType)},
-                        {name: "번역 결과 언어", value: getLanguageKorean(resultData.tarLangType)}
-                    ];
-
                     editMsg.edit("데이터 조회 성공 ✅").then(() => {
                         channel.send({
                             embed: {
                                 color: 3447003,
                                 title: "번역 결과",
-                                fields: printDataArr
+                                fields: [
+                                    {name: "번역 대상 언어", value: getLanguageKorean(resultData.srcLangType)},
+                                    {name: "번역 결과 언어", value: getLanguageKorean(resultData.tarLangType)}
+                                ]
                             }
                         }).then(() => {
                             channel.send("```" + resultData.translatedText + "```");
