@@ -2,14 +2,10 @@ import {Corona} from "./tool/interface/Corona";
 import {CoronaImpl} from "./tool/CoronaImpl";
 import {Exchange} from "./tool/interface/Exchange";
 import {System} from "./tool/interface/System";
-import {Util} from "./tool/interface/Util";
 import {ExchangeImpl} from "./tool/ExchangeImpl";
 import {SystemImpl} from "./tool/SystemImpl";
-import {UtilImpl} from "./tool/UtilImpl";
 import {Weather} from "./tool/interface/Weather";
 import {WeatherImpl} from "./tool/WeatherImpl";
-import {VoiceLog} from "./tool/interface/VoiceLog";
-import {VoiceLogImpl} from "./tool/VoiceLogImpl";
 import {NamuWiki} from "./tool/interface/NamuWiki";
 import {NamuWikiImpl} from "./tool/NamuWikiImpl";
 import {YouTube} from "./tool/interface/Youtube";
@@ -27,9 +23,7 @@ export class Tool {
     private readonly _corona: Corona;
     private readonly _exchange: Exchange;
     private readonly _system: System;
-    private readonly _util: Util;
     private readonly _weather: Weather;
-    private readonly _voiceLog: VoiceLog;
     private readonly _namuWiki: NamuWiki;
     private readonly _youtube: YouTube;
     private readonly _timer: Timer;
@@ -40,9 +34,7 @@ export class Tool {
         this._corona = new CoronaImpl(this.htmlParser);
         this._exchange = new ExchangeImpl(this.htmlParser);
         this._system = new SystemImpl();
-        this._util = new UtilImpl();
         this._weather = new WeatherImpl(this.htmlParser);
-        this._voiceLog = new VoiceLogImpl();
         this._namuWiki = new NamuWikiImpl(this.htmlParser);
         this._youtube = new YoutubeImpl();
         this._timer = new TimerImpl();
@@ -62,16 +54,8 @@ export class Tool {
         return this._system;
     }
 
-    get util(): Util {
-        return this._util;
-    }
-
     get weather(): Weather {
         return this._weather;
-    }
-
-    get voiceLog(): VoiceLog {
-        return this._voiceLog;
     }
 
     get namuWiki(): NamuWiki {
