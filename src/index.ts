@@ -2,7 +2,7 @@ import * as Discord from "discord.js";
 import {TextChannel} from "discord.js";
 import * as fs from "fs";
 
-import { logger } from './module/Winston';
+import {logger} from './module/Winston';
 
 import {Tool} from "./module/Tool";
 import {Game} from "./module/Game";
@@ -10,11 +10,10 @@ import {TimeQueue} from "./module/discord/TimeQueue";
 import {DiscordServer} from "./module/discord/DiscordServer";
 import {HtmlParser} from "./module/HtmlParser";
 import {GlobalConfig} from "./config/GlobalConfig";
-
-import {createConnection} from "typeorm";
 import {VoiceLogType} from "./enum/VoiceLogType";
 import {VoiceLogService} from "./database/service/VoiceLogService";
 import {Schedule} from "./module/Schedule";
+import connection from "./database/Connection";
 
 const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
@@ -62,22 +61,7 @@ function compareVoiceChannel(oldChannel: Discord.VoiceChannel, newChannel: Disco
     return oldChannel.guild !== undefined && newChannel.guild !== undefined ? oldChannel.guild.name === newChannel.guild.name && oldChannel.name === newChannel.name : false;
 }
 
-const databaseHost: string = process.env.NODE_ENV == "prod" && process.env.DOCKER_COMPOSE_CHECK == "true" ? globalConfig.docker.host : globalConfig.connection.host;
-const databasePort: number = process.env.NODE_ENV == "prod" && process.env.DOCKER_COMPOSE_CHECK == "true" ? globalConfig.docker.port : globalConfig.connection.port;
-
-createConnection({
-    type: "mariadb",
-    host: databaseHost,
-    port: databasePort,
-    username: globalConfig.connection.username,
-    password: globalConfig.connection.password,
-    database: globalConfig.connection.database,
-    synchronize: true,
-    logging: globalConfig.connection.logging,
-    entities: [
-        "src/database/entity/**/*.ts"
-    ]
-}).then(async connection => {
+connection.create(globalConfig).then(async connection => {
 
     const voiceLogService = new VoiceLogService(connection);
 
@@ -291,7 +275,7 @@ createConnection({
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.10.0"}
+                            {name: "VERSION", value: "1.10.1"}
                         ]
                     }
                 });
