@@ -3,7 +3,7 @@ import {HtmlParser} from "../HtmlParser";
 import {LeagueOfLegend} from "./interface/LeagueOfLegend";
 import {LeagueOfLegendResource} from "./data/LeagueOfLegendResource";
 import {getLeagueOfLegendGameType, LeagueOfLegendGameType} from "../../enum/LeagueOfLegendGameType";
-import {GlobalConfig} from "../../global/GlobalConfig";
+import {GlobalConfig} from "../../config/GlobalConfig";
 import {HttpMethod} from "../../enum/HttpMethod";
 
 const LOL_ROTATION_CHAMPION_URL = "https://kr.api.riotgames.com/lol/platform/v3/champion-rotations";

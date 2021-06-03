@@ -15,7 +15,7 @@ import {TimerImpl} from "./tool/TimerImpl";
 import {Translation} from "./tool/interface/Translation";
 import {TranslationImpl} from "./tool/TranslationImpl";
 import {HtmlParser} from "./HtmlParser";
-import {GlobalConfig} from "../global/GlobalConfig";
+import {GlobalConfig} from "../config/GlobalConfig";
 import {Knou} from "./tool/interface/Knou";
 import {KnouImpl} from "./tool/KnouImpl";
 

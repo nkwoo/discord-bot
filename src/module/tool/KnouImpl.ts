@@ -28,7 +28,7 @@ export class KnouImpl implements Knou {
         await this.htmlParser.requestParameterData<string>(HttpMethod.POST, knouNoticeUrl, querystring.stringify(knouNoticeParameter)).then((html) => {
             if (!html) {
                 console.log("공지사항을 가져올 수 없습니다.");
-                return;
+                return noticeData;
             }
 
             const $ = this.htmlParser.changeHtmlToDom(html.data);

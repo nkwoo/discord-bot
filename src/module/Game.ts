@@ -3,7 +3,7 @@ import {LeagueOfLegendImpl} from "./game/LeagueOfLegendImpl";
 import {Maple} from "./game/interface/Maple";
 import {MapleImpl} from "./game/MapleImpl";
 import {HtmlParser} from "./HtmlParser";
-import {GlobalConfig} from "../global/GlobalConfig";
+import {GlobalConfig} from "../config/GlobalConfig";
 
 export class Game {
     private readonly _lol: LeagueOfLegend;

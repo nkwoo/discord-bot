@@ -2,7 +2,7 @@ import {Translation} from "./interface/Translation";
 import {DMChannel, GroupDMChannel, Message, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {getLanguage, getLanguageKorean, Language} from "../../enum/Language";
-import {GlobalConfig} from "../../global/GlobalConfig";
+import {GlobalConfig} from "../../config/GlobalConfig";
 import {HttpMethod} from "../../enum/HttpMethod";
 
 const PAPAGO_DESC_URL = "https://openapi.naver.com/v1/papago/detectLangs";

@@ -4,10 +4,10 @@ import {KnouNoticeService} from "../database/service/KnouNoticeService";
 import {Tool} from "./Tool";
 import {Connection} from "typeorm";
 import {TextChannel} from "discord.js";
+import {logger} from "./Winston";
 
 export class Schedule {
-    private crawlingCron: ScheduledTask;
-    private discordNotifyCron: ScheduledTask;
+    private knouNoticeNotifyCron: ScheduledTask;
 
     private knouNoticeService: KnouNoticeService;
 
@@ -16,32 +16,29 @@ export class Schedule {
     }
 
     init(knouTextChannelList: TextChannel[]): void {
-        this.crawlingCron = cron.schedule("* * 0,6,12,18 * * *", () => {
-            this.tool.knou.getNoticeData().then(noticeDtoArray =>  this.knouNoticeService.upsertNotice(noticeDtoArray));
-        }, {
-            scheduled: false
-        });
+        this.knouNoticeNotifyCron = cron.schedule("* * 1,7,13,19 * * *", async () => {
+            await this.tool.knou.getNoticeData().then(noticeDtoArray =>  this.knouNoticeService.upsertNotice(noticeDtoArray));
 
-        this.discordNotifyCron = cron.schedule("* * 1,7,13,19 * * *", () => {
-            this.knouNoticeService.getUnNotifyNotices().then(noticeList =>
-                noticeList.forEach(notice =>
-                    knouTextChannelList.forEach(channel =>
-                        this.tool.knou.sendNotice(channel, notice)
-                            .then(() => this.knouNoticeService.updateNotifyNotice(notice)))));
+            const knouNoticeEntities = await this.knouNoticeService.getUnNotifyNotices().then();
+
+            knouNoticeEntities.forEach(notice => {
+                knouTextChannelList.forEach(channel => {
+                    this.tool.knou.sendNotice(channel, notice).then(() => this.knouNoticeService.updateNotifyNotice(notice));
+                });
+                logger.info(`Update Notify Row : ${knouNoticeEntities.length} Change`);
+            });
         }, {
             scheduled: false
         });
-        console.log("Schedule Init Success");
+        logger.info("Schedule Init");
     }
 
     start(): void {
-        this.crawlingCron.start();
-        this.discordNotifyCron.start();
-        console.log("Schedule Start");
+        this.knouNoticeNotifyCron.start();
+        logger.info("Schedule Start");
     }
 
     stop(): void {
-        this.crawlingCron.stop();
-        this.discordNotifyCron.stop();
+        this.knouNoticeNotifyCron.stop();
     }
 }

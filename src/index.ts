@@ -2,12 +2,14 @@ import * as Discord from "discord.js";
 import {TextChannel} from "discord.js";
 import * as fs from "fs";
 
+import { logger } from './module/Winston';
+
 import {Tool} from "./module/Tool";
 import {Game} from "./module/Game";
 import {TimeQueue} from "./module/discord/TimeQueue";
 import {DiscordServer} from "./module/discord/DiscordServer";
 import {HtmlParser} from "./module/HtmlParser";
-import {GlobalConfig} from "./global/GlobalConfig";
+import {GlobalConfig} from "./config/GlobalConfig";
 
 import {createConnection} from "typeorm";
 import {VoiceLogType} from "./enum/VoiceLogType";
@@ -39,8 +41,8 @@ const htmlParser = new HtmlParser();
 const tool = new Tool(htmlParser, globalConfig);
 const game = new Game(htmlParser, globalConfig);
 
-console.log(`Server Env - ${process.env.NODE_ENV}`);
-console.log("loading......");
+logger.info(`Server Env - ${process.env.NODE_ENV}`);
+logger.info("loading......");
 
 /**
  * 유저 권한 체크
@@ -84,8 +86,7 @@ createConnection({
     const client = new Discord.Client();
 
     client.on("ready", () => {
-        console.log("done!");
-        console.log("Server Ready");
+        logger.info("Server Ready!");
 
         const knouTextChannelList: TextChannel[] = [];
 
@@ -290,7 +291,7 @@ createConnection({
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.9.4"}
+                            {name: "VERSION", value: "1.10.0"}
                         ]
                     }
                 });
@@ -322,7 +323,7 @@ createConnection({
     if (globalConfig.apiKey.discord != undefined) {
         await client.login(globalConfig.apiKey.discord);
     } else {
-        console.log("You Don't Have Api-Key go https://discordapp.com/developers/applications/");
+        logger.error("You Don't Have Api-Key go https://discordapp.com/developers/applications/");
     }
 }).catch(error => {
     console.log(error);
