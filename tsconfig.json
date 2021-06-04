@@ -6,9 +6,13 @@
     "esModuleInterop": true,                  /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     "outDir": "./dist",
     "resolveJsonModule": true,
-    "types": [],
+    "types": ["jest"],
+    "moduleResolution": "Node",
+    "typeRoots": ["./types", "./node_modules/@types"],
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false
-  }
+  },
+  "exclude": ["node_modules", "./test/**"],
+  "include": ["./src/**/*.ts"]
 }

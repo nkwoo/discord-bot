@@ -275,7 +275,7 @@ connection.create(globalConfig).then(async connection => {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.10.1"}
+                            {name: "VERSION", value: "1.10.2"}
                         ]
                     }
                 });

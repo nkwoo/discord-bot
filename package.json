@@ -1,12 +1,25 @@
 {
   "name": "discord-bot",
-  "version": "1.10.1",
+  "version": "1.10.2",
   "description": "Discord Chat Bot",
   "main": "index.js",
   "scripts": {
     "build": "tsc && node ./dist/index.js",
     "start": "nodemon -x ts-node src/index.ts",
-    "ts-start": "ts-node src/index.ts"
+    "ts-start": "ts-node src/index.ts",
+    "test": "jest --runInBand --verbose",
+    "test-coverage": "jest --runInBand --verbose --coverage"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "ts-jest"
+    },
+    "testRegex": "(/test/.*|(\\\\.|/)(test|spec))\\.(ts|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/jest.setup.js"]
   },
   "author": "",
   "license": "ISC",
@@ -35,8 +48,12 @@
     "ytdl-core-discord": "^1.2.4"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.12.0",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "@typescript-eslint/parser": "^4.3.0",
-    "eslint": "^7.10.0"
+    "eslint": "^7.10.0",
+    "jest": "^27.0.3",
+    "ts-jest": "^27.0.2"
   }
 }
