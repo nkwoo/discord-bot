@@ -48,7 +48,10 @@ Prerequisites
     "host": "mariadb",
     "port": 3306
   },
-  "administratorId": ["11111111111111111"]
+  "discord": {
+    "prefix": "!",
+    "administratorId": ["11111111111111111"]
+  }
 }
 ```
 

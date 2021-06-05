@@ -47,12 +47,7 @@ export class YoutubeImpl implements YouTube {
         });
     }
 
-    setYoutubeVolumeControl(channel: TextChannel | DMChannel | GroupDMChannel, musicPlayer: StreamDispatcher | null, option: string | null): void {
-        if (option == null) {
-            channel.send("!소리 <증가, 감소, 초기화> ㄱㄱ");
-            return;
-        }
-
+    setYoutubeVolumeControl(channel: TextChannel | DMChannel | GroupDMChannel, musicPlayer: StreamDispatcher | null, option: string): void {
         if (musicPlayer == null) {
             channel.send("플레이어를 아직 사용하지 않았습니다.");
             return;

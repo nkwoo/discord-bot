@@ -1,8 +1,13 @@
 import {Timer} from "./interface/Timer";
 import {TimeQueue} from "../discord/TimeQueue";
 import {Message} from "discord.js";
+import {GlobalConfig} from "../../config/GlobalConfig";
 
 export class TimerImpl implements Timer {
+
+    constructor(private globalConfig: GlobalConfig) {
+    }
+
     addTimer(message: Message, timerQueue: TimeQueue[], callUser: string, hour: number): void {
         const registeredTimerLen = timerQueue.filter(value => value.server === message.guild.id).filter(value => value.owner === message.member.user.id).length;
         if (registeredTimerLen >= 5) {
@@ -34,9 +39,9 @@ export class TimerImpl implements Timer {
             embed: {
                 color: 3447003,
                 fields: [
-                    {name: "타이머 호출대상", value: sendMembers.substring(0, sendMembers.length -2)},
+                    {name: "타이머 호출대상", value: sendMembers.substring(0, sendMembers.length - 2)},
                     {name: "타이머 시간", value:  hour + "분"},
-                    {name: "타이머 취소 방법", value: "!타이머취소 " + (timerQueue.length + 1)}
+                    {name: "타이머 취소 방법", value: `${this.globalConfig.discord.prefix}타이머취소 ${(timerQueue.length + 1)}`}
                 ]
             }
         });

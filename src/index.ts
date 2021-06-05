@@ -48,8 +48,8 @@ logger.info("loading......");
  */
 function permission(message: Discord.Message): boolean {
     const id = message.member.user.id;
-    for (let i = 0; i < globalConfig.administratorId.length; i++) {
-        if (globalConfig.administratorId[i] == id) return false;
+    for (let i = 0; i < globalConfig.discord.administratorId.length; i++) {
+        if (globalConfig.discord.administratorId[i] == id) return false;
     }
 
     message.channel.send("권한이 없습니다.");
@@ -116,47 +116,54 @@ connection.create(globalConfig).then(async connection => {
 
         if (message.member.user.bot) return;
 
-        const server = discordServer.filter(value => value.code == message.guild.id)[0];
+        if (!message.content.startsWith(globalConfig.discord.prefix)) return;
 
         const args = message.content.split(" ");
 
-        switch (args[0].toLowerCase()) {
-            case "!재생": {
+        const server = discordServer.filter(value => value.code == message.guild.id)[0];
+
+        switch (args[0].substr(1)) {
+            case "재생": {
                 if (permission(message)) return;
 
                 if (!args[1]) {
-                    message.channel.send("!재생 <유툽주소> ㄱㄱ");
+                    message.channel.send(`유튜브 주소가 포함되어 있지 않습니다.`);
                     return;
                 }
 
                 tool.youtube.addYoutube(message, server, args[1]);
                 break;
             }
-            case "!소리": {
+            case "소리": {
                 if (permission(message)) return;
+
+                if (!args[1]) {
+                    message.channel.send(`${globalConfig.discord.prefix}소리 <증가, 감소, 초기화> 형식대로 입력해주세요.`);
+                    return;
+                }
 
                 tool.youtube.setYoutubeVolumeControl(message.channel, server.getMusicPlayer(), args[1]);
                 break;
             }
-            case "!일시정지": {
+            case "일시정지": {
                 if (permission(message)) return;
 
                 tool.youtube.pauseYoutubePlayer(message.channel, server.getMusicPlayer());
                 break;
             }
-            case "!스킵": {
+            case "스킵": {
                 if (permission(message)) return;
 
                 tool.youtube.skipYoutubeVideo(server.getMusicPlayer());
                 break;
             }
-            case "!목록": {
+            case "목록": {
                 if (permission(message)) return;
 
                 tool.youtube.getPlayList(message.channel, server.musicQueue.list);
                 break;
             }
-            case "!종료": {
+            case "종료": {
                 if (permission(message)) return;
 
                 server.musicQueue.list = [];
@@ -164,9 +171,9 @@ connection.create(globalConfig).then(async connection => {
                 tool.youtube.stopPlayer(message);
                 break;
             }
-            case "!롤": {
+            case "롤": {
                 if (message.content.length < 3) {
-                    message.channel.send("!롤 <닉네임> ㄱㄱ");
+                    message.channel.send(`닉네임이 포함되어 있지 않습니다.`);
                     return;
                 }
 
@@ -175,17 +182,17 @@ connection.create(globalConfig).then(async connection => {
                 game.lol.searchLoLPlayData(message.channel, nickname);
                 break;
             }
-            case "!로테": {
+            case "로테": {
                 game.lol.getRotationsChampion(message.channel);
                 break;
             }
-            case "!날씨": {
+            case "날씨": {
                 tool.weather.getSeoulWeather(message.channel);
                 break;
             }
-            case "!메이플": {
+            case "메이플": {
                 if (message.content.length < 3) {
-                    message.channel.send("!메이플 <닉네임> ㄱㄱ");
+                    message.channel.send("닉네임이 포함되어 있지 않습니다.");
                     return;
                 }
 
@@ -194,11 +201,11 @@ connection.create(globalConfig).then(async connection => {
                 game.maple.searchMaplePlayerData(message.channel, nickname, 0);
                 break;
             }
-            case "!타이머추가": {
+            case "타이머추가": {
                 const commandHour = Number(args[1]);
 
                 if (message.content.length < 5 || isNaN(commandHour) || args.length < 4 || message.content.indexOf("\"") == -1) {
-                    message.channel.send("!타이머추가 <분> <호출대상> \"<문구>\"ㄱㄱ");
+                    message.channel.send(`${globalConfig.discord.prefix}타이머추가 <분> <호출대상> "<문구>" 형식대로 입력해주세요.`);
                     return;
                 }
 
@@ -210,42 +217,42 @@ connection.create(globalConfig).then(async connection => {
                 tool.timer.addTimer(message, timerQueue, args[2], commandHour);
                 break;
             }
-            case "!타이머취소": {
+            case "타이머취소": {
                 if (message.content.length < 5 || args.length < 2) {
-                    message.channel.send("!타이머취소 <타이머 번호> ㄱㄱ");
+                    message.channel.send(`${globalConfig.discord.prefix}타이머취소 <타이머 번호> 형식대로 입력해주세요.`);
                     return;
                 }
 
                 tool.timer.removeTimer(message, timerQueue, Number(args[1]));
                 break;
             }
-            case "!타이머": {
+            case "타이머": {
                 if (permission(message)) return;
 
                 tool.timer.timerList(message, timerQueue);
                 break;
             }
-            case "!상태": {
+            case "상태": {
                 tool.system.getSystemState(message.channel);
                 break;
             }
-            case "!엔화": {
+            case "엔화": {
                 tool.exchange.getExchangeWonToJpy(message.channel);
                 break;
             }
-            case "!코로나": {
+            case "코로나": {
                 tool.corona.getCoronaState(message.channel);
                 break;
             }
-            case "!나무랭킹": {
+            case "나무랭킹": {
                 tool.namuWiki.getNamuRanking(message.channel);
                 break;
             }
-            case "!번역": {
+            case "번역": {
                 const commandLang = args[1];
 
                 if (commandLang === undefined || args.length < 3 || message.content.indexOf("\"") == -1) {
-                    message.channel.send("!번역 <번역코드> \"<문구>\" ㄱㄱ");
+                    message.channel.send(`${globalConfig.discord.prefix}번역 <번역코드> "<문구>" 형식대로 입력해주세요.`);
                     return;
                 }
 
@@ -254,13 +261,13 @@ connection.create(globalConfig).then(async connection => {
                 tool.translation.translationLang(message.channel, sendText, commandLang);
                 break;
             }
-            case "!번역코드": {
+            case "번역코드": {
                 tool.translation.getTranslationCode(message.channel);
                 break;
             }
-            case "!맞춤법" : {
+            case "맞춤법" : {
                 if (message.content.length < 7) {
-                    message.channel.send("!맞춤법 <텍스트> ㄱㄱ");
+                    message.channel.send("텍스트가 포함되어 있지 않습니다.");
                     return;
                 }
 
@@ -269,33 +276,33 @@ connection.create(globalConfig).then(async connection => {
                 tool.translation.checkSpellMessage(message.channel, content);
                 break;
             }
-            case "!봇": {
+            case "봇": {
                 message.channel.send({
                     embed: {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.10.2"}
+                            {name: "VERSION", value: "1.10.3"}
                         ]
                     }
                 });
                 break;
             }
-            case "!명령어": {
+            case "명령어": {
                 message.channel.send({
                     embed: {
                         color: 3447003,
                         fields: [
-                            {name: "!롤 <닉네임>", value: "롤전적 검색"},
-                            {name: "!메이플 <닉네임>", value: "메이플 정보 검색"},
-                            {name: "!날씨", value: "서울시 날씨 데이터를 조회"},
-                            {name: "!타이머추가 <분> <호출대상> \"<문구>\"", value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"},
-                            {name: "!타이머취소 <타이머코드>", value: "타이머취소 방법"},
-                            {name: "!엔화", value: "엔화 가격 조회"},
-                            {name: "!코로나", value: "코로나 현황 조회"},
-                            {name: "!나무랭킹", value: "나무위키 검색 랭킹 조회"},
-                            {name: "!번역 <번역코드> \"<문구>\"", value: "파파고 API를 이용한 번역"},
-                            {name: "!번역코드", value: "번역 가능한 코드 조회"}
+                            {name: `${globalConfig.discord.prefix}롤 <닉네임>`, value: "롤전적 검색"},
+                            {name: `${globalConfig.discord.prefix}메이플 <닉네임>`, value: "메이플 정보 검색"},
+                            {name: `${globalConfig.discord.prefix}날씨`, value: "서울시 날씨 데이터를 조회"},
+                            {name: `${globalConfig.discord.prefix}타이머추가 <분> <호출대상> "<문구>"`, value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"},
+                            {name: `${globalConfig.discord.prefix}타이머취소 <타이머코드>`, value: "타이머취소 방법"},
+                            {name: `${globalConfig.discord.prefix}엔화`, value: "엔화 가격 조회"},
+                            {name: `${globalConfig.discord.prefix}코로나`, value: "코로나 현황 조회"},
+                            {name: `${globalConfig.discord.prefix}나무랭킹`, value: "나무위키 검색 랭킹 조회"},
+                            {name: `${globalConfig.discord.prefix}번역 <번역코드> "<문구>"`, value: "파파고 API를 이용한 번역"},
+                            {name: `${globalConfig.discord.prefix}번역코드`, value: "번역 가능한 코드 조회"}
                         ]
                     }
                 });

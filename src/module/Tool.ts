@@ -37,8 +37,8 @@ export class Tool {
         this._weather = new WeatherImpl(this.htmlParser);
         this._namuWiki = new NamuWikiImpl(this.htmlParser);
         this._youtube = new YoutubeImpl();
-        this._timer = new TimerImpl();
-        this._translation = new TranslationImpl(this.htmlParser, globalConfig);
+        this._timer = new TimerImpl(this.globalConfig);
+        this._translation = new TranslationImpl(this.htmlParser, this.globalConfig);
         this._knou = new KnouImpl(this.htmlParser);
     }
 

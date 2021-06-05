@@ -26,6 +26,9 @@ export interface GlobalConfig {
     docker: {
         host: string,
         port: number
+    },
+    discord: {
+        prefix: string,
+        administratorId: string[]
     }
-    administratorId: string[]
 }
