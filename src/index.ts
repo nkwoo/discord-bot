@@ -14,6 +14,7 @@ import {VoiceLogType} from "./enum/VoiceLogType";
 import {VoiceLogService} from "./database/service/VoiceLogService";
 import {Schedule} from "./module/Schedule";
 import connection from "./database/Connection";
+import {LeagueOfLegendController} from "./module/controller/LeagueOfLegendController";
 
 const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
@@ -37,8 +38,10 @@ const globalConfig: GlobalConfig = JSON.parse(fs.readFileSync(configPath).toStri
 
 const htmlParser = new HtmlParser();
 
+const leagueOfLegendController = new LeagueOfLegendController(htmlParser, globalConfig);
+
 const tool = new Tool(htmlParser, globalConfig);
-const game = new Game(htmlParser, globalConfig);
+const game = new Game(htmlParser);
 
 logger.info(`Server Env - ${process.env.NODE_ENV}`);
 logger.info("loading......");
@@ -122,7 +125,11 @@ connection.create(globalConfig).then(async connection => {
 
         const server = discordServer.filter(value => value.code == message.guild.id)[0];
 
-        switch (args[0].substr(1)) {
+        const command = args[0].substr(1);
+
+        leagueOfLegendController.callCommand(message.channel, command, message.content, args);
+
+        switch (command) {
             case "재생": {
                 if (permission(message)) return;
 
@@ -169,21 +176,6 @@ connection.create(globalConfig).then(async connection => {
                 server.musicQueue.list = [];
 
                 tool.youtube.stopPlayer(message);
-                break;
-            }
-            case "롤": {
-                if (message.content.length < 3) {
-                    message.channel.send(`닉네임이 포함되어 있지 않습니다.`);
-                    return;
-                }
-
-                const nickname = message.content.substring(3, message.content.length).trim();
-
-                game.lol.searchLoLPlayData(message.channel, nickname);
-                break;
-            }
-            case "로테": {
-                game.lol.getRotationsChampion(message.channel);
                 break;
             }
             case "날씨": {
@@ -282,7 +274,7 @@ connection.create(globalConfig).then(async connection => {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.10.3"}
+                            {name: "VERSION", value: "1.10.4"}
                         ]
                     }
                 });
@@ -293,7 +285,7 @@ connection.create(globalConfig).then(async connection => {
                     embed: {
                         color: 3447003,
                         fields: [
-                            {name: `${globalConfig.discord.prefix}롤 <닉네임>`, value: "롤전적 검색"},
+                            {name: `${globalConfig.discord.prefix}롤 "<닉네임>"`, value: "롤 전적 검색"},
                             {name: `${globalConfig.discord.prefix}메이플 <닉네임>`, value: "메이플 정보 검색"},
                             {name: `${globalConfig.discord.prefix}날씨`, value: "서울시 날씨 데이터를 조회"},
                             {name: `${globalConfig.discord.prefix}타이머추가 <분> <호출대상> "<문구>"`, value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"},

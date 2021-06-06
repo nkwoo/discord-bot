@@ -60,7 +60,7 @@ export class LeagueOfLegendResource {
 }
 
 // 리소스 버전
-interface ResourceVersionVo {
+export interface ResourceVersionVo {
     cdn: string,
     css: string,
     dd: string,
@@ -83,7 +83,7 @@ interface ResourceVersionVo {
 }
 
 // 챔피언 정보
-interface ChampionVo {
+export interface ChampionVo {
     data: {
         [key: string]: {
             blurb: string,
@@ -107,7 +107,7 @@ interface ChampionVo {
 }
 
 // 프로필 아이콘 정보
-interface ProfileIconVo {
+export interface ProfileIconVo {
     data: {
         [key: string]: {
             id: number,
