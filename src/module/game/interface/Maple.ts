@@ -1,5 +1,6 @@
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {ErrorDto} from "../../../dto/ErrorDto";
+import {MapleCharacterDto} from "../../../dto/MapleCharacterDto";
 
 export interface Maple {
-    searchMaplePlayerData(channel: TextChannel | DMChannel | GroupDMChannel, nickName: string, type: number): void;
+    searchMaplePlayerData(nickname: string, serverType?: number): Promise<MapleCharacterDto | ErrorDto | undefined>;
 }

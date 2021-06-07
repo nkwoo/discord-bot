@@ -5,7 +5,6 @@ import * as fs from "fs";
 import {logger} from './module/Winston';
 
 import {Tool} from "./module/Tool";
-import {Game} from "./module/Game";
 import {TimeQueue} from "./module/discord/TimeQueue";
 import {DiscordServer} from "./module/discord/DiscordServer";
 import {HtmlParser} from "./module/HtmlParser";
@@ -14,7 +13,7 @@ import {VoiceLogType} from "./enum/VoiceLogType";
 import {VoiceLogService} from "./database/service/VoiceLogService";
 import {Schedule} from "./module/Schedule";
 import connection from "./database/Connection";
-import {LeagueOfLegendController} from "./module/controller/LeagueOfLegendController";
+import {GlobalController} from "./module/controller/GlobalController";
 
 const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
@@ -38,10 +37,9 @@ const globalConfig: GlobalConfig = JSON.parse(fs.readFileSync(configPath).toStri
 
 const htmlParser = new HtmlParser();
 
-const leagueOfLegendController = new LeagueOfLegendController(htmlParser, globalConfig);
+const globalController = new GlobalController(htmlParser, globalConfig);
 
 const tool = new Tool(htmlParser, globalConfig);
-const game = new Game(htmlParser);
 
 logger.info(`Server Env - ${process.env.NODE_ENV}`);
 logger.info("loading......");
@@ -127,7 +125,7 @@ connection.create(globalConfig).then(async connection => {
 
         const command = args[0].substr(1);
 
-        leagueOfLegendController.callCommand(message.channel, command, message.content, args);
+        globalController.callCommand(message.channel, command, message.content, args);
 
         switch (command) {
             case "재생": {
@@ -180,17 +178,6 @@ connection.create(globalConfig).then(async connection => {
             }
             case "날씨": {
                 tool.weather.getSeoulWeather(message.channel);
-                break;
-            }
-            case "메이플": {
-                if (message.content.length < 3) {
-                    message.channel.send("닉네임이 포함되어 있지 않습니다.");
-                    return;
-                }
-
-                const nickname = encodeURIComponent(message.content.substring(5, message.content.length).trim());
-
-                game.maple.searchMaplePlayerData(message.channel, nickname, 0);
                 break;
             }
             case "타이머추가": {
@@ -274,7 +261,7 @@ connection.create(globalConfig).then(async connection => {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.10.4"}
+                            {name: "VERSION", value: "1.10.5"}
                         ]
                     }
                 });
