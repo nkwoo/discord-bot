@@ -58,10 +58,6 @@ function permission(message: Discord.Message): boolean {
     return true;
 }
 
-function compareVoiceChannel(oldChannel: Discord.VoiceChannel, newChannel: Discord.VoiceChannel): boolean {
-    return oldChannel.guild !== undefined && newChannel.guild !== undefined ? oldChannel.guild.name === newChannel.guild.name && oldChannel.name === newChannel.name : false;
-}
-
 connection.create(globalConfig).then(async connection => {
 
     const voiceLogService = new VoiceLogService(connection);
@@ -107,7 +103,7 @@ connection.create(globalConfig).then(async connection => {
                 voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.nickname != null ? oldMember.nickname : oldMember.displayName, VoiceLogType.OUT);
             }
         } else if (oldUserChannel != undefined && newUserChannel != undefined) {
-            if (!compareVoiceChannel(oldUserChannel, newUserChannel)) {
+            if (!(oldUserChannel.guild.name === newUserChannel.guild.name && oldUserChannel.name === newUserChannel.name)) {
                 voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.nickname != null ? oldMember.nickname : oldMember.displayName, VoiceLogType.MOVE, `${newUserChannel.guild.name} / ${newUserChannel.name}`);
             }
         }
@@ -253,38 +249,6 @@ connection.create(globalConfig).then(async connection => {
                 const content = message.content.substring(4, message.content.length).trim();
 
                 tool.translation.checkSpellMessage(message.channel, content);
-                break;
-            }
-            case "봇": {
-                message.channel.send({
-                    embed: {
-                        color: 3447003,
-                        fields: [
-                            {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.10.5"}
-                        ]
-                    }
-                });
-                break;
-            }
-            case "명령어": {
-                message.channel.send({
-                    embed: {
-                        color: 3447003,
-                        fields: [
-                            {name: `${globalConfig.discord.prefix}롤 "<닉네임>"`, value: "롤 전적 검색"},
-                            {name: `${globalConfig.discord.prefix}메이플 <닉네임>`, value: "메이플 정보 검색"},
-                            {name: `${globalConfig.discord.prefix}날씨`, value: "서울시 날씨 데이터를 조회"},
-                            {name: `${globalConfig.discord.prefix}타이머추가 <분> <호출대상> "<문구>"`, value: "호출대상을 지정하고 입력하면 입력한 시간에 따라 이용자 호출"},
-                            {name: `${globalConfig.discord.prefix}타이머취소 <타이머코드>`, value: "타이머취소 방법"},
-                            {name: `${globalConfig.discord.prefix}엔화`, value: "엔화 가격 조회"},
-                            {name: `${globalConfig.discord.prefix}코로나`, value: "코로나 현황 조회"},
-                            {name: `${globalConfig.discord.prefix}나무랭킹`, value: "나무위키 검색 랭킹 조회"},
-                            {name: `${globalConfig.discord.prefix}번역 <번역코드> "<문구>"`, value: "파파고 API를 이용한 번역"},
-                            {name: `${globalConfig.discord.prefix}번역코드`, value: "번역 가능한 코드 조회"}
-                        ]
-                    }
-                });
                 break;
             }
         }

@@ -12,18 +12,15 @@ export class MapleStoryController {
     }
 
     callCommand(channel: TextChannel | DMChannel | GroupDMChannel, command: string, message: string, args: string[]): void {
-        switch (command) {
-            case "메이플": {
-                if (args.length < 2 || message.indexOf("\"") === -1 || message.lastIndexOf("\"") === -1) {
-                    channel.send("닉네임이 포함되어 있지 않습니다.");
-                    return;
-                }
-
-                const nickname = encodeURIComponent(message.substring(message.indexOf("\"") + 1, message.lastIndexOf("\"")).trim());
-
-                this.getUserData(channel, nickname);
-                break;
+        if (command === "메이플") {
+            if (args.length < 2 || message.indexOf("\"") === -1 || message.lastIndexOf("\"") === -1) {
+                channel.send("닉네임이 포함되어 있지 않습니다.");
+                return;
             }
+
+            const nickname = encodeURIComponent(message.substring(message.indexOf("\"") + 1, message.lastIndexOf("\"")).trim());
+
+            this.getUserData(channel, nickname);
         }
     }
 
