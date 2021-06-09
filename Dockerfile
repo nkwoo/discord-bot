@@ -2,7 +2,7 @@ FROM node:10.23-alpine
 
 MAINTAINER NamKyoungWoo
 LABEL title="Discord Bot"
-LABEL version="1.10.6"
+LABEL version="1.11.0"
 
 WORKDIR /app
 

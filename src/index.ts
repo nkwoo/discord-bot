@@ -66,7 +66,7 @@ connection.create(globalConfig).then(async connection => {
 
     const client = new Discord.Client();
 
-    client.on("ready", () => {
+    client.once("ready", () => {
         logger.info("Server Ready!");
 
         const knouTextChannelList: TextChannel[] = [];
