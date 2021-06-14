@@ -13,12 +13,11 @@ const LOL_ROTATION_CHAMPION_URL = "https://kr.api.riotgames.com/lol/platform/v3/
 
 export class LeagueOfLegendImpl implements LeagueOfLegend {
 
-    private lolResource: LeagueOfLegendResource;
-    private headerJson: {"X-Riot-Token": string | undefined;};
+    private readonly lolResource: LeagueOfLegendResource;
+    private readonly headerJson: {"X-Riot-Token": string | undefined;};
 
     constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
-        this.lolResource = new LeagueOfLegendResource(this.htmlParser);
-
+        this.lolResource = new LeagueOfLegendResource(htmlParser);
         this.headerJson = {
             "X-Riot-Token": globalConfig.apiKey.lol
         };
@@ -26,19 +25,16 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
     async searchLoLPlayData(nickname: string): Promise<LeagueOfLegendUserDto | ErrorDto | undefined> {
         try {
+            if (!this.lolResource.checkResource()) {
+                GlobalException("리소스 정보를 불러올 수 없어 조회가 불가능합니다.");
+                return;
+            }
+
             const leagueOfLegendUserDto = new LeagueOfLegendUserDto();
 
             const resourceVersion = this.lolResource.resourceVersion;
             const profileIcon = this.lolResource.profileIcon;
             const champion = this.lolResource.champion;
-
-            if (profileIcon === undefined || resourceVersion === undefined || champion === undefined) {
-                GlobalException("필수 정보를 가져올 수 없습니다.");
-                return;
-            }
-
-            const profileIconArray = Object.values(profileIcon.data);
-            const championArray = Object.values(champion.data);
 
             const summonerInfo = await this.htmlParser.requestHeaderData<ApiSummonerInfo>(HttpMethod.GET, `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/${encodeURI(nickname)}`, this.headerJson);
 
@@ -49,7 +45,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
             let profileIconImageUrl = `https://ddragon.leagueoflegends.com/cdn/${resourceVersion.n.profileicon}/img/profileicon/`;
 
-            profileIconArray.filter(value => value.id === summonerInfo.data.profileIconId).forEach(value => profileIconImageUrl += value.image.full);
+            profileIcon.dataArray.filter(value => value.id === summonerInfo.data.profileIconId).forEach(value => profileIconImageUrl += value.image.full);
 
             const rankInfo = await this.htmlParser.requestHeaderData<ApiLeagueInfo[]>(HttpMethod.GET, `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerInfo.data.id}`, this.headerJson);
 
@@ -74,7 +70,7 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
             }
 
             matchInfo.data.matches.forEach(value => {
-                championArray.filter(champion => champion.key === value.champion.toString()).forEach(champion => {
+                champion.dataArray.filter(champion => champion.key === value.champion.toString()).forEach(champion => {
                     leagueOfLegendUserDto.lastPlayChampions.push(champion.name);
                 });
             });
@@ -122,6 +118,11 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
     async getRotationsChampion(): Promise<LeagueOfLegendRotationDto | ErrorDto | undefined> {
         try {
+            if (!this.lolResource.checkResource()) {
+                GlobalException("리소스 정보를 불러올 수 없어 조회가 불가능합니다.");
+                return;
+            }
+
             const leagueOfLegendRotationDto = new LeagueOfLegendRotationDto();
 
             const rotationInfo = await this.htmlParser.requestHeaderData<ApiRotationsChampionInfo>(HttpMethod.GET, LOL_ROTATION_CHAMPION_URL, this.headerJson);
@@ -133,20 +134,13 @@ export class LeagueOfLegendImpl implements LeagueOfLegend {
 
             const champion = this.lolResource.champion;
 
-            if (champion === undefined) {
-                GlobalException("챔피언 정보를 가져올 수 없습니다.");
-                return;
-            }
-
-            const championArray = Object.values(champion.data);
-
-            championArray.filter(champion =>
+            champion.dataArray.filter(champion =>
                 !!rotationInfo.data.freeChampionIds.find(freeChampion => +champion.key === freeChampion)
             ).forEach(value => {
                 leagueOfLegendRotationDto.freeChampions.push(value.name);
             });
 
-            championArray.filter(champion =>
+            champion.dataArray.filter(champion =>
                 !!rotationInfo.data.freeChampionIdsForNewPlayers.find(freeNewChampion => +champion.key === freeNewChampion)
             ).forEach(value => {
                 leagueOfLegendRotationDto.freeChampionsForBeginner.push(value.name);

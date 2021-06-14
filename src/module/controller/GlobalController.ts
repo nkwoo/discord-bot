@@ -9,7 +9,7 @@ export class GlobalController {
     private mapleStoryController: MapleStoryController;
 
     constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
-        this.leagueOfLegendController = new LeagueOfLegendController(htmlParser, globalConfig);
+        this.leagueOfLegendController = new LeagueOfLegendController(this.htmlParser, this.globalConfig);
         this.mapleStoryController = new MapleStoryController(htmlParser);
     }
 
@@ -24,7 +24,7 @@ export class GlobalController {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.12.1"}
+                            {name: "VERSION", value: "1.12.2"}
                         ]
                     }
                 });
