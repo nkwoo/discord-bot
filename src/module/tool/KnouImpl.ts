@@ -25,27 +25,27 @@ export class KnouImpl implements Knou {
     async getNoticeData(): Promise<KnouNoticeDto[]> {
         const noticeData: KnouNoticeDto[] = [];
 
-        await this.htmlParser.requestParameterData<string>(HttpMethod.POST, knouNoticeUrl, querystring.stringify(knouNoticeParameter)).then((html) => {
-            if (!html) {
-                console.log("공지사항을 가져올 수 없습니다.");
-                return noticeData;
+        const noticeDom = await this.htmlParser.requestParameterData<string>(HttpMethod.POST, knouNoticeUrl, querystring.stringify(knouNoticeParameter));
+
+        if (!noticeDom) {
+            console.log("공지사항을 가져올 수 없습니다.");
+            return noticeData;
+        }
+
+        const $ = this.htmlParser.changeHtmlToDom(noticeDom.data);
+
+        $(".board-table > tbody > tr:not(.notice)").each((index, element) => {
+            const titleText = $(element).children(".td-subject").children("a").children("strong").text();
+            const writeDate = $(element).children(".td-date").text();
+            const hrefLinkTextElement = $(element).children(".td-subject").children("a").attr("href");
+
+            const hrefLinkText = hrefLinkTextElement !== undefined ? hrefLinkTextElement : "";
+
+            const boardIdx = hrefLinkText.match(/[^/]+/gi);
+
+            if (boardIdx) {
+                noticeData.push(new KnouNoticeDto(parseInt(boardIdx[3]), titleText, writeDate, hrefLinkText));
             }
-
-            const $ = this.htmlParser.changeHtmlToDom(html.data);
-
-            $(".board-table > tbody > tr:not(.notice)").each((index, element) => {
-                const titleText = $(element).children(".td-subject").children("a").children("strong").text();
-                const writeDate = $(element).children(".td-date").text();
-                const hrefLinkTextElement = $(element).children(".td-subject").children("a").attr("href");
-
-                const hrefLinkText = hrefLinkTextElement !== undefined ? hrefLinkTextElement : "";
-
-                const boardIdx = hrefLinkText.match(/[^/]+/gi);
-
-                if (boardIdx) {
-                    noticeData.push(new KnouNoticeDto(parseInt(boardIdx[3]), titleText, writeDate, hrefLinkText));
-                }
-            });
         });
 
         return noticeData;

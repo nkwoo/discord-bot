@@ -21,7 +21,7 @@ export class MapleImpl implements Maple {
 
             const mapleCharacterDto = new MapleCharacterDto();
 
-            const $ = await this.htmlParser.changeHtmlToDom(mapleCharacterInfoDom.data);
+            const $ = this.htmlParser.changeHtmlToDom(mapleCharacterInfoDom.data);
 
             $('.search_com_chk > td:nth-child(1) > p:nth-child(1)').each((index, element) => {
                 mapleCharacterDto.worldRank = $(element).text().trim();

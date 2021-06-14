@@ -24,7 +24,7 @@ export class GlobalController {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.12.0"}
+                            {name: "VERSION", value: "1.12.1"}
                         ]
                     }
                 });

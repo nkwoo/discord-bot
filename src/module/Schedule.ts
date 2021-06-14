@@ -16,17 +16,24 @@ export class Schedule {
     }
 
     init(knouTextChannelList: TextChannel[]): void {
-        this.knouNoticeNotifyCron = cron.schedule("0 0 1,7,13,19 * * *", async () => {
-            await this.tool.knou.getNoticeData().then(noticeDtoArray =>  this.knouNoticeService.upsertNotice(noticeDtoArray));
+        this.knouNoticeNotifyCron = cron.schedule("0 56 1,7,14,19 * * *", async () => {
 
-            const knouNoticeEntities = await this.knouNoticeService.getUnNotifyNotices().then();
+            const knouNoticeEntities = await this.knouNoticeService.getUnNotifyNotices();
 
-            knouNoticeEntities.forEach(notice => {
-                knouTextChannelList.forEach(channel => {
-                    this.tool.knou.sendNotice(channel, notice).then(() => this.knouNoticeService.updateNotifyNotice(notice));
+            if (knouNoticeEntities.length > 0) {
+                logger.info(`Notify Update - ${knouNoticeEntities.length} Change Row`);
+
+                knouNoticeEntities.forEach(notice => {
+                    knouTextChannelList.forEach(channel => {
+                        this.tool.knou.sendNotice(channel, notice).catch(reason => channel.send(reason));
+                    });
                 });
-                logger.info(`Update Notify Row : ${knouNoticeEntities.length} Change`);
-            });
+
+                await this.knouNoticeService.updateNotifyNotices(knouNoticeEntities);
+            }
+
+            this.tool.knou.getNoticeData().then(noticeDtoArray =>  this.knouNoticeService.upsertNotice(noticeDtoArray));
+
         }, {
             scheduled: false
         });

@@ -18,11 +18,12 @@ export class KnouNoticeService {
             .getMany();
     }
 
-    async updateNotifyNotice(entity: KnouNoticeEntity): Promise<void> {
+    async updateNotifyNotices(entities: KnouNoticeEntity[]): Promise<void> {
         const knouNoticeRepository = this.connection.getCustomRepository(KnouNoticeRepository);
 
-        entity.isNotify = true;
-        await knouNoticeRepository.save(entity);
+        entities.forEach(value => value.isNotify = true);
+
+        await knouNoticeRepository.save(entities);
     }
 
     async upsertNotice(domainDtoArray: KnouNoticeDomain[]): Promise<void> {
