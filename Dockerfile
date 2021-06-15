@@ -1,8 +1,8 @@
-FROM node:10.23-alpine
+FROM node:14-alpine
 
 MAINTAINER NamKyoungWoo
 LABEL title="Discord Bot"
-LABEL version="1.12.3"
+LABEL version="2.0.0"
 
 WORKDIR /app
 

@@ -1,5 +1,5 @@
 import {Exchange} from "./interface/Exchange";
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {HttpMethod} from "../../enum/HttpMethod";
 
@@ -10,7 +10,7 @@ export class ExchangeImpl implements Exchange {
     constructor(private htmlParser: HtmlParser) {
     }
 
-    getExchangeWonToJpy(channel: TextChannel | DMChannel | GroupDMChannel): void {
+    getExchangeWonToJpy(channel: TextChannel | DMChannel | NewsChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
             this.htmlParser.requestNoHeaderParameterData<ExchangeData[]>(HttpMethod.GET, exchangeUrl).then(html => {
 

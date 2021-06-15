@@ -16,7 +16,7 @@ export class Schedule {
     }
 
     init(knouTextChannelList: TextChannel[]): void {
-        this.knouNoticeNotifyCron = cron.schedule("0 56 1,7,14,19 * * *", async () => {
+        this.knouNoticeNotifyCron = cron.schedule("0 0 1,7,13,19 * * *", async () => {
 
             const knouNoticeEntities = await this.knouNoticeService.getUnNotifyNotices();
 

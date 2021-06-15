@@ -1,5 +1,5 @@
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, TextChannel} from "discord.js";
 
 export interface Weather {
-    getSeoulWeather(channel: TextChannel | DMChannel | GroupDMChannel): void;
+    getSeoulWeather(channel: TextChannel | DMChannel | NewsChannel): void;
 }

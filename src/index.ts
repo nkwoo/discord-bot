@@ -42,20 +42,6 @@ const tool = new Tool(htmlParser, globalConfig);
 logger.info(`Server Env - ${process.env.NODE_ENV}`);
 logger.info("loading......");
 
-/**
- * 유저 권한 체크
- */
-function permission(message: Discord.Message): boolean {
-    const id = message.member.user.id;
-    for (let i = 0; i < globalConfig.discord.administratorId.length; i++) {
-        if (globalConfig.discord.administratorId[i] == id) return false;
-    }
-
-    message.channel.send("권한이 없습니다.");
-
-    return true;
-}
-
 connection.create(globalConfig).then(async connection => {
 
     const voiceLogService = new VoiceLogService(connection);
@@ -69,10 +55,10 @@ connection.create(globalConfig).then(async connection => {
 
         const knouTextChannelList: TextChannel[] = [];
 
-        globalController.setServer(client.guilds);
+        globalController.setServer(client.guilds.valueOf());
 
-        client.guilds.forEach((guild) => {
-            guild.channels.filter(channel => channel.name === "knou").forEach(channel => {
+        client.guilds.valueOf().forEach((guild) => {
+            guild.channels.valueOf().filter(channel => channel.name === "knou").forEach(channel => {
                 if (channel instanceof TextChannel) {
                     knouTextChannelList.push(channel);
                 }
@@ -89,25 +75,29 @@ connection.create(globalConfig).then(async connection => {
     });
 
     client.on("voiceStateUpdate", (oldMember, newMember) => {
-        const newUserChannel = newMember.voiceChannel;
-        const oldUserChannel = oldMember.voiceChannel;
+        const oldUserChannel = oldMember.channel;
+        const newUserChannel = newMember.channel;
 
-        if (oldUserChannel === undefined) {
-            if (newUserChannel !== undefined && newUserChannel.guild !== undefined) {
-                voiceLogService.record(newUserChannel.guild.name, newUserChannel.name, newMember.nickname != null ? newMember.nickname : newMember.displayName, VoiceLogType.IN);
+        if (oldUserChannel == null) {
+            if (newUserChannel != null && newMember.member != null) {
+                voiceLogService.record(newUserChannel.guild.name, newUserChannel.name, newMember.member.nickname != null ? newMember.member.nickname : newMember.member.displayName, VoiceLogType.IN);
             }
-        } else if (newUserChannel === undefined) {
-            if (oldUserChannel.guild !== undefined) {
-                voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.nickname != null ? oldMember.nickname : oldMember.displayName, VoiceLogType.OUT);
+        } else if (newUserChannel === null) {
+            if (oldMember.member != null) {
+                voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.member.nickname != null ? oldMember.member.nickname : oldMember.member.displayName, VoiceLogType.OUT);
             }
-        } else if (oldUserChannel != undefined && newUserChannel != undefined) {
+        } else {
             if (!(oldUserChannel.guild.name === newUserChannel.guild.name && oldUserChannel.name === newUserChannel.name)) {
-                voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.nickname != null ? oldMember.nickname : oldMember.displayName, VoiceLogType.MOVE, `${newUserChannel.guild.name} / ${newUserChannel.name}`);
+                if (oldMember.member != null) {
+                    voiceLogService.record(oldUserChannel.guild.name, oldUserChannel.name, oldMember.member.nickname != null ? oldMember.member.nickname : oldMember.member.displayName, VoiceLogType.MOVE, `${newUserChannel.guild.name} / ${newUserChannel.name}`);
+                }
             }
         }
     });
 
     client.on("message", message => {
+
+        if (message.member == null || message.guild == null) return;
 
         if (message.member.user.bot) return;
 
@@ -150,7 +140,10 @@ connection.create(globalConfig).then(async connection => {
                 break;
             }
             case "타이머": {
-                if (permission(message)) return;
+                if (globalConfig.discord.administratorId.filter(value => message.member ? value === message.member.id : false).length === 0) {
+                    message.channel.send("권한이 없습니다.");
+                    return;
+                }
 
                 tool.timer.timerList(message, timerQueue);
                 break;

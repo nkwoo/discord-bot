@@ -2,7 +2,7 @@ import {LeagueOfLegend} from "../game/interface/LeagueOfLegend";
 import {LeagueOfLegendImpl} from "../game/LeagueOfLegendImpl";
 import {HtmlParser} from "../HtmlParser";
 import {GlobalConfig} from "../../config/GlobalConfig";
-import Discord, {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
+import Discord, {DMChannel, MessageEmbed, NewsChannel, TextChannel} from "discord.js";
 import {LeagueOfLegendRotationDto} from "../../dto/LeagueOfLegendRotationDto";
 import {LeagueOfLegendUserDto} from "../../dto/LeagueOfLegendUserDto";
 
@@ -33,13 +33,13 @@ export class LeagueOfLegendController {
         }
     }
 
-    private getUserData(channel: TextChannel | DMChannel | GroupDMChannel, nickname: string): void {
+    private getUserData(channel: TextChannel | DMChannel | NewsChannel, nickname: string): void {
         channel.send("데이터 조회중......").then(async (editMsg) => {
             const leagueOfLegendUserDto = await this.lol.searchLoLPlayData(nickname);
 
             if (leagueOfLegendUserDto && leagueOfLegendUserDto.state && leagueOfLegendUserDto instanceof LeagueOfLegendUserDto) {
                 editMsg.edit("데이터 조회 성공 ✅").then(() => {
-                    channel.send(new RichEmbed()
+                    channel.send(new MessageEmbed()
                         .setColor("#3399CC")
                         .setTitle(leagueOfLegendUserDto.username)
                         .setURL(`https://www.op.gg/summoner/userName=${encodeURI(leagueOfLegendUserDto.username)}`)
@@ -57,7 +57,7 @@ export class LeagueOfLegendController {
         });
     }
 
-    private getRotationChampions(channel: TextChannel | DMChannel | GroupDMChannel): void {
+    private getRotationChampions(channel: TextChannel | DMChannel | NewsChannel): void {
         channel.send("데이터 조회중......").then(async (editMsg) => {
             const lolRotationDto = await this.lol.getRotationsChampion();
 

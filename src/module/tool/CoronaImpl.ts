@@ -1,5 +1,5 @@
 import {Corona} from "./interface/Corona";
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {HttpMethod} from "../../enum/HttpMethod";
 
@@ -10,7 +10,7 @@ export class CoronaImpl implements Corona {
     constructor(private htmlParser: HtmlParser) {
     }
 
-    getCoronaState(channel: TextChannel | DMChannel | GroupDMChannel): void {
+    getCoronaState(channel: TextChannel | DMChannel | NewsChannel): void {
         channel.send("데이터 조회중......").then((editMsg)=> {
             this.htmlParser.requestDomData<string>(HttpMethod.GET, coronaSearchUrl).then((html) => {
 

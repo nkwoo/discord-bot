@@ -1,5 +1,5 @@
 import {NamuWiki} from "./interface/NamuWiki";
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {HttpMethod} from "../../enum/HttpMethod";
 
@@ -10,7 +10,7 @@ export class NamuWikiImpl implements NamuWiki {
     constructor(private htmlParser: HtmlParser) {
     }
 
-    getNamuRanking(channel: TextChannel | DMChannel | GroupDMChannel): void {
+    getNamuRanking(channel: TextChannel | DMChannel | NewsChannel): void {
         channel.send("데이터 조회중......").then((editMsg)=> {
             this.htmlParser.requestNoHeaderParameterData<string[]>(HttpMethod.GET, NAMU_RANKING_URL).then((json) => {
 

@@ -1,5 +1,5 @@
 import {Translation} from "./interface/Translation";
-import {DMChannel, GroupDMChannel, Message, TextChannel} from "discord.js";
+import {DMChannel, Message, NewsChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {getLanguage, getLanguageKorean, Language} from "../../enum/Language";
 import {GlobalConfig} from "../../config/GlobalConfig";
@@ -26,7 +26,7 @@ export class TranslationImpl implements Translation {
         }
     }
 
-    translationLang(channel: TextChannel | DMChannel | GroupDMChannel, content: string, target: string): void {
+    translationLang(channel: TextChannel | DMChannel | NewsChannel, content: string, target: string): void {
         channel.send("데이터 조회중......").then((editMsg) => {
             const targetLang = getLanguage(target);
 
@@ -86,7 +86,7 @@ export class TranslationImpl implements Translation {
         });
     }
 
-    getTranslationCode(channel: TextChannel | DMChannel | GroupDMChannel): void {
+    getTranslationCode(channel: TextChannel | DMChannel | NewsChannel): void {
         const printDataArr: {name: string, value: string}[] = [];
         
         Object.values(Language).filter(value => value !== Language.KNOWN).forEach(value => printDataArr.push({ name: value, value: getLanguageKorean(value)}));
@@ -101,7 +101,7 @@ export class TranslationImpl implements Translation {
     }
 
     //TODO 맞춤법 로직 번역로직에 있는데 분리 해야할까?
-    checkSpellMessage(channel: TextChannel | DMChannel | GroupDMChannel, content: string): void {
+    checkSpellMessage(channel: TextChannel | DMChannel | NewsChannel, content: string): void {
         channel.send("데이터 조회중......").then((editMsg) => {
             this.htmlParser.requestNoHeaderParameterData<ApiSpellInfo>(HttpMethod.GET, `https://search.naver.com/p/csearch/ocontent/util/SpellerProxy?q=${encodeURI(content)}&where=nexearch&color_blindness=0`).then((json) => {
                 if (json === undefined) {
@@ -126,7 +126,7 @@ export class TranslationImpl implements Translation {
     }
 }
 
-function checkKnownLang(channel: TextChannel | DMChannel | GroupDMChannel, editMsg: Message, lang: Language) {
+function checkKnownLang(channel: TextChannel | DMChannel | NewsChannel, editMsg: Message, lang: Language) {
     if (lang === Language.KNOWN) {
         editMsg.edit("데이터 조회 실패 ❌").then(() => channel.send("변경할 수 없는 언어입니다.."));
         return true;

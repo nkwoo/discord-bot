@@ -1,5 +1,5 @@
 import {Weather} from "./interface/Weather";
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, TextChannel} from "discord.js";
 import {HtmlParser} from "../HtmlParser";
 import {xml2json} from "xml-js";
 import {HttpMethod} from "../../enum/HttpMethod";
@@ -12,7 +12,7 @@ export class WeatherImpl implements Weather {
     constructor(private htmlParser: HtmlParser) {
     }
 
-    getSeoulWeather(channel: TextChannel | DMChannel | GroupDMChannel): void {
+    getSeoulWeather(channel: TextChannel | DMChannel | NewsChannel): void {
         channel.send("데이터 조회중......").then((editMsg) => {
             const printDataArr: {name: string; value: string;}[] = [];
 

@@ -1,7 +1,7 @@
 import {Knou} from "./interface/Knou";
 import {HtmlParser} from "../HtmlParser";
 import {KnouNoticeDto} from "../../database/dto/KnouNoticeDto";
-import {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, MessageEmbed, TextChannel} from "discord.js";
 import {KnouNoticeEntity} from "../../database/entity/domain/KnouNoticeEntity";
 import {HttpMethod} from "../../enum/HttpMethod";
 import querystring from "querystring";
@@ -51,10 +51,10 @@ export class KnouImpl implements Knou {
         return noticeData;
     }
 
-    async sendNotice(channel: TextChannel | DMChannel | GroupDMChannel, notice: KnouNoticeEntity): Promise<void> {
+    async sendNotice(channel: TextChannel | DMChannel | NewsChannel, notice: KnouNoticeEntity): Promise<void> {
         return new Promise((resolve, reject) => {
             channel.send("새로운 공지사항이 업로드 되었습니다.").then(() => {
-                channel.send(new RichEmbed()
+                channel.send(new MessageEmbed()
                     .setColor("#3399CC")
                     .setTitle(notice.title)
                     .setURL(`https://www.knou.ac.kr${notice.postLink}`)

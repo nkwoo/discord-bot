@@ -1,7 +1,7 @@
 import {Maple} from "../game/interface/Maple";
 import {HtmlParser} from "../HtmlParser";
 import {MapleImpl} from "../game/MapleImpl";
-import Discord, {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
+import Discord, {DMChannel, MessageEmbed, NewsChannel, TextChannel} from "discord.js";
 import {MapleCharacterDto} from "../../dto/MapleCharacterDto";
 
 export class MapleStoryController {
@@ -24,14 +24,14 @@ export class MapleStoryController {
         }
     }
 
-    private getUserData(channel: TextChannel | DMChannel | GroupDMChannel, nickname: string) {
+    private getUserData(channel: TextChannel | DMChannel | NewsChannel, nickname: string) {
         channel.send("데이터 조회중......").then(async (editMsg) => {
             const mapleCharacterDto = await this.maple.searchMaplePlayerData(nickname);
 
             if (mapleCharacterDto && mapleCharacterDto.state && mapleCharacterDto instanceof MapleCharacterDto) {
                 await editMsg.edit("데이터 조회 성공 ✅");
                 await channel.send({files: [mapleCharacterDto.thumbnailUrl]});
-                await channel.send(new RichEmbed()
+                await channel.send(new MessageEmbed()
                     .setTitle("메이플 닉네임 검색")
                     .setColor("#3399CC")
                     .setDescription("메이플 캐릭터 정보")

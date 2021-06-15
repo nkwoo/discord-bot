@@ -1,5 +1,5 @@
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, TextChannel} from "discord.js";
 
 export interface NamuWiki {
-    getNamuRanking(channel: TextChannel | DMChannel | GroupDMChannel): void;
+    getNamuRanking(channel: TextChannel | DMChannel | NewsChannel): void;
 }

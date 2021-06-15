@@ -1,5 +1,5 @@
 import {GlobalConfig} from "../../config/GlobalConfig";
-import Discord, {DMChannel, GroupDMChannel, StreamDispatcher, TextChannel, VoiceConnection} from "discord.js";
+import Discord, {DMChannel, NewsChannel, StreamDispatcher, TextChannel, VoiceConnection} from "discord.js";
 import {DiscordServer} from "../discord/DiscordServer";
 import ytdl from "ytdl-core";
 import {YoutubeVideo} from "../discord/YoutubeVideo";
@@ -61,11 +61,11 @@ export class YoutubeController {
     }
 
     private hasPermission(message: Discord.Message): boolean {
-        return this.globalConfig.discord.administratorId.filter(value => value === message.member.user.id).length > 0;
+        return this.globalConfig.discord.administratorId.filter(value => message.member ? value === message.member.user.id : false).length > 0;
     }
 
     private findServer(message: Discord.Message): DiscordServer | null {
-        const filterServer = this.serverList.filter(value => value.code == message.guild.id);
+        const filterServer = this.serverList.filter(value => message.guild ? value.code == message.guild.id : false);
         if (filterServer.length != 0) {
             return filterServer[0];
         } else {
@@ -73,7 +73,7 @@ export class YoutubeController {
         }
     }
 
-    private playYoutube(connection: VoiceConnection, channel: TextChannel | DMChannel | GroupDMChannel, server: DiscordServer): void {
+    private playYoutube(connection: VoiceConnection, channel: TextChannel | DMChannel | NewsChannel, server: DiscordServer): void {
         const musicQueue = server.musicQueue.list;
 
         if (musicQueue.length === 0) {
@@ -84,7 +84,7 @@ export class YoutubeController {
 
         const stream = ytdl(musicQueue[0].url, {filter: "audioonly"});
 
-        server.setMusicPlayer(connection.playStream(stream)
+        server.setMusicPlayer(connection.play(stream)
             .on("start", () => {
                 channel.send(`${musicQueue[0].title}를(을) 재생중입니다.\n재생시간 : ${musicQueue[0].time}`);
             })
@@ -111,8 +111,14 @@ export class YoutubeController {
 
     private addYoutubeQueue(message: Discord.Message, server: DiscordServer, videoUrl: string): void {
         const musicQueue = server.musicQueue.list;
+        
+        if (message.member == null) {
+            message.channel.send("요청자를 찾을 수 없습니다.");
+            return;
+        }
+        const member = message.member;
 
-        if (!message.member.voiceChannel) {
+        if (!member.voice.channel) {
             message.channel.send("요청자가 음성채널에 없습니다.");
             return;
         }
@@ -140,9 +146,11 @@ export class YoutubeController {
                     editMsg.edit(value.player_response.videoDetails.title + "가 추가되었습니다.");
 
                     if (musicQueue[0] && !musicQueue[0].state) {
-                        message.member.voiceChannel.join().then(connection => {
-                            this.playYoutube(connection, message.channel, server);
-                        });
+                        if (member.voice.channel) {
+                            member.voice.channel.join().then(connection => {
+                                this.playYoutube(connection, message.channel, server);
+                            });
+                        }
                     }
                 });
             } catch (err) {
@@ -226,8 +234,9 @@ export class YoutubeController {
     }
 
     private stopPlayer(message: Discord.Message, server: DiscordServer): void {
-        if (message.guild.voiceConnection) message.guild.voiceConnection.disconnect();
-
+        if (message.guild != null &&  message.guild.voice != null) {
+            if (message.guild.voice.channel) message.guild.voice.channel.leave();
+        }
         server.musicQueue.list = [];
     }
 }

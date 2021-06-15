@@ -1,11 +1,11 @@
 import {System} from "./interface/System";
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, TextChannel} from "discord.js";
 import * as system from "systeminformation";
-import command from "child_process";
 import {Systeminformation} from "systeminformation";
+import command from "child_process";
 
 export class SystemImpl implements System {
-    async getSystemState(channel: TextChannel | DMChannel | GroupDMChannel): Promise<void> {
+    async getSystemState(channel: TextChannel | DMChannel | NewsChannel): Promise<void> {
         const printDataArr: {name: string; value: string; inline?: boolean;}[] = [];
 
         const sendMessage = await channel.send("데이터 조회중......");

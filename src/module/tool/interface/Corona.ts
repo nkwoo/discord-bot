@@ -1,5 +1,5 @@
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import {DMChannel, NewsChannel, TextChannel} from "discord.js";
 
 export interface Corona {
-    getCoronaState(channel: TextChannel | DMChannel | GroupDMChannel): void;
+    getCoronaState(channel: TextChannel | DMChannel | NewsChannel): void;
 }
