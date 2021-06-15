@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.12.2",
+  "version": "1.12.3",
   "description": "Discord Chat Bot",
   "main": "index.js",
   "scripts": {
@@ -46,8 +46,7 @@
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^3.10.0",
     "xml-js": "^1.6.11",
-    "ytdl-core": "^4.0.0",
-    "ytdl-core-discord": "^1.2.4"
+    "ytdl-core": "^4.8.2"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

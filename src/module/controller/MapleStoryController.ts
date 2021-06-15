@@ -1,7 +1,7 @@
 import {Maple} from "../game/interface/Maple";
 import {HtmlParser} from "../HtmlParser";
 import {MapleImpl} from "../game/MapleImpl";
-import {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
+import Discord, {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
 import {MapleCharacterDto} from "../../dto/MapleCharacterDto";
 
 export class MapleStoryController {
@@ -11,16 +11,16 @@ export class MapleStoryController {
         this.maple = new MapleImpl(this.htmlParser);
     }
 
-    callCommand(channel: TextChannel | DMChannel | GroupDMChannel, command: string, message: string, args: string[]): void {
+    callCommand(message: Discord.Message, command: string, args: string[]): void {
         if (command === "메이플") {
-            if (args.length < 2 || message.indexOf("\"") === -1 || message.lastIndexOf("\"") === -1) {
-                channel.send("닉네임이 포함되어 있지 않습니다.");
+            if (args.length < 2 || message.content.indexOf("\"") === -1 || message.content.lastIndexOf("\"") === -1) {
+                message.channel.send("닉네임이 포함되어 있지 않습니다.");
                 return;
             }
 
-            const nickname = encodeURIComponent(message.substring(message.indexOf("\"") + 1, message.lastIndexOf("\"")).trim());
+            const nickname = encodeURIComponent(message.content.substring(message.content.indexOf("\"") + 1, message.content.lastIndexOf("\"")).trim());
 
-            this.getUserData(channel, nickname);
+            this.getUserData(message.channel, nickname);
         }
     }
 

@@ -12,7 +12,6 @@ export class DiscordServer {
         this._code = code;
         this._name = name;
         this._musicQueue = new Queue<YoutubeVideo>();
-        this._musicPlayer = null;
     }
 
 

@@ -2,36 +2,52 @@ import {HtmlParser} from "../HtmlParser";
 import {GlobalConfig} from "../../config/GlobalConfig";
 import {LeagueOfLegendController} from "./LeagueOfLegendController";
 import {MapleStoryController} from "./MapleStoryController";
-import {DMChannel, GroupDMChannel, TextChannel} from "discord.js";
+import Discord, {Collection, Guild, Snowflake} from "discord.js";
+import {DiscordServer} from "../discord/DiscordServer";
+import {YoutubeController} from "./YoutubeController";
 
 export class GlobalController {
+    private serverList: DiscordServer[] = [];
+
     private leagueOfLegendController: LeagueOfLegendController;
     private mapleStoryController: MapleStoryController;
+    private youtubeController: YoutubeController;
 
     constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
         this.leagueOfLegendController = new LeagueOfLegendController(this.htmlParser, this.globalConfig);
-        this.mapleStoryController = new MapleStoryController(htmlParser);
+        this.mapleStoryController = new MapleStoryController(this.htmlParser);
     }
 
-    callCommand(channel: TextChannel | DMChannel | GroupDMChannel, command: string, message: string, args: string[]): void {
-        this.leagueOfLegendController.callCommand(channel, command, message, args);
-        this.mapleStoryController.callCommand(channel, command, message, args);
+    setServer(guilds: Collection<Snowflake, Guild>): void {
+        guilds.forEach((guild, index) => {
+            this.serverList.push(new DiscordServer(index, guild.name));
+        });
+
+        this.youtubeController = new YoutubeController(this.globalConfig, this.serverList);
+    }
+
+    callCommand(message: Discord.Message, command: string, args: string[]): void {
+        this.leagueOfLegendController.callCommand(message, command, args);
+        this.mapleStoryController.callCommand(message, command, args);
+        if (this.youtubeController) {
+            this.youtubeController.callCommand(message, command, args);
+        }
 
         switch (command) {
             case "봇": {
-                channel.send({
+                message.channel.send({
                     embed: {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "1.12.2"}
+                            {name: "VERSION", value: "1.12.3"}
                         ]
                     }
                 });
                 break;
             }
             case "명령어": {
-                channel.send({
+                message.channel.send({
                     embed: {
                         color: 3447003,
                         fields: [

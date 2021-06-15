@@ -8,8 +8,6 @@ import {Weather} from "./tool/interface/Weather";
 import {WeatherImpl} from "./tool/WeatherImpl";
 import {NamuWiki} from "./tool/interface/NamuWiki";
 import {NamuWikiImpl} from "./tool/NamuWikiImpl";
-import {YouTube} from "./tool/interface/Youtube";
-import {YoutubeImpl} from "./tool/YoutubeImpl";
 import {Timer} from "./tool/interface/Timer";
 import {TimerImpl} from "./tool/TimerImpl";
 import {Translation} from "./tool/interface/Translation";
@@ -25,7 +23,6 @@ export class Tool {
     private readonly _system: System;
     private readonly _weather: Weather;
     private readonly _namuWiki: NamuWiki;
-    private readonly _youtube: YouTube;
     private readonly _timer: Timer;
     private readonly _translation: Translation;
     private readonly _knou: Knou;
@@ -36,7 +33,6 @@ export class Tool {
         this._system = new SystemImpl();
         this._weather = new WeatherImpl(this.htmlParser);
         this._namuWiki = new NamuWikiImpl(this.htmlParser);
-        this._youtube = new YoutubeImpl();
         this._timer = new TimerImpl(this.globalConfig);
         this._translation = new TranslationImpl(this.htmlParser, this.globalConfig);
         this._knou = new KnouImpl(this.htmlParser);
@@ -60,10 +56,6 @@ export class Tool {
 
     get namuWiki(): NamuWiki {
         return this._namuWiki;
-    }
-
-    get youtube(): YouTube {
-        return this._youtube;
     }
 
     get timer(): Timer {

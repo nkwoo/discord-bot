@@ -6,7 +6,6 @@ import {logger} from './module/Winston';
 
 import {Tool} from "./module/Tool";
 import {TimeQueue} from "./module/discord/TimeQueue";
-import {DiscordServer} from "./module/discord/DiscordServer";
 import {HtmlParser} from "./module/HtmlParser";
 import {GlobalConfig} from "./config/GlobalConfig";
 import {VoiceLogType} from "./enum/VoiceLogType";
@@ -15,7 +14,6 @@ import {Schedule} from "./module/Schedule";
 import connection from "./database/Connection";
 import {GlobalController} from "./module/controller/GlobalController";
 
-const discordServer: DiscordServer[] = [];
 const timerQueue: TimeQueue[] = [];
 
 let configPath = "./env/dev.json";
@@ -71,9 +69,9 @@ connection.create(globalConfig).then(async connection => {
 
         const knouTextChannelList: TextChannel[] = [];
 
-        client.guilds.forEach((guild, index) => {
-            discordServer.push(new DiscordServer(index, guild.name));
+        globalController.setServer(client.guilds);
 
+        client.guilds.forEach((guild) => {
             guild.channels.filter(channel => channel.name === "knou").forEach(channel => {
                 if (channel instanceof TextChannel) {
                     knouTextChannelList.push(channel);
@@ -117,61 +115,11 @@ connection.create(globalConfig).then(async connection => {
 
         const args = message.content.split(" ");
 
-        const server = discordServer.filter(value => value.code == message.guild.id)[0];
-
         const command = args[0].substr(1);
 
-        globalController.callCommand(message.channel, command, message.content, args);
+        globalController.callCommand(message, command, args);
 
         switch (command) {
-            case "재생": {
-                if (permission(message)) return;
-
-                if (!args[1]) {
-                    message.channel.send(`유튜브 주소가 포함되어 있지 않습니다.`);
-                    return;
-                }
-
-                tool.youtube.addYoutube(message, server, args[1]);
-                break;
-            }
-            case "소리": {
-                if (permission(message)) return;
-
-                if (!args[1]) {
-                    message.channel.send(`${globalConfig.discord.prefix}소리 <증가, 감소, 초기화> 형식대로 입력해주세요.`);
-                    return;
-                }
-
-                tool.youtube.setYoutubeVolumeControl(message.channel, server.getMusicPlayer(), args[1]);
-                break;
-            }
-            case "일시정지": {
-                if (permission(message)) return;
-
-                tool.youtube.pauseYoutubePlayer(message.channel, server.getMusicPlayer());
-                break;
-            }
-            case "스킵": {
-                if (permission(message)) return;
-
-                tool.youtube.skipYoutubeVideo(server.getMusicPlayer());
-                break;
-            }
-            case "목록": {
-                if (permission(message)) return;
-
-                tool.youtube.getPlayList(message.channel, server.musicQueue.list);
-                break;
-            }
-            case "종료": {
-                if (permission(message)) return;
-
-                server.musicQueue.list = [];
-
-                tool.youtube.stopPlayer(message);
-                break;
-            }
             case "날씨": {
                 tool.weather.getSeoulWeather(message.channel);
                 break;

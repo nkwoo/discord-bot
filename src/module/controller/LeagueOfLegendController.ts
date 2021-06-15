@@ -2,7 +2,7 @@ import {LeagueOfLegend} from "../game/interface/LeagueOfLegend";
 import {LeagueOfLegendImpl} from "../game/LeagueOfLegendImpl";
 import {HtmlParser} from "../HtmlParser";
 import {GlobalConfig} from "../../config/GlobalConfig";
-import {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
+import Discord, {DMChannel, GroupDMChannel, RichEmbed, TextChannel} from "discord.js";
 import {LeagueOfLegendRotationDto} from "../../dto/LeagueOfLegendRotationDto";
 import {LeagueOfLegendUserDto} from "../../dto/LeagueOfLegendUserDto";
 
@@ -13,21 +13,21 @@ export class LeagueOfLegendController {
         this.lol = new LeagueOfLegendImpl(this.htmlParser, this.globalConfig);
     }
 
-    callCommand(channel: TextChannel | DMChannel | GroupDMChannel, command: string, message: string, args: string[]): void {
+    callCommand(message: Discord.Message, command: string, args: string[]): void {
         switch (command) {
             case "롤": {
-                if (args.length < 2 || message.indexOf("\"") === -1 || message.lastIndexOf("\"") === -1) {
-                    channel.send(`닉네임이 포함되어 있지 않습니다.`);
+                if (args.length < 2 || message.content.indexOf("\"") === -1 || message.content.lastIndexOf("\"") === -1) {
+                    message.channel.send(`닉네임이 포함되어 있지 않습니다.`);
                     return;
                 }
 
-                const nickname = message.substring(message.indexOf("\"") + 1, message.lastIndexOf("\""));
+                const nickname = message.content.substring(message.content.indexOf("\"") + 1, message.content.lastIndexOf("\""));
 
-                this.getUserData(channel, nickname);
+                this.getUserData(message.channel, nickname);
                 break;
             }
             case "로테": {
-                this.getRotationChampions(channel);
+                this.getRotationChampions(message.channel);
                 break;
             }
         }
