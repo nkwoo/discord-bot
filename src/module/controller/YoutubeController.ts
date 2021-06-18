@@ -4,6 +4,7 @@ import {DiscordServer} from "../discord/DiscordServer";
 import ytdl from "ytdl-core";
 import {YoutubeVideo} from "../discord/YoutubeVideo";
 import {GlobalController} from "./GlobalController";
+import {getYoutubeCommand, YoutubeCommand} from "../discord/command/YoutubeCommand";
 
 export class YoutubeController {
 
@@ -11,52 +12,56 @@ export class YoutubeController {
     }
 
     callCommand(message: Discord.Message, command: string, args: string[]): void {
-        const server = this.findServer(message);
+        const youtubeCommand = getYoutubeCommand(command);
 
-        if (server == null) {
-            message.channel.send("서버 정보를 찾을수 없습니다.");
-            return;
-        }
+        if (youtubeCommand != YoutubeCommand.NONE) {
+            const server = this.findServer(message);
 
-        if (!this.hasPermission(message)) {
-            message.channel.send("사용할 권한이 없습니다.");
-            return;
-        }
+            if (server == null) {
+                message.channel.send("서버 정보를 찾을수 없습니다.");
+                return;
+            }
 
-        switch (command) {
-            case "재생": {
-                if (args.length < 2) {
-                    message.channel.send(`유튜브 주소가 포함되어 있지 않습니다.`);
-                    return;
+            if (!this.hasPermission(message)) {
+                message.channel.send("사용할 권한이 없습니다.");
+                return;
+            }
+
+            switch (youtubeCommand) {
+                case YoutubeCommand.PLAY: {
+                    if (args.length < 2) {
+                        message.channel.send(`유튜브 주소가 포함되어 있지 않습니다.`);
+                        return;
+                    }
+
+                    this.addYoutubeQueue(message, server, args[1]);
+                    break;
                 }
+                case YoutubeCommand.SOUND: {
+                    if (args.length < 2) {
+                        message.channel.send(`${this.globalConfig.discord.prefix}소리 <증가, 감소, 초기화> 형식대로 입력해주세요.`);
+                        return;
+                    }
 
-                this.addYoutubeQueue(message, server, args[1]);
-                break;
-            }
-            case "소리": {
-                if (args.length < 2) {
-                    message.channel.send(`${this.globalConfig.discord.prefix}소리 <증가, 감소, 초기화> 형식대로 입력해주세요.`);
-                    return;
+                    this.setYoutubeVolumeControl(message, server, args[1]);
+                    break;
                 }
-
-                this.setYoutubeVolumeControl(message, server, args[1]);
-                break;
-            }
-            case "일시정지": {
-                this.pauseYoutubePlayer(message, server.getMusicPlayer());
-                break;
-            }
-            case "스킵": {
-                this.skipYoutubeVideo(server.getMusicPlayer());
-                break;
-            }
-            case "목록": {
-                this.getPlayList(message, server.musicQueue.list);
-                break;
-            }
-            case "종료": {
-                this.stopPlayer(message, server);
-                break;
+                case YoutubeCommand.PAUSE: {
+                    this.pauseYoutubePlayer(message, server.getMusicPlayer());
+                    break;
+                }
+                case YoutubeCommand.SKIP: {
+                    this.skipYoutubeVideo(server.getMusicPlayer());
+                    break;
+                }
+                case YoutubeCommand.PLAYLIST: {
+                    this.getPlayList(message, server.musicQueue.list);
+                    break;
+                }
+                case YoutubeCommand.EXIT: {
+                    this.stopPlayer(message, server);
+                    break;
+                }
             }
         }
     }

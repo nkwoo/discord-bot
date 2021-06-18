@@ -25,11 +25,10 @@ export class GlobalController {
     }
 
     callCommand(message: Discord.Message, command: string, args: string[]): void {
+        //TODO 다른 멍령어 컨트롤러도 enum 분리해야 할까?
         this.leagueOfLegendController.callCommand(message, command, args);
         this.mapleStoryController.callCommand(message, command, args);
-        if (this.youtubeController) {
-            this.youtubeController.callCommand(message, command, args);
-        }
+        this.youtubeController.callCommand(message, command, args);
 
         switch (command) {
             case "봇": {
@@ -38,7 +37,7 @@ export class GlobalController {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "2.0.1"}
+                            {name: "VERSION", value: "2.0.2"}
                         ]
                     }
                 });
