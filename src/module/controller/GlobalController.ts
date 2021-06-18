@@ -2,9 +2,10 @@ import {HtmlParser} from "../HtmlParser";
 import {GlobalConfig} from "../../config/GlobalConfig";
 import {LeagueOfLegendController} from "./LeagueOfLegendController";
 import {MapleStoryController} from "./MapleStoryController";
-import Discord, {Collection, Guild, Snowflake} from "discord.js";
+import Discord from "discord.js";
 import {DiscordServer} from "../discord/DiscordServer";
 import {YoutubeController} from "./YoutubeController";
+import {Member} from "../discord/Member";
 
 export class GlobalController {
     private serverList: DiscordServer[] = [];
@@ -16,14 +17,11 @@ export class GlobalController {
     constructor(private htmlParser: HtmlParser, private globalConfig: GlobalConfig) {
         this.leagueOfLegendController = new LeagueOfLegendController(this.htmlParser, this.globalConfig);
         this.mapleStoryController = new MapleStoryController(this.htmlParser);
+        this.youtubeController = new YoutubeController(this.globalConfig, this);
     }
 
-    setServer(guilds: Collection<Snowflake, Guild>): void {
-        guilds.forEach((guild, index) => {
-            this.serverList.push(new DiscordServer(index, guild.name));
-        });
-
-        this.youtubeController = new YoutubeController(this.globalConfig, this.serverList);
+    getServerList(): DiscordServer[] {
+        return this.serverList;
     }
 
     callCommand(message: Discord.Message, command: string, args: string[]): void {
@@ -40,7 +38,7 @@ export class GlobalController {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "2.0.0"}
+                            {name: "VERSION", value: "2.0.1"}
                         ]
                     }
                 });
@@ -67,5 +65,30 @@ export class GlobalController {
                 break;
             }
         }
+    }
+
+    updateServer(client: Discord.Client): void {
+        const updateServerList: DiscordServer[] = [];
+
+        client.guilds.cache.forEach((guild, id) => {
+            const discordServer = new DiscordServer(id, guild.name);
+
+            guild.members.cache.forEach((member, id) => {
+                discordServer.memberList.push(new Member(id, member));
+            });
+
+            updateServerList.push(discordServer);
+        });
+
+        updateServerList.forEach(server => {
+            const matchServerList = this.serverList.filter(beforeServer => beforeServer.id === server.id);
+
+            if (matchServerList.length === 1) {
+                this.serverList[0].name = server.name;
+                this.serverList[0].memberList = server.memberList;
+            } else {
+                this.serverList.push(new DiscordServer(server.id, server.name));
+            }
+        });
     }
 }

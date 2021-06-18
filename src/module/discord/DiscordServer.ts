@@ -1,26 +1,27 @@
 import {Queue} from "./Queue";
 import {StreamDispatcher} from "discord.js";
 import {YoutubeVideo} from "./YoutubeVideo";
+import {Member} from "./Member";
 
 export class DiscordServer {
-    private _code: string;
+    private _id: string;
     private _name: string;
     private _musicQueue: Queue<YoutubeVideo>;
     private _musicPlayer: StreamDispatcher | null;
+    private _memberList: Member[] = [];
 
-    constructor(code: string, name: string) {
-        this._code = code;
+    constructor(id: string, name: string) {
+        this._id = id;
         this._name = name;
         this._musicQueue = new Queue<YoutubeVideo>();
     }
 
-
-    get code(): string {
-        return this._code;
+    get id(): string {
+        return this._id;
     }
 
-    set code(value: string) {
-        this._code = value;
+    set id(value: string) {
+        this._id = value;
     }
 
     get name(): string {
@@ -37,6 +38,14 @@ export class DiscordServer {
 
     set musicQueue(value: Queue<YoutubeVideo>) {
         this._musicQueue = value;
+    }
+
+    get memberList(): Member[] {
+        return this._memberList;
+    }
+
+    set memberList(value: Member[]) {
+        this._memberList = value;
     }
 
     getMusicPlayer(): StreamDispatcher | null {

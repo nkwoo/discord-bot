@@ -55,10 +55,10 @@ connection.create(globalConfig).then(async connection => {
 
         const knouTextChannelList: TextChannel[] = [];
 
-        globalController.setServer(client.guilds.valueOf());
+        globalController.updateServer(client);
 
-        client.guilds.valueOf().forEach((guild) => {
-            guild.channels.valueOf().filter(channel => channel.name === "knou").forEach(channel => {
+        client.guilds.cache.forEach((guild) => {
+            guild.channels.cache.filter(channel => channel.name === "knou").forEach(channel => {
                 if (channel instanceof TextChannel) {
                     knouTextChannelList.push(channel);
                 }
@@ -73,6 +73,27 @@ connection.create(globalConfig).then(async connection => {
     client.on("error", () => {
         console.error();
     });
+
+    client.on("guildCreate", () => {
+        globalController.updateServer(client);
+    });
+
+    client.on("guildDelete", () => {
+        globalController.updateServer(client);
+    });
+
+    client.on("guildUpdate", () => {
+        globalController.updateServer(client);
+    });
+
+    client.on("guildMemberAdd", () => {
+        globalController.updateServer(client);
+    });
+
+    client.on("guildMemberRemove", () => {
+        globalController.updateServer(client);
+    });
+
 
     client.on("voiceStateUpdate", (oldMember, newMember) => {
         const oldUserChannel = oldMember.channel;

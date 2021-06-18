@@ -3,10 +3,11 @@ import Discord, {DMChannel, NewsChannel, StreamDispatcher, TextChannel, VoiceCon
 import {DiscordServer} from "../discord/DiscordServer";
 import ytdl from "ytdl-core";
 import {YoutubeVideo} from "../discord/YoutubeVideo";
+import {GlobalController} from "./GlobalController";
 
 export class YoutubeController {
 
-    constructor(private globalConfig: GlobalConfig, private serverList: DiscordServer[]) {
+    constructor(private globalConfig: GlobalConfig, private globalController: GlobalController) {
     }
 
     callCommand(message: Discord.Message, command: string, args: string[]): void {
@@ -65,7 +66,7 @@ export class YoutubeController {
     }
 
     private findServer(message: Discord.Message): DiscordServer | null {
-        const filterServer = this.serverList.filter(value => message.guild ? value.code == message.guild.id : false);
+        const filterServer = this.globalController.getServerList().filter(value => message.guild ? value.id == message.guild.id : false);
         if (filterServer.length != 0) {
             return filterServer[0];
         } else {
