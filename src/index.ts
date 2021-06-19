@@ -1,11 +1,9 @@
-import * as Discord from "discord.js";
-import {TextChannel} from "discord.js";
+import {Client, Intents, TextChannel} from "discord.js";
 import * as fs from "fs";
 
 import {logger} from './module/Winston';
 
 import {Tool} from "./module/Tool";
-import {TimeQueue} from "./module/discord/TimeQueue";
 import {HtmlParser} from "./module/HtmlParser";
 import {GlobalConfig} from "./config/GlobalConfig";
 import {VoiceLogType} from "./enum/VoiceLogType";
@@ -13,8 +11,6 @@ import {VoiceLogService} from "./database/service/VoiceLogService";
 import {Schedule} from "./module/Schedule";
 import connection from "./database/Connection";
 import {GlobalController} from "./module/controller/GlobalController";
-
-const timerQueue: TimeQueue[] = [];
 
 let configPath = "./env/dev.json";
 
@@ -35,7 +31,14 @@ const globalConfig: GlobalConfig = JSON.parse(fs.readFileSync(configPath).toStri
 
 const htmlParser = new HtmlParser();
 
-const globalController = new GlobalController(htmlParser, globalConfig);
+const intents = new Intents([
+    Intents.NON_PRIVILEGED,
+    "GUILD_MEMBERS"
+]);
+
+const client = new Client({ws : {intents}});
+
+const globalController = new GlobalController(client, htmlParser, globalConfig);
 
 const tool = new Tool(htmlParser, globalConfig);
 
@@ -48,14 +51,12 @@ connection.create(globalConfig).then(async connection => {
 
     const schedule = new Schedule(connection, tool);
 
-    const client = new Discord.Client();
-
-    client.once("ready", () => {
+    client.once("ready", async () => {
         logger.info("Server Ready!");
 
         const knouTextChannelList: TextChannel[] = [];
 
-        globalController.updateServer(client);
+        await globalController.updateServer(client);
 
         client.guilds.cache.forEach((guild) => {
             guild.channels.cache.filter(channel => channel.name === "knou").forEach(channel => {
@@ -133,40 +134,6 @@ connection.create(globalConfig).then(async connection => {
         switch (command) {
             case "날씨": {
                 tool.weather.getSeoulWeather(message.channel);
-                break;
-            }
-            case "타이머추가": {
-                const commandHour = Number(args[1]);
-
-                if (message.content.length < 5 || isNaN(commandHour) || args.length < 4 || message.content.indexOf("\"") == -1) {
-                    message.channel.send(`${globalConfig.discord.prefix}타이머추가 <분> <호출대상> "<문구>" 형식대로 입력해주세요.`);
-                    return;
-                }
-
-                if (commandHour > 1440 || 1 > commandHour) {
-                    message.channel.send("최소 1 ~ 1440분 까지 사용할 수 있습니다.");
-                    return;
-                }
-
-                tool.timer.addTimer(message, timerQueue, args[2], commandHour);
-                break;
-            }
-            case "타이머취소": {
-                if (message.content.length < 5 || args.length < 2) {
-                    message.channel.send(`${globalConfig.discord.prefix}타이머취소 <타이머 번호> 형식대로 입력해주세요.`);
-                    return;
-                }
-
-                tool.timer.removeTimer(message, timerQueue, Number(args[1]));
-                break;
-            }
-            case "타이머": {
-                if (globalConfig.discord.administratorId.filter(value => message.member ? value === message.member.id : false).length === 0) {
-                    message.channel.send("권한이 없습니다.");
-                    return;
-                }
-
-                tool.timer.timerList(message, timerQueue);
                 break;
             }
             case "상태": {

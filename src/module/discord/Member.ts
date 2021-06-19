@@ -1,11 +1,11 @@
-import {GuildMember, Snowflake} from "discord.js";
+import {GuildMember} from "discord.js";
 
 export class Member {
     private _id: string;
     private _name: string;
 
-    constructor(id: Snowflake, member: GuildMember) {
-        this.id = id;
+    constructor(member: GuildMember) {
+        this.id = member.id;
         this.name = member.nickname ? member.nickname : member.displayName;
     }
 

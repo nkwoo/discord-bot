@@ -2,18 +2,21 @@ import {Queue} from "./Queue";
 import {StreamDispatcher} from "discord.js";
 import {YoutubeVideo} from "./YoutubeVideo";
 import {Member} from "./Member";
+import {CallTimerVo} from "./CallTimerVo";
 
 export class DiscordServer {
     private _id: string;
     private _name: string;
     private _musicQueue: Queue<YoutubeVideo>;
     private _musicPlayer: StreamDispatcher | null;
-    private _memberList: Member[] = [];
+    private _memberList: Member[];
+    private _timerList: CallTimerVo[] = [];
 
-    constructor(id: string, name: string) {
+    constructor(id: string, name: string, memberList: Member[]) {
         this._id = id;
         this._name = name;
         this._musicQueue = new Queue<YoutubeVideo>();
+        this._memberList = memberList;
     }
 
     get id(): string {
@@ -54,5 +57,13 @@ export class DiscordServer {
 
     setMusicPlayer(value: StreamDispatcher): void {
         this._musicPlayer = value;
+    }
+
+    get timerList(): CallTimerVo[] {
+        return this._timerList;
+    }
+
+    set timerList(value: CallTimerVo[]) {
+        this._timerList = value;
     }
 }
