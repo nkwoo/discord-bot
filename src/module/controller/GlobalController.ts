@@ -7,6 +7,7 @@ import {DiscordServer} from "../discord/DiscordServer";
 import {YoutubeController} from "./YoutubeController";
 import {Member} from "../discord/Member";
 import {TimerController} from "./TimerController";
+import {CallCommand} from "../discord/command/CallCommand";
 
 export class GlobalController {
     private serverList: DiscordServer[] = [];
@@ -41,27 +42,26 @@ export class GlobalController {
         return this.serverList;
     }
 
-    callCommand(message: Discord.Message, command: string, args: string[]): void {
-        //TODO 다른 멍령어 컨트롤러도 enum 분리해야 할까?
+    callCommand(message: Discord.Message, command: CallCommand, args: string[]): void {
         this.leagueOfLegendController.callCommand(message, command, args);
         this.mapleStoryController.callCommand(message, command, args);
         this.youtubeController.callCommand(message, command, args);
         this.timerController.callCommand(message, command, args);
 
         switch (command) {
-            case "봇": {
+            case CallCommand.Bot: {
                 message.channel.send({
                     embed: {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "2.1.0"}
+                            {name: "VERSION", value: "2.1.1"}
                         ]
                     }
                 });
                 break;
             }
-            case "명령어": {
+            case CallCommand.Command: {
                 message.channel.send({
                     embed: {
                         color: 3447003,

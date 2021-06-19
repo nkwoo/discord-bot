@@ -4,17 +4,17 @@ import {DiscordServer} from "../discord/DiscordServer";
 import ytdl from "ytdl-core";
 import {YoutubeVideo} from "../discord/YoutubeVideo";
 import {GlobalController} from "./GlobalController";
-import {getYoutubeCommand, YoutubeCommand} from "../discord/command/YoutubeCommand";
+import {CallCommand, getYoutubeCommand} from "../discord/command/CallCommand";
 
 export class YoutubeController {
 
     constructor(private globalConfig: GlobalConfig, private globalController: GlobalController) {
     }
 
-    callCommand(message: Discord.Message, command: string, args: string[]): void {
+    callCommand(message: Discord.Message, command: CallCommand, args: string[]): void {
         const youtubeCommand = getYoutubeCommand(command);
 
-        if (youtubeCommand != YoutubeCommand.NONE) {
+        if (youtubeCommand != CallCommand.NONE) {
             const server = this.findServer(message);
 
             if (server == null) {
@@ -28,7 +28,7 @@ export class YoutubeController {
             }
 
             switch (youtubeCommand) {
-                case YoutubeCommand.PLAY: {
+                case CallCommand.YoutubePlayerPlay: {
                     if (args.length < 2) {
                         message.channel.send(`유튜브 주소가 포함되어 있지 않습니다.`);
                         return;
@@ -37,7 +37,7 @@ export class YoutubeController {
                     this.addYoutubeQueue(message, server, args[1]);
                     break;
                 }
-                case YoutubeCommand.SOUND: {
+                case CallCommand.YoutubePlayerSound: {
                     if (args.length < 2) {
                         message.channel.send(`${this.globalConfig.discord.prefix}소리 <증가, 감소, 초기화> 형식대로 입력해주세요.`);
                         return;
@@ -46,19 +46,19 @@ export class YoutubeController {
                     this.setYoutubeVolumeControl(message, server, args[1]);
                     break;
                 }
-                case YoutubeCommand.PAUSE: {
+                case CallCommand.YoutubePlayerPause: {
                     this.pauseYoutubePlayer(message, server.getMusicPlayer());
                     break;
                 }
-                case YoutubeCommand.SKIP: {
+                case CallCommand.YoutubePlayerSkip: {
                     this.skipYoutubeVideo(server.getMusicPlayer());
                     break;
                 }
-                case YoutubeCommand.PLAYLIST: {
+                case CallCommand.YoutubePlayList: {
                     this.getPlayList(message, server.musicQueue.list);
                     break;
                 }
-                case YoutubeCommand.EXIT: {
+                case CallCommand.YoutubePlayerExit: {
                     this.stopPlayer(message, server);
                     break;
                 }

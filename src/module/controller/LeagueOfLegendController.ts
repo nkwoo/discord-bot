@@ -5,6 +5,7 @@ import {GlobalConfig} from "../../config/GlobalConfig";
 import Discord, {DMChannel, MessageEmbed, NewsChannel, TextChannel} from "discord.js";
 import {LeagueOfLegendRotationDto} from "../../dto/LeagueOfLegendRotationDto";
 import {LeagueOfLegendUserDto} from "../../dto/LeagueOfLegendUserDto";
+import {CallCommand} from "../discord/command/CallCommand";
 
 export class LeagueOfLegendController {
     private readonly lol: LeagueOfLegend;
@@ -13,9 +14,9 @@ export class LeagueOfLegendController {
         this.lol = new LeagueOfLegendImpl(this.htmlParser, this.globalConfig);
     }
 
-    callCommand(message: Discord.Message, command: string, args: string[]): void {
+    callCommand(message: Discord.Message, command: CallCommand, args: string[]): void {
         switch (command) {
-            case "롤": {
+            case CallCommand.LeagueOfLegendScore: {
                 if (args.length < 2 || message.content.indexOf("\"") === -1 || message.content.lastIndexOf("\"") === -1) {
                     message.channel.send(`닉네임이 포함되어 있지 않습니다.`);
                     return;
@@ -26,7 +27,7 @@ export class LeagueOfLegendController {
                 this.getUserData(message.channel, nickname);
                 break;
             }
-            case "로테": {
+            case CallCommand.LeagueOfLegendRotation: {
                 this.getRotationChampions(message.channel);
                 break;
             }

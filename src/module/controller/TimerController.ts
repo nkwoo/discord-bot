@@ -4,18 +4,19 @@ import {DiscordServer} from "../discord/DiscordServer";
 import {GlobalController} from "./GlobalController";
 import {Member} from "../discord/Member";
 import {CallTimerVo} from "../discord/CallTimerVo";
+import {CallCommand} from "../discord/command/CallCommand";
 
 export class TimerController {
 
     constructor(private globalConfig: GlobalConfig, private globalController: GlobalController) {
     }
 
-    callCommand(message: Discord.Message, command: string, args: string[]): void {
+    callCommand(message: Discord.Message, command: CallCommand, args: string[]): void {
         const server = this.findServer(message);
 
         if (server != null) {
             switch (command) {
-                case "타이머추가": {
+                case CallCommand.TimerAdd: {
                     if (args.length < 4 || message.content.indexOf("\"") === -1 || message.content.lastIndexOf("\"") === -1) {
                         message.channel.send(`${this.globalConfig.discord.prefix}타이머추가 <분> <호출대상> "<문구>" 형식대로 입력해주세요.`);
                         return;
@@ -76,33 +77,7 @@ export class TimerController {
 
                     break;
                 }
-                case "타이머취소": {
-                    if (args.length < 2) {
-                        message.channel.send(`${this.globalConfig.discord.prefix}타이머취소 <타이머 번호> 형식대로 입력해주세요.`);
-                        return;
-                    }
-
-                    const timerRank = Number(args[1]);
-
-                    if (message.guild == null || message.member == null) {
-                        message.channel.send("타이머를 사용할 수 없습니다.");
-                        return;
-                    }
-
-                    const id = message.member.user.id;
-
-                    server.timerList.filter(timer => timer.rank == timerRank).forEach((timer, index) => {
-                        if (!(timer.caller.id == id || this.hasPermission(message))) {
-                            message.channel.send("타이머는 생성한 사람만 삭제할 수 있습니다.");
-                            return;
-                        }
-
-                        server.timerList.splice(index, 1);
-                        message.channel.send("타이머가 취소되었습니다.");
-                    });
-                    break;
-                }
-                case "타이머": {
+                case CallCommand.TimerList: {
                     if (message.guild == null || message.member == null) {
                         message.channel.send("타이머를 사용할 수 없습니다.");
                         return;
@@ -128,6 +103,32 @@ export class TimerController {
                             title: "타이머 리스트",
                             fields: printDataArr
                         }
+                    });
+                    break;
+                }
+                case CallCommand.TimerRemove: {
+                    if (args.length < 2) {
+                        message.channel.send(`${this.globalConfig.discord.prefix}타이머취소 <타이머 번호> 형식대로 입력해주세요.`);
+                        return;
+                    }
+
+                    const timerRank = Number(args[1]);
+
+                    if (message.guild == null || message.member == null) {
+                        message.channel.send("타이머를 사용할 수 없습니다.");
+                        return;
+                    }
+
+                    const id = message.member.user.id;
+
+                    server.timerList.filter(timer => timer.rank == timerRank).forEach((timer, index) => {
+                        if (!(timer.caller.id == id || this.hasPermission(message))) {
+                            message.channel.send("타이머는 생성한 사람만 삭제할 수 있습니다.");
+                            return;
+                        }
+
+                        server.timerList.splice(index, 1);
+                        message.channel.send("타이머가 취소되었습니다.");
                     });
                     break;
                 }

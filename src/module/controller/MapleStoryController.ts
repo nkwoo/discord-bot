@@ -3,6 +3,7 @@ import {HtmlParser} from "../HtmlParser";
 import {MapleImpl} from "../game/MapleImpl";
 import Discord, {DMChannel, MessageEmbed, NewsChannel, TextChannel} from "discord.js";
 import {MapleCharacterDto} from "../../dto/MapleCharacterDto";
+import {CallCommand} from "../discord/command/CallCommand";
 
 export class MapleStoryController {
     private readonly maple: Maple;
@@ -11,8 +12,8 @@ export class MapleStoryController {
         this.maple = new MapleImpl(this.htmlParser);
     }
 
-    callCommand(message: Discord.Message, command: string, args: string[]): void {
-        if (command === "메이플") {
+    callCommand(message: Discord.Message, command: CallCommand, args: string[]): void {
+        if (command === CallCommand.MapleScore) {
             if (args.length < 2 || message.content.indexOf("\"") === -1 || message.content.lastIndexOf("\"") === -1) {
                 message.channel.send("닉네임이 포함되어 있지 않습니다.");
                 return;

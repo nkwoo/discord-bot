@@ -11,6 +11,7 @@ import {VoiceLogService} from "./database/service/VoiceLogService";
 import {Schedule} from "./module/Schedule";
 import connection from "./database/Connection";
 import {GlobalController} from "./module/controller/GlobalController";
+import {getCommand} from "./module/discord/command/CallCommand";
 
 let configPath = "./env/dev.json";
 
@@ -129,7 +130,7 @@ connection.create(globalConfig).then(async connection => {
 
         const command = args[0].substr(1);
 
-        globalController.callCommand(message, command, args);
+        globalController.callCommand(message, getCommand(command), args);
 
         switch (command) {
             case "날씨": {
