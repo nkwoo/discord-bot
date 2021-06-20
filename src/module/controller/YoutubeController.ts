@@ -55,7 +55,7 @@ export class YoutubeController {
                     break;
                 }
                 case CallCommand.YoutubePlayList: {
-                    this.getPlayList(message, server.musicQueue.list);
+                    this.getPlayList(message, server.playList);
                     break;
                 }
                 case CallCommand.YoutubePlayerExit: {
@@ -80,7 +80,7 @@ export class YoutubeController {
     }
 
     private playYoutube(connection: VoiceConnection, channel: TextChannel | DMChannel | NewsChannel, server: DiscordServer): void {
-        const musicQueue = server.musicQueue.list;
+        const musicQueue = server.playList;
 
         if (musicQueue.length === 0) {
             channel.send("노래 재생이 종료되었습니다.");
@@ -94,9 +94,9 @@ export class YoutubeController {
             .on("start", () => {
                 channel.send(`${musicQueue[0].title}를(을) 재생중입니다.\n재생시간 : ${musicQueue[0].time}`);
             })
-            .on("end", (skip) => {
+            .on("finish", (skip?: string) => {
                 if (musicQueue[0]) {
-                    if (skip) {
+                    if (skip != null) {
                         channel.send(`${musicQueue[0].title}를(을) 스킵하였습니다.`);
                     } else {
                         channel.send(`${musicQueue[0].title}를(을) 재생하였습니다.`);
@@ -109,14 +109,14 @@ export class YoutubeController {
                     channel.send("노래 재생이 종료되었습니다.");
                     connection.disconnect();
                 }
-            })
+            }) 
         );
 
         musicQueue[0].state = true;
     }
 
     private addYoutubeQueue(message: Discord.Message, server: DiscordServer, videoUrl: string): void {
-        const musicQueue = server.musicQueue.list;
+        const musicQueue = server.playList;
         
         if (message.member == null) {
             message.channel.send("요청자를 찾을 수 없습니다.");
@@ -147,7 +147,7 @@ export class YoutubeController {
                     videoMinute = Number(videoMinute) > 9 ? videoMinute : "0" + videoMinute;
                     videoSecond = Number(videoSecond) > 9 ? videoSecond : "0" + videoSecond;
 
-                    server.musicQueue.enqueue(new YoutubeVideo(videoUrl, `${videoHour}:${videoMinute}:${videoSecond}`, value.player_response.videoDetails.title, false));
+                    server.playList.push(new YoutubeVideo(videoUrl, `${videoHour}:${videoMinute}:${videoSecond}`, value.player_response.videoDetails.title, false));
 
                     editMsg.edit(value.player_response.videoDetails.title + "가 추가되었습니다.");
 
@@ -243,6 +243,6 @@ export class YoutubeController {
         if (message.guild != null &&  message.guild.voice != null) {
             if (message.guild.voice.channel) message.guild.voice.channel.leave();
         }
-        server.musicQueue.list = [];
+        server.playList = [];
     }
 }
