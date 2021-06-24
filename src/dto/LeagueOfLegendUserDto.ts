@@ -11,7 +11,7 @@ export class LeagueOfLegendUserDto extends CommonDto {
 
 
     constructor() {
-        super();
+        super(true);
         this.soloRank = "랭크 기록 없음";
         this.freeRank = "랭크 기록 없음";
         this.inGameStatus = "현재 게임중이 아닙니다.";

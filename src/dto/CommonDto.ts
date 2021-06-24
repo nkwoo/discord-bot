@@ -2,6 +2,10 @@ export class CommonDto {
     private _state: boolean;
     private _message: string;
 
+    constructor(state: boolean) {
+        this._state = state;
+    }
+
     get state(): boolean {
         return this._state;
     }

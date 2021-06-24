@@ -5,7 +5,7 @@ export class LeagueOfLegendRotationDto extends CommonDto {
     private _freeChampionsForBeginner: string[];
 
     constructor() {
-        super();
+        super(true);
         this.freeChampions = [];
         this.freeChampionsForBeginner = [];
     }

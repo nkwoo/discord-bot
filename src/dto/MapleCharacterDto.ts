@@ -7,6 +7,10 @@ export class MapleCharacterDto extends CommonDto {
     private _worldRank: string;
     private _level: string;
 
+    constructor() {
+        super(true);
+    }
+
     get thumbnailUrl(): string {
         return this._thumbnailUrl;
     }

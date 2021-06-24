@@ -51,7 +51,7 @@ export class MapleImpl implements Maple {
                     return;
                 }
             }
-            mapleCharacterDto.state = true;
+
             return mapleCharacterDto;
         } catch (e) {
             return new ErrorDto(e.message);
