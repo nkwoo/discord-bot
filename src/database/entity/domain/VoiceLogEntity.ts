@@ -1,5 +1,5 @@
 import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
-import {VoiceLogType} from "../../../enum/VoiceLogType";
+import {VoiceLogType} from "../../../discord/enum/VoiceLogType";
 
 @Entity('VOICE_LOG')
 export class VoiceLogEntity extends BaseEntity {

@@ -1,17 +1,17 @@
 import {Client, Intents, TextChannel} from "discord.js";
 import * as fs from "fs";
 
-import {logger} from './module/Winston';
+import {logger} from './config/Winston';
 
-import {Tool} from "./module/Tool";
-import {HtmlParser} from "./module/HtmlParser";
+import {Tool} from "./discord/service/Tool";
+import {HtmlParser} from "./global/HtmlParser";
 import {GlobalConfig} from "./config/GlobalConfig";
-import {VoiceLogType} from "./enum/VoiceLogType";
+import {VoiceLogType} from "./discord/enum/VoiceLogType";
 import {VoiceLogService} from "./database/service/VoiceLogService";
-import {Schedule} from "./module/Schedule";
+import {Schedule} from "./global/Schedule";
 import connection from "./database/Connection";
-import {GlobalController} from "./module/controller/GlobalController";
-import {getCommand} from "./module/discord/command/CallCommand";
+import {GlobalController} from "./discord/controller/GlobalController";
+import {getCommand} from "./discord/enum/CallCommand";
 
 let configPath = "./env/dev.json";
 

@@ -1,4 +1,4 @@
-import {VoiceLogType} from "../../enum/VoiceLogType";
+import {VoiceLogType} from "../../discord/enum/VoiceLogType";
 import {Connection} from "typeorm";
 import {VoiceLogEntity} from "../entity/domain/VoiceLogEntity";
 
