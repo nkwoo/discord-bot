@@ -55,7 +55,7 @@ export class GlobalController {
                         color: 3447003,
                         fields: [
                             {name: "만든이", value: "NKWOO"},
-                            {name: "VERSION", value: "2.1.3"}
+                            {name: "VERSION", value: "2.1.4"}
                         ]
                     }
                 });
@@ -80,6 +80,11 @@ export class GlobalController {
                     }
                 });
                 break;
+            }
+            case CallCommand.Easter: {
+                message.channel.send("( ͡° ͜ʖ ͡°)", {
+                    files: ["https://raw.githubusercontent.com/nkwoo/nkwoo/main/jerry.png"]
+                });
             }
         }
     }

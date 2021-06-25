@@ -13,6 +13,7 @@ export enum CallCommand {
     TimerRemove = "타이머취소",
     Bot = "봇",
     Command = "명령어",
+    Easter = "XD",
     NONE = ""
 }
 
@@ -46,6 +47,8 @@ export function getCommand(callCommand: string): CallCommand {
             return CallCommand.Bot;
         case "명령어":
             return CallCommand.Command;
+        case "XD":
+            return CallCommand.Easter;
         default:
             return CallCommand.NONE;
     }
