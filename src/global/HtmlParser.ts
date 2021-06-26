@@ -1,10 +1,9 @@
 import * as axios from "axios";
 import {AxiosAdapter, AxiosRequestConfig, AxiosResponse} from "axios";
-import {load} from "cheerio";
-//axios cache
 import {cacheAdapterEnhancer} from "axios-extensions";
+//axios cache
 import {HttpMethod} from "../discord/enum/HttpMethod";
-import Root = cheerio.Root;
+import * as Cheerio from "cheerio";
 
 //https://yamoo9.github.io/axios/guide/error-handling.html
 
@@ -58,7 +57,7 @@ export class HtmlParser {
         }
     }
 
-    changeHtmlToDom(html: string): Root {
-        return load(html);
+    changeHtmlToDom(html: string): Cheerio.CheerioAPI {
+        return Cheerio.load(html);
     }
 }

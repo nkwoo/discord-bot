@@ -6,8 +6,8 @@ import {CallTimer} from "./CallTimer";
 export class DiscordServer {
     private _id: string;
     private _name: string;
-    private _playList: YoutubeVideo[] = [];
-    private _musicPlayer: StreamDispatcher | null;
+    private _youtubePlayList: YoutubeVideo[] = [];
+    private _youtubePlayer: StreamDispatcher;
     private _memberList: Member[];
     private _timerList: CallTimer[] = [];
 
@@ -33,12 +33,12 @@ export class DiscordServer {
         this._name = value;
     }
 
-    get playList(): YoutubeVideo[] {
-        return this._playList;
+    get youtubePlayList(): YoutubeVideo[] {
+        return this._youtubePlayList;
     }
 
-    set playList(value: YoutubeVideo[]) {
-        this._playList = value;
+    set youtubePlayList(value: YoutubeVideo[]) {
+        this._youtubePlayList = value;
     }
 
     get memberList(): Member[] {
@@ -49,12 +49,12 @@ export class DiscordServer {
         this._memberList = value;
     }
 
-    getMusicPlayer(): StreamDispatcher | null {
-        return this._musicPlayer;
+    get youtubePlayer(): StreamDispatcher {
+        return this._youtubePlayer;
     }
 
-    setMusicPlayer(value: StreamDispatcher): void {
-        this._musicPlayer = value;
+    set youtubePlayer(value: StreamDispatcher) {
+        this._youtubePlayer = value;
     }
 
     get timerList(): CallTimer[] {

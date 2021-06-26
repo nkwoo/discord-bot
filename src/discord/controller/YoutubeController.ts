@@ -1,10 +1,10 @@
 import {GlobalConfig} from "../../config/GlobalConfig";
 import Discord, {DMChannel, NewsChannel, StreamDispatcher, TextChannel, VoiceConnection} from "discord.js";
 import {DiscordServer} from "../vo/DiscordServer";
-import ytdl from "ytdl-core";
 import {YoutubeVideo} from "../vo/YoutubeVideo";
 import {GlobalController} from "./GlobalController";
 import {CallCommand, getYoutubeCommand} from "../enum/CallCommand";
+import  ytdl from 'ytdl-core';
 
 export class YoutubeController {
 
@@ -47,15 +47,15 @@ export class YoutubeController {
                     break;
                 }
                 case CallCommand.YoutubePlayerPause: {
-                    this.pauseYoutubePlayer(message, server.getMusicPlayer());
+                    this.pauseYoutubePlayer(message, server.youtubePlayer);
                     break;
                 }
                 case CallCommand.YoutubePlayerSkip: {
-                    this.skipYoutubeVideo(server.getMusicPlayer());
+                    this.skipYoutubeVideo(server.youtubePlayer);
                     break;
                 }
                 case CallCommand.YoutubePlayList: {
-                    this.getPlayList(message, server.playList);
+                    this.getPlayList(message, server.youtubePlayList);
                     break;
                 }
                 case CallCommand.YoutubePlayerExit: {
@@ -80,7 +80,7 @@ export class YoutubeController {
     }
 
     private playYoutube(connection: VoiceConnection, channel: TextChannel | DMChannel | NewsChannel, server: DiscordServer): void {
-        const musicQueue = server.playList;
+        const musicQueue = server.youtubePlayList;
 
         if (musicQueue.length === 0) {
             channel.send("노래 재생이 종료되었습니다.");
@@ -90,7 +90,7 @@ export class YoutubeController {
 
         const stream = ytdl(musicQueue[0].url, {filter: "audioonly"});
 
-        server.setMusicPlayer(connection.play(stream)
+        server.youtubePlayer = connection.play(stream)
             .on("start", () => {
                 channel.send(`${musicQueue[0].title}를(을) 재생중입니다.\n재생시간 : ${musicQueue[0].time}`);
             })
@@ -109,14 +109,13 @@ export class YoutubeController {
                     channel.send("노래 재생이 종료되었습니다.");
                     connection.disconnect();
                 }
-            }) 
-        );
+            });
 
         musicQueue[0].state = true;
     }
 
     private addYoutubeQueue(message: Discord.Message, server: DiscordServer, videoUrl: string): void {
-        const musicQueue = server.playList;
+        const musicQueue = server.youtubePlayList;
         
         if (message.member == null) {
             message.channel.send("요청자를 찾을 수 없습니다.");
@@ -134,39 +133,37 @@ export class YoutubeController {
             return;
         }
 
-        message.channel.send("로딩중......").then((editMsg) => {
-            try {
-                ytdl.getInfo(videoUrl).then(value => {
-                    const videoLength = value.player_response.videoDetails.lengthSeconds;
+        message.channel.send("로딩중......").then(async (editMsg) => {
+            ytdl.getInfo(videoUrl).then(videoInfo => {
+                const videoLength = videoInfo.player_response.videoDetails.lengthSeconds;
 
-                    let videoHour = (Number(videoLength) / 3600).toFixed(0);
-                    let videoMinute = (Number(videoLength) / 60).toFixed(0);
-                    let videoSecond = (Number(videoLength) % 60).toFixed(0);
+                let videoHour = (Number(videoLength) / 3600).toFixed(0);
+                let videoMinute = (Number(videoLength) / 60).toFixed(0);
+                let videoSecond = (Number(videoLength) % 60).toFixed(0);
 
-                    videoHour = Number(videoHour) > 9 ? videoHour : "0" + videoHour;
-                    videoMinute = Number(videoMinute) > 9 ? videoMinute : "0" + videoMinute;
-                    videoSecond = Number(videoSecond) > 9 ? videoSecond : "0" + videoSecond;
+                videoHour = Number(videoHour) > 9 ? videoHour : "0" + videoHour;
+                videoMinute = Number(videoMinute) > 9 ? videoMinute : "0" + videoMinute;
+                videoSecond = Number(videoSecond) > 9 ? videoSecond : "0" + videoSecond;
 
-                    server.playList.push(new YoutubeVideo(videoUrl, `${videoHour}:${videoMinute}:${videoSecond}`, value.player_response.videoDetails.title, false));
+                server.youtubePlayList.push(new YoutubeVideo(videoUrl, `${videoHour}:${videoMinute}:${videoSecond}`, videoInfo.player_response.videoDetails.title, false));
 
-                    editMsg.edit(value.player_response.videoDetails.title + "가 추가되었습니다.");
+                editMsg.edit(videoInfo.player_response.videoDetails.title + "가 추가되었습니다.");
 
-                    if (musicQueue[0] && !musicQueue[0].state) {
-                        if (member.voice.channel) {
-                            member.voice.channel.join().then(connection => {
-                                this.playYoutube(connection, message.channel, server);
-                            });
-                        }
+                if (musicQueue[0] && !musicQueue[0].state) {
+                    if (member.voice.channel) {
+                        member.voice.channel.join().then(connection => {
+                            this.playYoutube(connection, message.channel, server);
+                        });
                     }
-                });
-            } catch (err) {
+                }
+            }).catch(() => {
                 editMsg.edit("잘못된 주소거나 영상이 존재하지 않습니다.");
-            }
+            });
         });
     }
 
     private setYoutubeVolumeControl(message: Discord.Message, server: DiscordServer, option: string): void {
-        const musicPlayer = server.getMusicPlayer();
+        const musicPlayer = server.youtubePlayer;
 
         if (musicPlayer == null) {
             message.channel.send("플레이어를 아직 사용하지 않았습니다.");
@@ -195,6 +192,7 @@ export class YoutubeController {
             musicPlayer.setVolume(1);
             message.channel.send("소리가 초기화되었습니다.");
         }
+
         message.channel.send("현재 소리 크기 : " + (musicPlayer.volume / volumeControlMax * 100).toFixed(0) + "%");
     }
 
@@ -221,10 +219,13 @@ export class YoutubeController {
 
     private getPlayList(message: Discord.Message, list: YoutubeVideo[]): void {
         if (list.length > 0) {
-            const videoArr: {name: string, value: string}[] = [];
+            const videoArr: { name: string, value: string }[] = [];
 
             list.forEach((value, index) => {
-                videoArr.push({name: `${(index + 1)}순위 ${(value.state ? "- (현재 재생중)" : "")}`, value: `${value.title}/${value.time}`});
+                videoArr.push({
+                    name: `${(index + 1)}순위 ${(value.state ? "- (현재 재생중)" : "")}`,
+                    value: `${value.title}/${value.time}`
+                });
             });
 
             message.channel.send({
@@ -240,9 +241,9 @@ export class YoutubeController {
     }
 
     private stopPlayer(message: Discord.Message, server: DiscordServer): void {
-        if (message.guild != null &&  message.guild.voice != null) {
+        if (message.guild != null && message.guild.voice != null) {
             if (message.guild.voice.channel) message.guild.voice.channel.leave();
         }
-        server.playList = [];
+        server.youtubePlayList = [];
     }
 }
