@@ -83,7 +83,7 @@ export class GlobalController {
             }
             case CallCommand.Easter: {
                 message.channel.send("( ͡° ͜ʖ ͡°)", {
-                    files: ["https://raw.githubusercontent.com/nkwoo/nkwoo/main/jerry.png"]
+                    files: ["https://raw.githubusercontent.com/nkwoo/nkwoo/main/static/jerry.png"]
                 });
             }
         }
